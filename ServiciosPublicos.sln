@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.489
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiciosPublicos.Api", "ServiciosPublicos.Api\ServiciosPublicos.Api.csproj", "{2EE3F20A-F404-4DED-8D16-D843D5B81CC0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiciosPublicos.Core", "ServiciosPublicos.Core\ServiciosPublicos.Core.csproj", "{ED5A32E6-EEE2-4519-BF19-E5ABC5203076}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2EE3F20A-F404-4DED-8D16-D843D5B81CC0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2EE3F20A-F404-4DED-8D16-D843D5B81CC0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2EE3F20A-F404-4DED-8D16-D843D5B81CC0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2EE3F20A-F404-4DED-8D16-D843D5B81CC0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED5A32E6-EEE2-4519-BF19-E5ABC5203076}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED5A32E6-EEE2-4519-BF19-E5ABC5203076}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED5A32E6-EEE2-4519-BF19-E5ABC5203076}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED5A32E6-EEE2-4519-BF19-E5ABC5203076}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C6585208-05CB-4660-825B-DF23613CD3BE}
+	EndGlobalSection
+EndGlobal
