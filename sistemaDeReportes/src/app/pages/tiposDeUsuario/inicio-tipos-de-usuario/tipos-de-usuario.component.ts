@@ -86,9 +86,10 @@ get campoEstado(){
 
 // Método para eliminar un tipo de usuario. Lanza un mensaje de confirmación 
   eliminarTipoUsuario(): void{
-    let result = confirm('Seguro que desea eliminar el tipo de usuario?');
+    let result = confirm('¿Seguro que desea eliminar el tipo de usuario?');
     if (result) {
       console.log('Se elimina');
+      alert('El tipo de usuario se ha eliminado.');
     }else{
       console.log('no se elimina');
     }

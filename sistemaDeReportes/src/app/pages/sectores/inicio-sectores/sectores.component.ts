@@ -55,7 +55,7 @@ export class SectoresComponent implements OnInit {
         console.log('se interactuo estado:', value);
       });
     }
-    
+
    // Métodos get para obtener acceso a los campos del formulario
    get campoBusqueda(){
      return this.busquedaForm;
@@ -87,9 +87,10 @@ export class SectoresComponent implements OnInit {
   // Método para eliminar sector. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
   eliminarSector(): void{
-    let result = confirm('Seguro que desea eliminar el sector?');
+    let result = confirm('¿Seguro que desea eliminar el sector?');
     if (result) {
       console.log('Se elimina');
+      alert('El sector se ha eliminado.');
     }else{
       console.log('no se elimina');
     }

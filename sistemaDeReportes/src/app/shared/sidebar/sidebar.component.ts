@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DialogServiceService } from '../../services/dialog-service.service';
+import { DialogService } from '../../services/dialog-service.service';
 import { MatDialog } from '@angular/material/dialog';
 import * as $ from 'jquery';
 import * as AdminLte from 'admin-lte';
@@ -12,7 +12,7 @@ import * as AdminLte from 'admin-lte';
 })
 export class SidebarComponent implements OnInit {
 
-  constructor(private servicioDialog: DialogServiceService,
+  constructor(private servicioDialog: DialogService,
               private router: Router,
               private dialog: MatDialog,
               private route: ActivatedRoute) {

@@ -95,14 +95,15 @@ export class UsuariosComponent implements OnInit {
   // Método que se llama, al recibir de la tabla la acción de eliminar, al haber 
   // hecho click en el botón eliminar. Emite un mensaje de confirmación al usuario
   // Al ser respuesta "true" continúa la eliminación, y "false" no lo elimina
-  eliminarUsuario(): void{
-    let result = confirm('Seguro que desea eliminar el usuario?');
-    if (result) {
-      console.log('Se elimina');
-    }else{
-      console.log('no se elimina');
-    }
+ eliminarUsuario(): void{
+  let result = confirm('¿Seguro que desea eliminar el usuario?');
+  if (result) {
+    console.log('Se elimina');
+    alert('El usuario se ha eliminado.');
+  }else{
+    console.log('no se elimina');
   }
+}
 
     // Acción que se recibe según el botón que se seleccionó en la tabla
   //  Se manda llamar al método que abre el dialog y se le manda esta acción

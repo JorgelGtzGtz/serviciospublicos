@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { DialogService } from '../../../services/dialog-service.service';
 
 interface Reporte{
   num: number;
@@ -33,6 +34,7 @@ export class DialogAsignacionTicketsComponent implements OnInit {
 
   constructor( public dialogRef: MatDialogRef<DialogAsignacionTicketsComponent>,
                @Inject (MAT_DIALOG_DATA) private data,
+               private dialogService: DialogService,
                private formBuilder: FormBuilder) {
     dialogRef.disableClose = true;
     this.buildForm();
@@ -42,14 +44,11 @@ export class DialogAsignacionTicketsComponent implements OnInit {
   ngOnInit(): void {
     this.imagenesApertura = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
     this.datosReporte = {
-      posicion: [-109.9285487, 27.5129998, 16],
+      posicion: [-109.9285487, 27.5129998],
+      zoom: 16,
       reporte: this.reporte,
     };
-    if (this.imagenesApertura.length !== 0){
-      this.mostrarImgApertura = true;
-    }else{
-      this.mostrarImgApertura = false;
-    }
+    this.inicializarVariablesImagenes();
   }
 
       // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
@@ -69,6 +68,7 @@ export class DialogAsignacionTicketsComponent implements OnInit {
     });
   }
 
+  // Métodos get para obtener acceso a los inputs del formulario
   get campoCuadrilla(){
     return this.form.get('cuadrilla');
   }
@@ -86,6 +86,18 @@ export class DialogAsignacionTicketsComponent implements OnInit {
     return this.modificado;
   }
 
+  // Este método, va a establecer las variables "mostrarImgApertura" y "mostrarImgCierre"
+  // como falso o verdadero, dependiendo si las listas "imagenesApertura" y "imagenesCierre"
+  // tienen contenido, con el fin de que en el HTML se muestre un mensaje o se
+  // muestren las imágenes
+  inicializarVariablesImagenes(): void{
+    if (this.imagenesApertura.length !== 0){
+      this.mostrarImgApertura = true;
+    }else{
+      this.mostrarImgApertura = false;
+    }
+  }
+
   // Método que se llama cuando se le da click en guardar en el formulario.
   guardar() {
     // event.preventDefault();
@@ -99,8 +111,11 @@ export class DialogAsignacionTicketsComponent implements OnInit {
     }
   }
 
-    cerrarDialog(): void{
-      this.dialogRef.close();
-    }
+// Método que a través del método "verificarCambios" del servicio de DialogService
+// verifica si el usuario interactuó con el formulario.
+// Si la interacción sucedió se despliega un mensaje de confirmación.
+  cerrarDialog(): void{
+    this.dialogService.verificarCambios(this.dialogRef);
+  }
 
   }

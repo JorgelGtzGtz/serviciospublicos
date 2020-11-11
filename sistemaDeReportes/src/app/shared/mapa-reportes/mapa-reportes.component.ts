@@ -13,30 +13,28 @@ export class MapaReportesComponent implements OnInit {
   zoom: number;
   @Input() datos: any;
   datosReporte: any;
-  // mapa: Mapboxgl.Map;
+  mapa: Mapboxgl.Map;
 
 
   constructor() { }
 
   ngOnInit(): void {
+    console.log('datos posicion', this.datos.posicion);
     this.datosReporte = this.datos.reporte;
-    this.lat = this.datos.posicion[0];
-    this.lng = this.datos.posicion[1];
-    this.zoom = this.datos.posicion[2];
-    // Mapboxgl.accessToken = environment.mapboxKey;
-    // this.mapa = new Mapboxgl.Map({
-    // container: 'mapa-mapBox', // container id
-    // style: 'mapbox://styles/mapbox/streets-v11',
-    // center: this.datos.posicion, // starting position LNG  LAT
-    // zoom: 17 // starting zoom
-    //   });
-    // this.crearMarcador(this.datos.posicion);
+    Mapboxgl.accessToken = environment.mapboxKey;
+    this.mapa = new Mapboxgl.Map({
+    container: 'mapa-mapBox', // container id
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: this.datos.posicion, // starting position LNG  LAT
+    zoom: this.datos.zoom, // starting zoom
+      });
+    this.crearMarcador(this.datos.posicion);
   }
 
-  // crearMarcador(posicion: any): void{
-  //   const marker = new Mapboxgl.Marker()
-  //   .setLngLat(posicion)
-  //   .addTo(this.mapa);
-  // }
+  crearMarcador(posicion: any): void{
+    const marker = new Mapboxgl.Marker()
+    .setLngLat(posicion)
+    .addTo(this.mapa);
+  }
 
 }

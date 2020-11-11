@@ -1,7 +1,7 @@
-import { Component, ElementRef, Inject, OnInit, HostListener } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
-import { NavigationStart, Router, RouterEvent } from '@angular/router';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { DialogService } from '../../../services/dialog-service.service';
 
 
 @Component({
@@ -20,9 +20,9 @@ export class DialogVerEditarNuevoComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoComponent> ,
               @Inject (MAT_DIALOG_DATA) private data,
+              private dialogService: DialogService,
               private elementoReferencia: ElementRef,
               private formBuilder: FormBuilder) {
-    dialogRef.disableClose = true;
     this.buildForm();
 
    }
@@ -38,7 +38,7 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   private buildForm(){
     this.form = this.formBuilder.group({
       id: [''],
-      descripcion: ['',[Validators.required]],
+      descripcion: ['', [Validators.required]],
       estado: ['']
     });
 
@@ -75,9 +75,11 @@ tipoFormularioAccion(): void{
       break;
     case 'nuevo':
       this.campoEstado.disable();
+      this.campoId.disable();
       break;
     default:
       this.form.enable();
+      this.campoId.disable();
   }
 }
 
@@ -92,23 +94,6 @@ listaTienePermisos(){
   } else{
     this.errorListas = false;
   }
-}
-
-// Guarda las modificaciones o acciones hechas en el dialog
-guardar() {
-  // event.preventDefault();
-  if (this.form.valid && !this.errorListas){
-    const value = this.form.value;
-    alert('Datos guardados exitosamente');
-    console.log(value);
-  }else{
-    this.form.markAllAsTouched();
-    this.errorListas = true;
-  }
-}
-
-cerrarDialog(): void{
-  this.dialogRef.close();
 }
 
 // Función para recibir el item que fué seleccionado en una de las listas
@@ -152,6 +137,7 @@ cerrarDialog(): void{
     if (validacion){
         this.modificarListas(this.listA, this.listB);
         this.listaTienePermisos();
+        this.modificado = true;
       }
   }
 
@@ -161,6 +147,7 @@ cerrarDialog(): void{
     if (validacion){
       this.modificarListas(this.listB, this.listA);
       this.listaTienePermisos();
+      this.modificado = true;
       }
   }
 
@@ -172,6 +159,28 @@ cerrarDialog(): void{
       const index: number = listaOrigen.indexOf(this.elementoLista);
       listaOrigen.splice(index, 1);
   }
+
+  // Guarda las modificaciones o acciones hechas en el dialog
+guardar() {
+  // event.preventDefault();
+  this.listaTienePermisos();
+  if (this.form.valid && !this.errorListas){
+    const value = this.form.value;
+    alert('Datos guardados exitosamente');
+    this.dialogRef.close();
+    console.log(value);
+  }else{
+    this.form.markAllAsTouched();
+    this.errorListas = true;
+  }
+}
+
+// Método que a través del método "verificarCambios" del servicio de DialogService
+// verifica si el usuario interactuó con el formulario.
+// Si la interacción sucedió se despliega un mensaje de confirmación.
+cerrarDialog(): void{
+  this.dialogService.verificarCambios(this.dialogRef);
+}
 
 
 }

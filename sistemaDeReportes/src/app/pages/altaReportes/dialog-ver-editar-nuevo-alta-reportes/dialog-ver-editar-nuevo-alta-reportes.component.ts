@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { DialogService } from '../../../services/dialog-service.service';
 
 
 @Component({
@@ -20,32 +21,20 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef <DialogVerEditarNuevoAltaReportesComponent>,
               @Inject (MAT_DIALOG_DATA) private data,
+              private dialogService: DialogService,
               private formBuilder: FormBuilder ) {
       dialogRef.disableClose = true;
       this.buildForm();
      }
 
-// imagenesApertura & imagenesCierre son variables que se usan para mostrar imagenes de apertura
-// y cierre del reporte, si es que las hay; sino, con las variables booleanas mostrarImgCierre
-//  y mostrarImgApertura se indica si mostrar el div de imagenes o el mensaje de "no hay imagenes"
   ngOnInit(): void {
     this.accion = this.data.accion;
-    this.imagenesApertura = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
-    this.imagenesCierre = [];
-    if (this.imagenesApertura.length !== 0){
-      this.mostrarImgApertura = true;
-    }else{
-      this.mostrarImgApertura = false;
-    }
-    if (this.imagenesCierre.length !== 0){
-      this.mostrarImgCierre = true;
-    }else{
-      this.mostrarImgCierre = false;
-    }
+    this.imagenesApertura = [];
+    this.imagenesCierre = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
+    this. inicializarVariablesImagenes();
     this.tipoFormularioAccion();
   }
 
-  
   // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
   private buildForm(){
     this.form = this.formBuilder.group({
@@ -126,6 +115,23 @@ obtenerEstadoFormulario(): boolean{
   return this.modificado;
 }
 
+// Este método, va a establecer las variables "mostrarImgApertura" y "mostrarImgCierre"
+  // como falso o verdadero, dependiendo si las listas "imagenesApertura" y "imagenesCierre"
+  // tienen contenido, con el fin de que en el HTML se muestre un mensaje o se
+  // muestren las imágenes
+  inicializarVariablesImagenes(): void{
+    if (this.imagenesApertura.length !== 0){
+      this.mostrarImgApertura = true;
+    }else{
+      this.mostrarImgApertura = false;
+    }
+    if (this.imagenesCierre.length !== 0){
+      this.mostrarImgCierre = true;
+    }else{
+      this.mostrarImgCierre = false;
+    }
+  }
+
 // Devuelve el valor de la variable cancelado
 reporteCancelado(){
   return this.cancelado;
@@ -188,8 +194,11 @@ mensajeDeGuardado(): void{
   }
 }
 
+// Método que a través del método "verificarCambios" del servicio de DialogService
+// verifica si el usuario interactuó con el formulario.
+// Si la interacción sucedió se despliega un mensaje de confirmación.
   cerrarDialog(): void{
-      this.dialogRef.close();
+    this.dialogService.verificarCambios(this.dialogRef);
   }
 
 }

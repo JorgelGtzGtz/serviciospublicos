@@ -85,9 +85,10 @@ export class CuadrillasComponent implements OnInit {
   // Método para eliminar sector. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
   eliminarCuadrilla(): void{
-    let result = confirm('Seguro que desea eliminar la cuadrilla?');
+    let result = confirm('¿Seguro que desea eliminar la cuadrilla?');
     if (result) {
       console.log('Se elimina');
+      alert('La cuadrilla se ha eliminado.');
     }else{
       console.log('no se elimina');
     }

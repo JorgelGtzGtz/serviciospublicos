@@ -110,7 +110,7 @@ export class AltaReportesComponent implements OnInit {
       console.log('The dialog was closed result:', result);
     });
   }
-  
+
 // Metodo que se llama cuando se da click al botón nuevo
 // Abre el dialogo con las configuraciones para crear un nuevo registro
   nuevoReporte(): void{
