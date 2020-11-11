@@ -1,0 +1,88 @@
+/* GENERAL */
+
+button {
+    outline: none;
+}
+
+
+/* ESTILO PARA ICONO DE LOS BOTONES */
+
+.mat-icon {
+    font-size: 18px;
+    padding-top: 2px;
+}
+
+
+/* ESTILO PARA CONTENEDORES */
+
+.lblForm {
+    padding-top: 6px;
+}
+
+.content-wrapper {
+    padding: 0 0 10px 0;
+}
+
+.row {
+    margin-top: 10px;
+}
+
+.sinMargen {
+    margin: 0;
+}
+
+.card {
+    padding: 0 15px;
+    /* height: calc(100vh - (100vh / 4)); */
+    height: calc(100vh + (100vh * 0.1));
+}
+
+.content-card {
+    box-sizing: border-box;
+    padding-bottom: 10px;
+    /* height: calc(100vh - (100vh / 3)); */
+    height: calc(100vh - (100vh * 0.35));
+}
+
+.btn-header {
+    margin: 20px 0;
+    width: 100%;
+}
+
+
+/* Para tablets */
+
+@media only screen and (min-width:600px) {
+    /* CONTENEDOR CARD */
+    div.content-card {
+        /* height: calc(100vh - (100vh * 0.35)); */
+        height: 65%;
+    }
+    .card {
+        height: calc(100vh + (100vh * 0.10));
+    }
+    .btn-header {
+        width: 120px;
+        margin-top: 10px;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    /* CONTENEDOR CARD */
+    div.content-card {
+        /* height: calc(100vh - (100vh * 0.55)); */
+        height: 75%;
+    }
+    .card {
+        /* height: calc(100vh - (100vh * 0.20)); */
+        height: calc(100vh - (100vh / 4));
+    }
+    /* BOTONES */
+    .btn-header {
+        width: 120px;
+        margin-top: 10px;
+    }
+}

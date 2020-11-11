@@ -1,0 +1,96 @@
+/* GENERALES */
+
+h3,
+h4 {
+    font-weight: bold;
+}
+
+p {
+    margin-left: 5px;
+    font-size: 0.85rem;
+}
+
+.container-fluid {
+    height: 420px;
+}
+
+.sin-margin {
+    margin: 0;
+}
+
+.alinear-derecha {
+    align-content: right;
+}
+
+.row-input-group {
+    height: 85px;
+    max-height: 85px;
+}
+
+.error {
+    margin: 0;
+    color: #ff0000;
+    font-size: 0.8rem;
+}
+
+
+/* IMAGENES */
+
+.img-container {
+    display: inline-block;
+}
+
+.img-reporte {
+    width: 100%;
+    height: auto;
+    margin: 10px;
+}
+
+#imagenesReporte {
+    margin-bottom: 30px;
+}
+
+
+/* ESTILOS PARA ASIGNACION DE CUADRILLAS */
+
+.indicaciones {
+    padding-top: 10px;
+    margin-bottom: 0;
+}
+
+
+/* Para tablets */
+
+@media only screen and (min-width:600px) {
+    #fecha-cierre-container {
+        justify-content: flex-start;
+    }
+    .row-input-group {
+        height: 85px;
+        max-height: 85px;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    #datos-reporte-container {
+        margin-top: 10px;
+    }
+    #fecha-cierre-container {
+        justify-content: flex-end;
+    }
+    .img-reporte {
+        width: 45%;
+        height: auto;
+        margin: 10px;
+    }
+    .row-input-group {
+        height: 58px;
+        max-height: 58px;
+    }
+}
+
+
+/* @media screen and (max-width:430px) {} */

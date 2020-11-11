@@ -1,0 +1,21 @@
+<!-- <body class="hold-transition sidebar-mini"> -->
+<div class="wrapper">
+    <!--BARRA SUPERIOR CON LEYENDA DEL SISTEMA-->
+    <app-navbar></app-navbar>
+
+    <!--SIDEBAR-->
+    <app-sidebar></app-sidebar>
+
+    <div class="content-wrapper">
+        <div class="content-header">
+            <app-header [seccion]="seccion"></app-header>
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        <div class="content">
+            <router-outlet></router-outlet>
+        </div>
+    </div>
+</div>
+<!-- </body> -->

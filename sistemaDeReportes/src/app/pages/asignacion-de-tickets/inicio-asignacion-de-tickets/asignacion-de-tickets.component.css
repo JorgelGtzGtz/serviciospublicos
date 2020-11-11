@@ -1,0 +1,105 @@
+/* GENERAL */
+
+button {
+    outline: none;
+}
+
+
+/* ESTILO PARA ICONO DE LOS BOTONES */
+
+.mat-icon {
+    font-size: 18px;
+    padding-top: 2px;
+}
+
+
+/* ESTILO BOTONES DEL HEADER */
+
+.btn-header {
+    margin: 20px 0;
+    width: 100%;
+}
+
+#btn-buscar {
+    float: right;
+    margin-top: 10px;
+}
+
+
+/* ESTILO PARA CONTENEDORES */
+
+.lblForm {
+    padding-top: 6px;
+}
+
+.content-wrapper {
+    padding: 0 0 10px 0;
+}
+
+.row {
+    margin-top: 10px;
+}
+
+.sinMargen {
+    margin: 0;
+}
+
+
+/* PARA CELULAR */
+
+.card {
+    padding: 0 15px;
+    height: calc(100vh + (100vh * 0.6));
+    /* height: calc(100vh - (100vh / 4)); */
+}
+
+.content-card {
+    box-sizing: border-box;
+    padding-bottom: 10px;
+    height: calc(100vh + (100vh * 0.15));
+    /* height: calc(100vh - (100vh / 3)); */
+}
+
+
+/* Para tablets */
+
+@media only screen and (min-width:600px) {
+    /* CONTENEDOR CARD */
+    div.content-card {
+        /* height: calc(100vh + (100vh * 0.15)); */
+        height: 65%;
+    }
+    .card {
+        height: calc(100vh + (100vh * 0.35));
+    }
+    /* BOTONES */
+    .btn-header {
+        /* margin-top: 20px; */
+        width: 100%;
+        margin-top: 10px;
+    }
+    .btn-nuevo {
+        float: none;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    /* CONTENEDOR CARD */
+    div.content-card {
+        /* height: calc(100vh - (100vh * 0.38)); */
+        height: 75%;
+    }
+    .card {
+        /* height: calc(100vh + (100vh * 0.10)); */
+        height: calc(100vh - (100vh / 4));
+    }
+    /* BOTONES */
+    .btn-header {
+        /* width: 100%; */
+        width: 120px;
+        margin-top: 10px;
+    }
+}

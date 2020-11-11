@@ -1,0 +1,117 @@
+<div class="container-fluid">
+    <div class="card">
+        <div class="content-header">
+            <form [formGroup]="form">
+                <div class="row">
+                    <div class="col-md-5 col-sm-6 col-12">
+                        <div class="row input-group">
+                            <label class="lblForm col-lg-auto col-md-12" for="tipoReporteSelector">Tipo de reporte</label>
+                            <div class="col-lg-6 col-md-12">
+                                <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
+                                    <option selected>Todos</option>
+                                    <option value="1">Tipo1</option>
+                                    <option value="2">Tipo2</option>
+                                    <option value="3">Tipo3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7 col-sm-6 col-12">
+                        <div class="row input-group">
+                            <label class="lblForm col-lg-auto col-md-12" for="cuadrillaSelector">Cuadrilla</label>
+                            <div class="col-lg-5 col-md-12">
+                                <select class="custom-select" id="cuadrillaSelector" formControlName="cuadrilla">
+                                    <option selected>Todos</option>
+                                    <option value="1">Tipo1</option>
+                                    <option value="2">Tipo2</option>
+                                    <option value="3">Tipo3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-5 col-sm-6 col-12">
+                        <div class="row input-group">
+                            <label class="lblForm col-lg-auto col-md-12" for="estadoSelector">Estado</label>
+                            <div class="col-lg-7 col-md-12">
+                                <select class="custom-select" id="estadoSelectorAR" formControlName="estado">
+                                    <option selected>Todos</option>
+                                    <option value="1">Cancelados</option>
+                                    <option value="2">Abiertos</option>
+                                    <option value="3">Cerrados</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-6 col-12">
+                        <div class="row input-group">
+                            <label class="lblForm col-lg-auto col-md-12" for="sectorSelector">Sector</label>
+                            <div class="col-lg-8 col-md-12">
+                                <select class="custom-select" id="sectorSelector" formControlName="sector">
+                                    <option selected>Todos</option>
+                                    <option value="1">Tipo1</option>
+                                    <option value="2">Tipo2</option>
+                                    <option value="3">Tipo3</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 col-12">
+                        <div class="row input-group">
+                            <label class="lblForm col-lg-auto col-md-12" for="origenSelector">Origen</label>
+                            <div class="col-lg-7 col-md-12">
+                                <select class="custom-select" id="origenSelector" formControlName="origen">
+                                    <option selected>Todos</option>
+                                    <option value="1">App</option>
+                                    <option value="1">Web</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-5 col-md-4 col-12">
+                        <div class="row input-group">
+                            <label class="lblForm col-lg-auto col-md-12" for="fechaInicio">Fecha </label>
+                            <div class="col-lg-5 col-md-12">
+                                <input type="date" class="form-control" id="fechaInicio" formControlName="fechaInicio">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-3 col-md-4 col-12">
+                        <div class="row input-group">
+                            <label class="lblForm col-lg-auto col-md-12" for="fechaFinal">al </label>
+                            <div class="col-lg-9 col-md-12">
+                                <input type="date" class="form-control" id="fechaFinal" formControlName="fechaFinal">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-12">
+                        <button id="btn-buscar" type="button" class="btn btn-primary btn-header" mat-raised-button color="primary" (click)="buscar()">
+                            <i class="fas fa-search"></i>
+                                     Buscar
+                        </button>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-12">
+                        <button id="btn-nuevo" type="button" class="btn-header" mat-raised-button color="primary" (click)="nuevoReporte()">
+                            <i class="fas fa-plus-circle"></i> 
+                                    Nuevo
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+        <div class="content-card">
+            <app-tabla [modeloTabla]="datosAltaReportes" (enviarAccion)="recibirAccion($event)"></app-tabla>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,137 @@
+button {
+    outline: none;
+}
+
+
+/* ESTILO PARA TABLA */
+
+table {
+    width: 100%;
+    max-height: 55vh;
+    margin: 0;
+    position: relative;
+    border-collapse: collapse;
+}
+
+.table-wrapper {
+    height: 100%;
+    /* max-height: calc(100vh - (100vh * 0.58)); */
+    max-height: calc(100vh - (100vh / 3));
+    width: 100%;
+    overflow-y: auto;
+    border: 1px solid #dadadd;
+}
+
+th {
+    background: #dadadd;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+
+/* .botones-procesos-col {
+    width: 35%;
+}
+
+.boton-seleccionar-col {
+    width: 15%;
+} */
+
+.id-col {
+    width: 10%;
+    max-width: 10%;
+}
+
+.general-col {
+    vertical-align: middle;
+}
+
+.botones-procesos-col,
+.boton-seleccionar-col {
+    width: 170px;
+}
+
+.btn-proceso {
+    /* width: 110px;
+    margin: 5px 10px;
+    line-height: 30px; */
+    width: 100px;
+    margin: 5px 0;
+    background-color: #ececf0;
+}
+
+div.botones-wrapper {
+    text-align: center;
+}
+
+
+/* Para tablets */
+
+@media only screen and (min-width:600px) {
+    .table-wrapper {
+        height: 100%;
+        max-height: calc(100vh - (100vh * 0.40));
+        /* max-height: calc(100vh - (100vh / 3)); */
+    }
+    table {
+        max-height: 70vh;
+    }
+    table td {
+        padding: 5px 5px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+    /* BOTONES */
+    .btn-header {
+        margin-top: 20px;
+        width: 100%;
+    }
+    .btn-proceso {
+        width: 100px;
+        margin: 5px 0;
+    }
+    .id-col {
+        text-align: center;
+    }
+    .botones-procesos-col,
+    .boton-seleccionar-col {
+        width: 170px;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    .table-wrapper {
+        height: 100%;
+        /* max-height: calc(100vh - (100vh * 0.2)); */
+        max-height: calc(100vh - (100vh * 0.65));
+    }
+    table {
+        /* max-height: 70vh; */
+        max-height: 80%;
+    }
+    .botones-procesos-col {
+        width: 35%;
+    }
+    .boton-seleccionar-col {
+        width: 15%;
+    }
+    /* .botones-procesos-col,
+    .boton-seleccionar-col {
+        width: 170px;
+    } */
+    .btn-proceso {
+        width: 110px;
+        margin: 5px 10px;
+        line-height: 30px;
+        padding: 0 12px;
+    }
+    div.botones-wrapper {
+        text-align: center;
+    }
+}

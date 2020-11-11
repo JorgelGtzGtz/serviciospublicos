@@ -1,0 +1,35 @@
+<div class="row mb-3">
+    <div class="col-lg-12 col-md-12">
+        <!-- <div id="mapa-mapBox"> -->
+        <agm-map id="mapa-mapBox" [latitude]="lat" [longitude]="lng" [zoom]="zoom"></agm-map>
+        <!-- </div> -->
+    </div>
+    <div id="datos-reporte-container" class="col-lg-12 col-md-12">
+        <section class=" mb-3" id="datos-reporte">
+            <div class="row mt-2">
+                <div class="col">
+                    <h3 class="sin-margin">Datos del reporte</h3>
+                </div>
+                <div class="col-12 campo-datos-reporte">
+                    <h4 class="sin-margin">Descripción:</h4>
+                    <p id="descripcion">{{ datosReporte.descripcion }}</p>
+                </div>
+
+                <div class="col-12 campo-datos-reporte">
+                    <h4 class="sin-margin">Calle:</h4>
+                    <p id="calle">{{ datosReporte.calle }} </p>
+                </div>
+
+                <div class="col-12 campo-datos-reporte">
+                    <h4 class="sin-margin">Colonia:</h4>
+                    <p id="colonia">{{ datosReporte.colonia }} </p>
+                </div>
+
+                <div class="col-12 campo-datos-reporte">
+                    <h4 class="sin-margin">Fecha:</h4>
+                    <p id="fechaInicio"> {{ datosReporte.fechaInicio }} </p>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>

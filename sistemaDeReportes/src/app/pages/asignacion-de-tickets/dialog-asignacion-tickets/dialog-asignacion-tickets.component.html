@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>Asignación de cuadrilla</h2>
+<hr>
+<mat-dialog-content>
+    <div class="container-fluid">
+        <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
+        <app-mapa-reportes [datos]="datosReporte"></app-mapa-reportes>
+        <section id="imagenesReporte">
+            <h3>Imágenes del reporte</h3>
+            <hr>
+            <div class="row form-sections">
+                <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#apertura" aria-expanded="false" aria-controls="apertura">
+                    Imágenes de apertura
+                  </button>
+                <div class="collapse col-12" id="apertura">
+                    <div class="card card-body">
+                        <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
+                        <ng-template #bloqueImgApertura>
+                            <div class="img-container">
+                                <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr>
+        <form [formGroup]="form">
+            <div class="row mb-3">
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="row row-input-group">
+                        <label class="lblForm col-md-auto col-form-label" for="cuadrillaSelector">Cuadrilla seleccionada </label>
+                        <div class="col-lg-6 col-md-12">
+                            <select class="custom-select" id="cuadrillaSelector" formControlName="cuadrilla">
+                                    <option selected>Todos</option>
+                                    <option value="1">Sector 1</option>
+                                    <option value="2">Sector 2</option>
+                                    <option value="3">Sector 3</option>
+                                </select>
+                            <div *ngIf="campoCuadrilla.errors && campoCuadrilla.touched">
+                                <p class="error" *ngIf="campoCuadrilla.hasError('required')">Campo requerido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="row form-group row-input-group" id="fecha-cierre-container">
+                        <label class="lblForm  col-md-auto col-form-label" for="fechaCierre">Fecha de cierre </label>
+                        <div class="col-lg-7 col-md-12">
+                            <input type="date" class="form-control" id="fechaCierre" formControlName="fechaCierre">
+                            <div *ngIf="campoFechaCierre.errors && campoFechaCierre.touched">
+                                <p class="error" *ngIf="campoFechaCierre.hasError('required')">Campo requerido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="row form-group">
+                        <label class="lblForm col-md-auto col-form-label" for="tiempoEstimado">Tiempo estimado </label>
+                        <div class="col-md-3">
+                            <div class="row row-input-group">
+                                <div class="col-8">
+                                    <input type="number" class="form-control" id="tiempoEstimado" placeholder="ej. 150" formControlName="tiempo">
+                                </div>
+                                <div class="col-12">
+                                    <small class="indicaciones">Ingresar tiempo en horas.</small>
+                                    <div *ngIf="campoTiempo.errors && campoTiempo.touched">
+                                        <p class="error" *ngIf="campoTiempo.hasError('required')">Campo requerido</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+</mat-dialog-content>
+<div matDialogActions align="end" class="mb-2">
+    <button type="button" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
+</div>

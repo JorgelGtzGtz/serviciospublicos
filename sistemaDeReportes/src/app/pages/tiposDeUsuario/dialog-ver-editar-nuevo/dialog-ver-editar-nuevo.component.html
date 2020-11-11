@@ -1,0 +1,95 @@
+<!-- <div class="container-fluid"> -->
+<h2 mat-dialog-title>{{ accion | capitalizado }} tipo de usuario</h2>
+<hr>
+<div mat-dialog-content>
+    <div class="container-fluid">
+        <form [formGroup]="form">
+            <div class="row form-sections">
+
+                <div class="col-6" id="id-col">
+                    <div class=" row form-group header-form-group justify-content-start">
+                        <label class="col-md-auto col-2 col-form-label col-form-label-sm" for="id">ID</label>
+                        <div class="col-md-4 col-10 ">
+                            <input type="text" class="form-control" id="id" disabled formControlName="id">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6" id="inactivo-col">
+                    <div class="form-check header-form-group justify-content-end">
+                        <input class="form-check-input" type="checkbox" id="inactivo-checkbox" formControlName="estado">
+                        <label class="form-check-label" for="inactivo-checkbox">
+                            Inactivo
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row form-group form-sections row-input-group">
+                <label id="lbl-descripcion" class="col-form-label col-md-auto" for="descripcionTipoUsuario">Descripción: </label>
+                <div class="col-lg col-md-10 col-12 pl-1 pr-0">
+                    <input type="text" class="form-control" id="descripcionTipoUsuario" formControlName="descripcion">
+                    <div *ngIf="campoDescripcion.errors && campoDescripcion.touched">
+                        <p class="error" *ngIf="campoDescripcion.hasError('required')">Campo requerido</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <section id="pick-list-section">
+                <div class="row">
+                    <div class="col">
+                        <h3>Permisos</h3>
+                    </div>
+                    <div class="row" id="pick-list">
+                        <div class="col-md-5 col-sm-12">
+                            <div class="list-wrapper border">
+                                <div class="list-header">
+                                    <p>Procesos</p>
+                                </div>
+                                <ul #ulLista id="procesosLista" class="list-group overflow-auto">
+                                    <li *ngFor="let item of listA" (click)="itemSeleccionado($event)" class="list-group-item list-group-item-action">{{ item }}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-sm-12 align-self-center botones-flecha-wrapper">
+                            <div class="row">
+                                <div class="col-md-12 col-6" id="botones-flecha-container">
+                                    <button [disabled]="accion === 'ver' || listA.length ===0" (click)="cambiarListAListB()" type="button" class=" btn btn-light shadow-sm btn-pickList">                                    
+                                        <i class="icono-btn-flecha fas fa-2x fa-long-arrow-alt-right"></i>
+                                    </button>
+                                </div>
+                                <div class="col-md-12 col-6" id="botones-flecha-container ">
+                                    <button [disabled]="accion === 'ver' || listB.length ===0" (click)="cambiarListBListA()" type="button" class=" btn btn-light shadow-sm btn-pickList">
+                                        <i class=" icono-btn-flecha fas fa-2x fa-long-arrow-alt-left"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5 col-sm-12">
+                            <div class="list-wrapper border">
+                                <div class="list-header">
+                                    <p>Autorizados</p>
+                                </div>
+                                <ul #ulLista id="autorizadosLista" class="list-group overflow-auto">
+                                    <li *ngFor="let item2 of listB" (click)="itemSeleccionado($event)" class="list-group-item list-group-item-action">{{ item2 }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div *ngIf="errorListas">
+                            <p class="error">Seleccione por lo menos un permiso para el tipo de usuario.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </form>
+    </div>
+</div>
+<div matDialogActions align="end">
+    <button type="button" [disabled]="accion === 'ver'" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
+</div>
+<!-- </div> -->

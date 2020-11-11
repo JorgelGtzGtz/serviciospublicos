@@ -1,0 +1,84 @@
+<!-- <div class="content-wrapper">
+    <app-header [seccion]="nombreSeccion"></app-header>
+
+    <div class="content"> -->
+<div class="container-fluid">
+    <div class="card">
+        <div class="content-header">
+            <form [formGroup]="form">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+                        <div class="row">
+                            <label id="lblSector" class="lblForm col-md-auto" for="sectorSelector">Sector</label>
+                            <div class="col-lg-8 col-md-12">
+                                <select class="custom-select" id="sectorSelector" formControlName="sector">
+                                            <option selected>Todos</option>
+                                            <option value="1">Sector 1</option>
+                                            <option value="2">Sector 2</option>
+                                            <option value="3">Sector 3</option>
+                                        </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-12 mt-md-0 mt-sm-3">
+                        <div class="row">
+                            <label class="col-md-auto col-form-label" for="fechaInicio">A partir del </label>
+                            <div class="col-lg-7 col-md-12">
+                                <input type="date" class="form-control" id="fechaInicio" formControlName="fechaInicio">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-4 col-sm-6 col-12 mt-md-0 mt-sm-3">
+                        <div class="row">
+                            <label class="col-md-auto col-form-label" for="fechaFinal">al </label>
+                            <div class="col-lg-7 col-md-12">
+                                <input type="date" class="form-control" id="fechaFinal" formControlName="fechaFinal">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3 row">
+                    <div class="col-lg-4 col-md-5 col-sm-6 col-12">
+                        <div class="row">
+                            <label id="lblEstado" class="lblForm col-md-auto" for="estadoSelector">Estado</label>
+                            <div class="col-lg-8 col-md-12">
+                                <select class="custom-select" id="estadoSelector" formControlName="estado">
+                                            <option selected>Todos</option>
+                                            <option value="1">Cancelados</option>
+                                            <option value="2">Abiertos</option>
+                                            <option value="3">Cerrados</option>
+                                        </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-5 col-sm-6 col-12">
+                        <div class="row">
+                            <label id="lblTReporte" class="lblForm col-md-auto" for="tipoReporteSelector">Tipo de reporte</label>
+                            <div class="col-lg-6 col-md-12">
+                                <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
+                                            <option selected>Todos</option>
+                                            <option value="1">Cancelados</option>
+                                            <option value="2">Abiertos</option>
+                                            <option value="3">Cerrados</option>
+                                        </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class=" col-lg-2 col-md-2 col-sm-12 align-self-md-end">
+                        <button id="btn-buscar" type="button" class="btn btn-primary btn-header  mb-md-0" mat-raised-button color="primary" (click)="buscar()">
+                            <i class="fas fa-search"></i>
+                                     Buscar
+                        </button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+        <div class="content-card">
+            <app-tabla [modeloTabla]="datosAsignacionTickets" (enviarAccion)="seleccionarReporte($event)"></app-tabla>
+        </div>
+    </div>
+
+</div>
+<!-- </div>
+</div> -->

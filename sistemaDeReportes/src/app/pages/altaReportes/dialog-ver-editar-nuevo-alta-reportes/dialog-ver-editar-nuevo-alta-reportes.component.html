@@ -1,0 +1,231 @@
+<h2 mat-dialog-title>{{ accion | capitalizado }} reporte</h2>
+<hr>
+<div mat-dialog-content>
+    <div class="container-fluid">
+        <form [formGroup]="form">
+            <div class="row form-sections mb-3">
+                <div class="col-sm-6 col-12">
+                    <div class="row mb-2 form-group justify-content-start row-input-group">
+                        <label class="col-md-auto col-12 col-form-label" for="idReporte">No. Reporte</label>
+                        <div class="col-md-3 col-4 ">
+                            <input type="text" class="form-control" id="idReporte" value="1" formControlName="id">
+                        </div>
+                    </div>
+
+                    <div class="row input-group mb-2 row-input-group">
+                        <label class="lblForm col-auto col-form-label" for="tipoReporteSelector">Tipo de reporte</label>
+                        <div class="col-lg-8 col-md col-12">
+                            <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
+                                <option selected>Todos</option>
+                                <option value="1">Tipo1</option>
+                                <option value="2">Tipo2</option>
+                                <option value="3">Tipo3</option>
+                            </select>
+                            <div *ngIf="campoTipoReporte.errors && campoTipoReporte.touched">
+                                <p class="error" *ngIf="campoTipoReporte.hasError('required')">Campo requerido</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row input-group mb-2 row-input-group">
+                        <label class="lblForm col-md-auto col-form-label" for="sectorSelector">Sector</label>
+                        <div class="col-md-8 col-12">
+                            <select class="custom-select" id="sectorSelector" formControlName="sector">
+                                <option selected>Todos</option>
+                                <option value="1">Tipo1</option>
+                                <option value="2">Tipo2</option>
+                                <option value="3">Tipo3</option>
+                            </select>
+                            <div *ngIf="campoSector.errors && campoSector.touched">
+                                <p class="error" *ngIf="campoSector.hasError('required')">Campo requerido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-12">
+                    <div class="row input-group mb-2 row-fecha row-input-group">
+                        <label class="lblForm col-md-auto col-12 col-form-label" for="fechaInicio">Fecha </label>
+                        <div class="col-lg-8 col-md-9 col-12">
+                            <input type="date" class="form-control" id="fechaInicio" formControlName="fechaInicio">
+                            <div *ngIf="campoFechaInicio.errors && campoFechaInicio.touched">
+                                <p class="error" *ngIf="campoFechaInicio.hasError('required')">Campo requerido</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row input-group mb-2 row-fecha row-input-group">
+                        <label class="lblForm col-md-auto col-12 col-form-label" for="fechaFinal">Cierre </label>
+                        <div class="col-lg-8 col-md-9 col-12">
+                            <input type="date" class="form-control" id="fechaFinal" formControlName="fechaCierre">
+                        </div>
+                    </div>
+
+
+                </div>
+
+            </div>
+            <!-- SECCION PARA DATOS DE DIRECCION -->
+            <section id="direccion">
+                <h3>Dirección</h3>
+                <!-- FILA CALLE -->
+                <div class="row form-group form-sections row-input-group">
+                    <label id="lblCallePrincipal" class="col-form-label col-md-auto" for="callePrincipal">Calle </label>
+                    <div class="col p-0">
+                        <input type="text" class="form-control" id="callePrincipal" formControlName="calleP">
+                        <div *ngIf="campoCallePrincipal.errors && campoCallePrincipal.touched">
+                            <p class="error" *ngIf="campoCallePrincipal.hasError('required')">Campo requerido</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- TERMINA FILA CALLE -->
+
+                <!-- FILA REFERENCIA -->
+                <div class="row form-group form-sections row-input-group">
+                    <label id="lblReferencia" class="col-form-label col-md-auto" for="referencia">Referencia </label>
+                    <div class="col p-0">
+                        <input type="text" class="form-control" id="referencia" formControlName="referencia">
+                        <div *ngIf="campoReferencia.errors && campoReferencia.touched">
+                            <p class="error" *ngIf="campoReferencia.hasError('required')">Campo requerido</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- TERMINA FILA REFERENCIA -->
+
+                <!-- FILA CALLES SECUNDARIAS -->
+                <div class="row form-sections">
+                    <div class="col-md-6">
+                        <div class="row form-group row-input-group">
+                            <label id="lblCalle1" class="col-form-label col-md-auto" for="calle1">Entre </label>
+                            <div class="col p-0 pr-2">
+                                <input type="text" class="form-control" id="calle1" formControlName="calleS1">
+                                <div *ngIf="campoCalleSecundaria1.errors && campoCalleSecundaria1.touched">
+                                    <p class="error" *ngIf="campoCalleSecundaria1.hasError('required')">Campo requerido</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="row form-group row-input-group">
+                            <label id="lblCalle2" class="col-form-label col-md-auto" for="calle2">y</label>
+                            <div class="col p-0 pl-2">
+                                <input type="text" class="form-control" id="calle2" formControlName="calleS2">
+                                <div *ngIf="campoCalleSecundaria2.errors && campoCalleSecundaria2.touched">
+                                    <p class="error" *ngIf="campoCalleSecundaria2.hasError('required')">Campo requerido</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+                <!-- TERMINA FILA DE CALLES SECUNDARIAS -->
+
+                <div class="row form-sections">
+                    <div class="col-md-6">
+                        <div class="row form-group row-input-group">
+                            <label id="lblColonia" class="col-form-label col-md-auto" for="colonia">Colonia</label>
+                            <div class="col-md-6 p-0">
+                                <input type="text" class="form-control" id="colonia" formControlName="colonia">
+                                <div *ngIf="campoColonia.errors && campoColonia.touched">
+                                    <p class="error" *ngIf="campoColonia.hasError('required')">Campo requerido</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="row form-group row-input-group">
+                            <label id="lblPoblacion" class="col-form-label col-md-auto" for="poblacion">Poblacion</label>
+                            <div class="col-md-6 p-0">
+                                <input type="text" class="form-control" id="poblacion" formControlName="poblacion">
+                                <div *ngIf="campoPoblacion.errors && campoPoblacion.touched">
+                                    <p class="error" *ngIf="campoPoblacion.hasError('required')">Campo requerido</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="descripcionReporte">
+                <div class="row form-group form-sections row-input-group">
+                    <label id="lblDescripcion" class="col-form-label col-md-12" for="descripcion">Descripción del reporte</label>
+                    <div class="col-md-12 p-0">
+                        <textarea type="text" class="form-control" id="descripcion" maxlength="130" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/130
+                        <div *ngIf="campoDescripcionReporte.errors && campoDescripcionReporte.touched">
+                            <p class="error" *ngIf="campoDescripcionReporte.hasError('required')">Campo requerido</p>
+                            <p class="error" *ngIf="campoDescripcionReporte.hasError('maxlength')"> Sobrepasado. La cantidad máxima de caracteres de 120</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="imagenesReporte">
+                <!-- <div class="mt-6"> -->
+                <h3>Imágenes del reporte</h3>
+                <hr>
+                <div class="form-group form-sections row" *ngIf="accion === 'nuevo'">
+                    <input type="file" multiple class="form-control-file" id="inputImgIniciales" placeholder="Seleccionar">
+                </div>
+
+                <div *ngIf="accion === 'ver'" class="row form-sections">
+                    <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#apertura" aria-expanded="false" aria-controls="apertura">
+                        Imágenes de apertura
+                      </button>
+                    <div class="collapse col-12" id="apertura">
+                        <div class="card card-body">
+                            <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
+                            <ng-template #bloqueImgApertura>
+                                <div class="img-container">
+                                    <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="accion === 'ver'" class="row form-sections">
+                    <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#cierre" aria-expanded="false" aria-controls="cierre">
+                        Imágenes de cierre
+                      </button>
+                    <div class="collapse col-12" id="cierre">
+                        <div class="card card-body">
+                            <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
+                            <ng-template #bloqueImgCierre>
+                                <div class="img-container">
+                                    <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+                <!-- </div> -->
+            </section>
+
+            <section id="cancelacionReporte" *ngIf="accion === 'editar'">
+                <h3>Cancelación de reporte</h3>
+                <hr>
+                <div class="row form-sections">
+                    <div class="col-12">
+                        <button type="button" id="btn-cancelar" [disabled]="reporteCancelado()" mat-raised-button (click)="cancelarReporte()">
+                            <i class="fas fa-window-close"></i> 
+                            Cancelar reporte
+                        </button>
+                    </div>
+                    <div class="col-12 m-2">
+                        <small>
+                            <strong>Importante. </strong>
+                            Solo se pueden cancelar reportes que se encuentren abiertos.
+                        </small>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TERMINA SECCION PARA DATOS DE DIRECCION -->
+        </form>
+    </div>
+</div>
+
+<div matDialogActions align="end">
+    <button type="button" [disabled]="accion === 'ver' || reporteCancelado()" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
+</div>

@@ -1,0 +1,33 @@
+<div class="container-fluid">
+    <div class="card">
+        <div class="content-header">
+            <form>
+                <div class="input-group mb-3 row">
+                    <div class="col-md-9">
+                        <div class="row">
+                            <label class="lblCuadrilla col-md-auto col-form-label" for="cuadrillaSelector">Cuadrilla</label>
+                            <div class="col-md-6 col-12">
+                                <select class="custom-select" id="cuadrillaSelector" [formControl]="cuadrillaForm">
+                                    <option selected>Todos</option>
+                                    <option value="1">Activo</option>
+                                    <option value="2">Inactivo</option>
+                                    <option value="3">Todos</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class=" col-md-3 col-sm-12">
+                        <button id="btn-buscar" type="button" class="btn btn-primary btn-header" mat-raised-button color="primary" (click)="buscar()">
+                            <i class="fas fa-search"></i>
+                                     Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="content-card">
+            <app-tabla [modeloTabla]="datosCierreReportes" (enviarAccion)="seleccionarReporte($event)"></app-tabla>
+        </div>
+    </div>
+</div>

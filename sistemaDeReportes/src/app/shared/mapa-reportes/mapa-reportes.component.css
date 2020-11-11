@@ -1,0 +1,63 @@
+/* GENERALES */
+
+h3,
+h4 {
+    font-weight: bold;
+}
+
+p {
+    margin-left: 5px;
+    font-size: 0.85rem;
+}
+
+.sin-margin {
+    margin: 0;
+}
+
+
+/* ESTILOS MAPA */
+
+#mapa-mapBox {
+    width: 100%;
+    height: calc(100vh * 0.3);
+    text-align: center;
+}
+
+
+/* ESTILOS DATOS DE REPORTE */
+
+#datos-reporte-container {
+    margin-top: 10px;
+}
+
+#datos-reporte {
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    /* height: calc(100vh * 0.40); */
+    background-color: #ececf0;
+    border-radius: 5px;
+    padding: 5px 15px;
+}
+
+.campo-datos-reporte {
+    margin: 10px 0;
+}
+
+
+/* Para tablets */
+
+@media only screen and (min-width:600px) {
+    #datos-reporte-container {
+        margin-top: 10px;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    /* #datos-reporte-container {
+        margin-top: 0;
+    } */
+}

@@ -1,0 +1,4 @@
+body:not(.sidebar) footer.main-footer,
+body:not(.sidebar-mini-md) footer.main-footer {
+    margin-left: 0;
+}

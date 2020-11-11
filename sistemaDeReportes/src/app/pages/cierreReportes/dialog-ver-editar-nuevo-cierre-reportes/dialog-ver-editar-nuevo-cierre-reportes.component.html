@@ -1,0 +1,91 @@
+<h2 mat-dialog-title>Cierre de reporte</h2>
+<hr>
+<mat-dialog-content>
+    <div class="container-fluid">
+        <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
+        <app-mapa-reportes [datos]="datosReporte"></app-mapa-reportes>
+
+        <section id="imagenesReporte">
+            <h3>Imágenes del reporte</h3>
+            <hr>
+            <div class="row img-group">
+                <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#apertura" aria-expanded="false" aria-controls="apertura">
+                    Imágenes de apertura
+                  </button>
+                <div class="collapse col-12" id="apertura">
+                    <div class="card card-body">
+                        <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
+                        <ng-template #bloqueImgApertura>
+                            <div class="img-container">
+                                <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+            <div class="row img-group">
+                <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#cierre" aria-expanded="false" aria-controls="cierre">
+                    Imágenes de cierre
+                  </button>
+                <div class="collapse col-12" id="cierre">
+                    <div class="card card-body">
+                        <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
+                        <ng-template #bloqueImgCierre>
+                            <div class="img-container">
+                                <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+            </div>
+
+
+        </section>
+
+        <hr>
+        <form [formGroup]="form">
+            <div class="row mb-3">
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="row form-group row-input-group">
+                        <label class="lblForm col-md-auto col-form-label" for="fechaCierre">Fecha de cierre </label>
+                        <div class="col-7">
+                            <input id="fechaCierre" type="date" class="form-control" formControlName="fechaCierre">
+                            <div *ngIf="campoFechaCierre.errors && campoFechaCierre.touched">
+                                <p class="error" *ngIf="campoFechaCierre.hasError('required')">Campo requerido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="row form-group row-input-group">
+                        <label class="lblForm col-md-auto col-form-label" for="horaCierre">Hora</label>
+                        <div class="col-6">
+                            <input id="horaCierre" type="time" class="form-control" formControlName="hora">
+                            <div *ngIf="campoHora.errors && campoHora.touched">
+                                <p class="error" *ngIf="campoHora.hasError('required')">Campo requerido</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="row mb-3">
+                <div class="col-lg-6 col-md-6 col-12">
+                    <div class="row form-group">
+                        <label class="lblForm col-md-auto col-form-label" for="imagenCierre">Agregar imágenes </label>
+                        <div class="col-md-8 col-12">
+                            <input id="imagenCierre" type="file" multiple class="form-control-file">
+                            <!-- <button mat-raised-button>Imágenes</button> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</mat-dialog-content>
+<div matDialogActions align="end" class="mb-2">
+    <button type="button" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
+</div>

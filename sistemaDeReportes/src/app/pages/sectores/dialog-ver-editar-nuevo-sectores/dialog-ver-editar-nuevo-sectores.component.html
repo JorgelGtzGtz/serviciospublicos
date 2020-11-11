@@ -1,0 +1,44 @@
+<!-- <div class="container-fluid"> -->
+<h2 mat-dialog-title>{{ accion | capitalizado:true }} sector</h2>
+<hr>
+<div mat-dialog-content id="content-dialog">
+    <div class="container-fluid">
+        <form [formGroup]="form">
+            <div class="row form-sections">
+                <div class="col-md-6 col-6" id="id-col">
+                    <div class="form-group header-form-group row justify-content-start">
+                        <label class="col-md-auto col-2 col-form-label col-form-label-sm" for="id">ID</label>
+                        <div class="col-md-4 col-10 ">
+                            <input type="text" class="form-control" id="id" formControlName="id">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-6" id="inactivo-col">
+                    <div class="form-check header-form-group justify-content-end">
+                        <input class="form-check-input" type="checkbox" id="inactivo-checkbox" formControlName="estado">
+                        <label class="form-check-label" for="inactivo-checkbox">
+                                Inactivo
+                            </label>
+                    </div>
+                </div>
+
+            </div>
+            <!-- FILA NOMBRE -->
+            <div class="row form-group form-sections row-input-group">
+                <label id="lblNombreSector" class="col-form-label col-md-auto" for="nombreSector">Nombre de sector: </label>
+                <div class="col p-0">
+                    <input type="text" class="form-control" id="nombreSector" formControlName="nombreS">
+                    <div *ngIf="campoNombreSector.errors && campoNombreSector.touched">
+                        <p class="error" *ngIf="campoNombreSector.hasError('required')">Campo requerido</p>
+                    </div>
+                </div>
+            </div>
+            <!-- TERMINA FILA NOMBRE -->
+        </form>
+    </div>
+</div>
+<div matDialogActions align="end">
+    <button type="button" (click)="guardar()" [disabled]="accion === 'ver'" mat-raised-button color="primary">Guardar</button>
+    <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
+</div>

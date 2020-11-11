@@ -1,0 +1,51 @@
+<!-- <div class="content-wrapper">
+    <app-header [seccion]="nombreSeccion"></app-header>
+
+    <div class="content"> -->
+<div class="container-fluid">
+    <div class="card">
+        <div class="content-header">
+            <form>
+                <div class="row">
+                    <label id="lblBusqueda" class="lblForm col-md-auto col-sm-auto col-12" for="textoBusqueda">Búsqueda</label>
+                    <div class="col-md-6 col-sm-8 col-12">
+                        <input class="form-control" type="search" name="busqueda" id="textoBusqueda" [formControl]="busquedaForm">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+
+                    <div class="col-md-8 col-sm-12">
+                        <div class="row input-group m-0">
+                            <label id="lblEstado" class="lblForm col-auto" for="estadoSectores">Estado</label>
+                            <div class="col-xl-4 col-md-6 col-sm-4 col-12">
+                                <select class="custom-select" id="estadoSectores" [formControl]="estadoForm">
+                                    <option selected>Todos</option>
+                                    <option value="1">Activo</option>
+                                    <option value="2">Inactivo</option>
+                                 </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-2 col-sm-6">
+                        <button id="btn-buscar" type="button" class="btn-header" mat-raised-button color="primary" (click)="buscar()">
+                            <i class="fas fa-search"></i>
+                                     Buscar
+                        </button>
+                    </div>
+                    <div class="col-md-2 col-sm-6">
+                        <button id="btn-nuevo" type="button" class="btn-header" mat-raised-button color="primary" (click)="nuevoSector()">
+                            <i class="fas fa-plus-circle"></i> 
+                                    Nuevo
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="content-card">
+            <app-tabla [modeloTabla]="datosSectores" (enviarAccion)="recibirAccion($event)"></app-tabla>
+        </div>
+    </div>
+</div>
+<!-- </div>
+</div> -->

@@ -1,0 +1,41 @@
+<div class="table-wrapper">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of modeloTabla.headers" scope="col">{{encabezado}}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let row of modeloTabla.data">
+                <td *ngFor="let campo of row">{{campo}}</td>
+
+                <!-- ngSwitch que muestra los botones de la última columna en la tabla, según 
+                     el lugar donde se muestra la tabla (sectores, cierre de reportes, tipos
+                    de usuario, etc.) -->
+                <td>
+                    <div [ngSwitch]="modeloTabla.pagina">
+                        <div *ngSwitchCase="'cierreReportes'" class="botones-wrapper">
+                            <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="clickSeleccionar()">
+                                 Seleccionar
+                                </button>
+                        </div>
+                        <div *ngSwitchCase="'asignacionticketsCuadrilla'" class="botones-wrapper">
+                            <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="clickSeleccionar()">
+                                 Seleccionar
+                                </button>
+                        </div>
+                        <div *ngSwitchCase="'altaReportes'" class="botones-wrapper">
+                            <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="clickVer()"> <i class="fas fa-eye"></i> Ver</button>
+                            <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="clickEditar()"><i class="fas fa-pen"></i> Editar</button>
+                        </div>
+                        <div *ngSwitchDefault class="botones-wrapper">
+                            <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="clickVer()"> <i class="fas fa-eye"></i> Ver</button>
+                            <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="clickEditar()"><i class="fas fa-pen"></i> Editar</button>
+                            <button type="button" id="btn-eliminar" class="btn-proceso" mat-raised-button (click)="clickEliminar()"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

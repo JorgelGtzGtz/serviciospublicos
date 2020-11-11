@@ -1,0 +1,165 @@
+/* GENERALES */
+
+h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+button {
+    outline: none;
+}
+
+.container-fluid {
+    height: calc(100vh * 0.6);
+}
+
+.row-input-group {
+    height: 80px;
+    max-height: 80px;
+}
+
+.error {
+    margin: 0;
+    color: #ff0000;
+}
+
+
+/* ESTILO DE FILAS Y COLUMNAS ID Y INACTIVO */
+
+.header-form-group {
+    margin: 10px 0 0 0;
+}
+
+div#id-col {
+    padding-left: 0;
+}
+
+div#inactivo-col {
+    text-align: right;
+}
+
+.form-sections {
+    margin-bottom: 15px;
+    padding: 0 7.5px 0 7.5px;
+    box-sizing: border-box;
+}
+
+
+/* ESTILO DE ELEMENTOS DESCRIPCION */
+
+#lbl-descripcion {
+    padding: 10px 10px 0 0;
+    width: 80px;
+}
+
+input {
+    box-sizing: border-box;
+}
+
+input#descripcionInput {
+    width: 100%;
+}
+
+input#idInput {
+    max-width: 90px;
+    padding: 3px 12px;
+    height: 28px
+}
+
+
+/* ESTILO TABLAS DE DUAL LIST BOX */
+
+section#pick-list-section {
+    margin: 30px 0;
+}
+
+div#pick-list {
+    margin: 0 auto;
+    width: 100%;
+}
+
+.list-wrapper {
+    max-width: 400px;
+    height: 220px;
+    max-height: 220px;
+}
+
+.list-group {
+    width: 100%;
+    max-height: 175px;
+    overflow-y: auto;
+}
+
+.list-header {
+    background-color: #343a40;
+    color: #ffffff;
+    padding: 6px 4px;
+}
+
+.list-header p {
+    margin: 5px 0 5px 5px;
+    font-weight: 500;
+}
+
+.list-group-item {
+    border-radius: 0;
+}
+
+.list-group-item:hover {
+    background: #f0f0f5;
+    cursor: pointer;
+}
+
+.item-selected {
+    background-color: #b6b6b8;
+}
+
+
+/* ESTILO BOTONES DUAL LIST BOX */
+
+.botones-flecha-wrapper {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.btn-pickList {
+    box-sizing: border-box;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 0 6px;
+    background-color: #ececf0;
+    outline: none;
+}
+
+.icono-btn-flecha {
+    transform: rotate(90deg);
+}
+
+
+/* Para tablets */
+
+@media only screen and (min-width:600px) {
+    .icono-btn-flecha {
+        transform: rotate(0deg);
+    }
+    .botones-flecha-wrapper {
+        margin: 20px 0;
+    }
+    .row-input-group {
+        height: 70px;
+        max-height: 75px;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    .icono-btn-flecha {
+        transform: rotate(0deg);
+    }
+    .row-input-group {
+        height: 58px;
+        max-height: 58px;
+    }
+}

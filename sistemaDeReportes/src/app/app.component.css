@@ -1,0 +1,16 @@
+      /* FOR THE  FOOTER TO APPEAR FULL WIDTH WHEN THERE'S NO SIDE MENU example, in the login*/
+      
+      body:not(.sidebar) .content-wrapper,
+      body:not(.sidebar) .content-wrapper,
+      body:not(.sidebar-mini-md) .content-wrapper,
+      body:not(.sidebar-mini-md) .content-wrapper {
+          margin-left: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          /*background-image: linear-gradient(#f7f7f8, #4d555e);*/
+      }
+      
+      .wrapper {
+          height: calc(100vh);
+      }

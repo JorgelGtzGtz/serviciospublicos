@@ -1,0 +1,100 @@
+/* GENERAL */
+
+button {
+    outline: none;
+}
+
+
+/* ESTILO PARA ICONO DE LOS BOTONES */
+
+.mat-icon {
+    font-size: 18px;
+    padding-top: 2px;
+}
+
+
+/* ESTILO BOTONES DEL HEADER */
+
+.btn-header {
+    width: 100%;
+    margin: 10px 0;
+}
+
+#btn-nuevo {
+    float: none;
+    /* float: right; */
+}
+
+
+/* ESTILO PARA CONTENEDORES */
+
+.lblForm {
+    padding-top: 6px;
+}
+
+.content-wrapper {
+    padding: 0 0 10px 0;
+}
+
+.row {
+    margin-top: 10px;
+}
+
+.card {
+    padding: 0 15px;
+    height: calc(100vh + (100vh * 0.25));
+}
+
+.content-card {
+    box-sizing: border-box;
+    padding-bottom: 10px;
+    /* height: calc(100vh - (100vh / 3)); */
+    height: calc(100vh + (100vh * 0.15));
+}
+
+
+/* Para tablets */
+
+@media only screen and (min-width:600px) {
+    /* CONTENEDOR CARD */
+    div.content-card {
+        /* height: calc(100vh + (100vh * 0.15)); */
+        height: 65%;
+    }
+    .card {
+        /* height: calc(100vh + (100vh * 0.25)); */
+        height: calc(100vh + (100vh * 0.10));
+    }
+    /* BOTONES */
+    .btn-header {
+        margin-top: 20px;
+        width: 100%;
+    }
+    #btn-nuevo {
+        float: none;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    /* CONTENEDOR CARD */
+    div.content-card {
+        /* height: calc(100vh - (100vh * 0.15)); */
+        height: 75%;
+    }
+    .card {
+        /* height: calc(100vh + (100vh * 0.10)); */
+        padding: 0 15px;
+        height: calc(100vh - (100vh / 4));
+    }
+    /* BOTONES */
+    .btn-header {
+        width: 110px;
+        margin-top: 10px;
+    }
+    #btn-nuevo {
+        float: right;
+    }
+}

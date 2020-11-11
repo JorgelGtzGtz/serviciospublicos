@@ -1,0 +1,67 @@
+/* GENERAL */
+
+button {
+    outline: none;
+}
+
+.container-fluid {
+    height: calc(100vh * 0.55);
+}
+
+.form-sections {
+    margin: 20px 0;
+    /* height: 38px; */
+    box-sizing: border-box;
+}
+
+section#usuarioContrasena {
+    margin-top: 30px;
+}
+
+
+/* CAMPOS DE USUARIO */
+
+div#inactivo-col {
+    text-align: center;
+}
+
+.custom-radio {
+    text-align: center;
+}
+
+.row-input-group {
+    height: 85px;
+    max-height: 85px;
+}
+
+.error {
+    margin: 0;
+    color: #ff0000;
+    font-size: 0.8rem;
+}
+
+
+/* Para tablets */
+
+@media screen and (min-width:600px) {
+    .row-input-group {
+        height: 85px;
+        max-height: 85px;
+    }
+    div#inactivo-col {
+        text-align: right;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    .row-input-group {
+        height: 58px;
+        max-height: 58px;
+    }
+    div#inactivo-col {
+        text-align: right;
+    }
+}

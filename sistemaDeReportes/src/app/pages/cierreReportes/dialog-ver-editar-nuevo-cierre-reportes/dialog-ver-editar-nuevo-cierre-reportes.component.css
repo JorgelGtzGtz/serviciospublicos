@@ -1,0 +1,78 @@
+/* GENERALES */
+
+h3,
+h4 {
+    font-weight: bold;
+}
+
+p {
+    margin-left: 5px;
+    font-size: 0.85rem;
+}
+
+button {
+    outline: none;
+}
+
+.container-fluid {
+    height: 420px;
+}
+
+.sin-margin {
+    margin: 0;
+}
+
+.row-input-group {
+    height: 80px;
+    max-height: 80px;
+}
+
+.error {
+    margin: 0;
+    color: #ff0000;
+}
+
+
+/* IMAGENES */
+
+.img-group {
+    margin: 10px 0;
+}
+
+.img-container {
+    display: inline-block;
+}
+
+.img-reporte {
+    width: 100%;
+    height: auto;
+    margin: 10px;
+}
+
+
+/* Para tablets */
+
+@media screen and (max-width:600px) {
+    .row-input-group {
+        height: 70px;
+        max-height: 75px;
+    }
+}
+
+
+/* Para computadoras */
+
+@media only screen and (min-width: 992px) {
+    #datos-reporte-container {
+        margin-top: 10px;
+    }
+    .img-reporte {
+        width: 45%;
+        height: auto;
+        margin: 10px;
+    }
+    .row-input-group {
+        height: 58px;
+        max-height: 58px;
+    }
+}
