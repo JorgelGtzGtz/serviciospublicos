@@ -48,7 +48,6 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
       calleS1: ['', [Validators.required]],
       calleS2: ['', [Validators.required]],
       colonia: ['', [Validators.required]],
-      poblacion: ['', [Validators.required]],
       descripcionR: ['', [Validators.required, Validators.maxLength(120)]]
     });
     this.form.valueChanges.subscribe(value => {
@@ -100,10 +99,6 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   
   get campoColonia(){
     return this.form.get('colonia');
-  }
-
-  get campoPoblacion(){
-    return this.form.get('poblacion');
   }
 
   get campoDescripcionReporte(){

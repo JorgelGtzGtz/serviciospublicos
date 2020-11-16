@@ -31,7 +31,8 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
       id: ['', [Validators.required]],
       estado: [''],
       nombreC: ['', [Validators.required]],
-      encargado: ['', [Validators.required]]
+      encargado: ['', [Validators.required]],
+      tipoCuadrilla: ['', [Validators.required]]
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
@@ -58,6 +59,10 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 
   get campoNombreEncargado(){
     return this.form.get('encargado');
+  }
+
+  get campoTipoCuadrilla(){
+    return this.form.get('tipoCuadrilla');
   }
 
   // Devuelve true si el usuario interactuó con el formulario o false si no.
