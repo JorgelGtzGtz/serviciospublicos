@@ -49,6 +49,7 @@ export class DialogAsignacionTicketsComponent implements OnInit {
       reporte: this.reporte,
     };
     this.inicializarVariablesImagenes();
+    console.log('Datos reporte:', this.data.registro);
   }
 
       // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs

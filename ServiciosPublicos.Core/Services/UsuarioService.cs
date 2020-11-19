@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Repository;
 using PetaPoco;
@@ -24,11 +24,15 @@ namespace ServiciosPublicos.Core.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository _usuarioRepository;
-        private readonly IAccesosTipoUsuarioRepository _accesosTipoUsuarioRepository;
+        //private readonly IAccesosTipoUsuarioRepository _accesosTipoUsuarioRepository;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository, IAccesosTipoUsuarioRepository accesosTipoUsuarioRepository) {
+        /*public UsuarioService(IUsuarioRepository usuarioRepository, IAccesosTipoUsuarioRepository accesosTipoUsuarioRepository) {
             _usuarioRepository = usuarioRepository;
             _accesosTipoUsuarioRepository = accesosTipoUsuarioRepository;
+        }*/
+        public UsuarioService(IUsuarioRepository usuarioRepository)
+        {
+            _usuarioRepository = usuarioRepository;            
         }
 
         public Usuario GetUsuario(int id) {
@@ -46,7 +50,7 @@ namespace ServiciosPublicos.Core.Services
         }
 
         public List<Usuario> GetUsuarios() {
-            return _usuarioRepository.GetAll("Usuarios").ToList();
+            return _usuarioRepository.GetAll("hiram74_residencias.Usuario").ToList();
         }
 
         public List<dynamic> GetUsuarioesFiltro(string nombre = null)
@@ -58,7 +62,7 @@ namespace ServiciosPublicos.Core.Services
                 filter += string.Format("p.Nombre like '%{0}%' or p.Usuario like '%{0}%' or p.ID like '%{0}%' or pt.Nombre like '%{0}%'", nombre);
             }
 
-            Sql query = new Sql(@"select p.*, pt.Nombre as NombreTipo from  [dbo].[Usuarios] p
+            Sql query = new Sql(@"select p.*, pt.Nombre as NombreTipo from  [dbo].[Usuario] p
                                   inner join [dbo].[TiposUsuario] pt on pt.ID = p.ID_TipoUsuario" + (!string.IsNullOrEmpty(nombre) ? filter : ""));
             return _usuarioRepository.GetByDynamicFilter(query);
         }
@@ -71,7 +75,7 @@ namespace ServiciosPublicos.Core.Services
             {
                 _usuarioRepository.InsertOrUpdate<int>(usuario);
 
-                Message = "Usuario guardado " + usuario.Nombre + "con exito";
+                Message = "Usuario guardado " + usuario.Login_usuario + "con exito";
                 result = true;
             }
             catch (Exception ex)
@@ -93,7 +97,7 @@ namespace ServiciosPublicos.Core.Services
 
                 _usuarioRepository.Remove(usuario);
 
-                Message = "Usuario eliminado " + usuario.Nombre + "con exito";
+                Message = "Usuario eliminado " + usuario.Login_usuario + "con exito";
                 result = true;
             }
             catch (Exception ex)
@@ -104,13 +108,13 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        public List<AccesosTipoUsuario> GetPermisosUsuario(int id)
+        /*public List<AccesosTipoUsuario> GetPermisosUsuario(int id)
         {
             Sql query = new Sql()
                 .Select("*").From("AccesosTipoUsuario")
                 .Where("ID_TipoUsuario = @0", id);
 
             return _accesosTipoUsuarioRepository.GetByFilter(query);
-        }
+        }*/
     }
 }

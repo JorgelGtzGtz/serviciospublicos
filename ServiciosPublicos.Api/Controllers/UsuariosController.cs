@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Entities.Dto;
 using ServiciosPublicos.Core.Services;
@@ -17,14 +17,18 @@ namespace ServiciosPublicos.Api.Controllers
     public class UsuariosController : BaseApiController
     {
         private readonly IUsuarioService _usuarioservice;
-        private readonly IListaCombosService _listaCombosService;
-        private readonly ITipoUsuarioService _tipoUsuarioService;
-
-        public UsuariosController(IUsuarioService usuarioservice, IListaCombosService listaCombosService, ITipoUsuarioService tipoUsuarioService)
+        /* private readonly IListaCombosService _listaCombosService;
+         private readonly ITipoUsuarioService _tipoUsuarioService;
+        */
+        /*public UsuariosController(IUsuarioService usuarioservice, IListaCombosService listaCombosService, ITipoUsuarioService tipoUsuarioService)
         {
             _usuarioservice = usuarioservice;
             _listaCombosService = listaCombosService;
             _tipoUsuarioService = tipoUsuarioService;
+        }*/
+        public UsuariosController(IUsuarioService usuarioservice)
+        {
+            _usuarioservice = usuarioservice;
         }
 
         [HttpPost]
@@ -40,9 +44,9 @@ namespace ServiciosPublicos.Api.Controllers
                     if (UserLogged != null)
                     {
                         var op = _usuarioservice.GetUsuario(UserLogged.UserName, UserLogged.Password);
-                        var accesos = _tipoUsuarioService.GetTipoUsuarioAccesos(op.ID_TipoUsuario);
+                        //var accesos = _tipoUsuarioService.GetTipoUsuarioAccesos(op.ID_TipoUsuario);
                         User = Thread.CurrentPrincipal;
-                        response = request.CreateResponse(HttpStatusCode.OK, new { usuario = op, accesos = accesos });
+                        response = request.CreateResponse(HttpStatusCode.OK, op);
                     }
                     else
                     {
@@ -200,7 +204,7 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        [HttpGet]
+       /* [HttpGet]
         [Route("TiposUsuarios")]
         public async Task<HttpResponseMessage> GetTiposUsuarios(HttpRequestMessage request)
         {
@@ -225,7 +229,7 @@ namespace ServiciosPublicos.Api.Controllers
 
                 return await Task.FromResult(response);
             });
-        }
+        }*/
 
     }
 }

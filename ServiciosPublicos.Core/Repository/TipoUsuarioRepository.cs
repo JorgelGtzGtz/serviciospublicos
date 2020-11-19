@@ -1,9 +1,9 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Factories;
 
 namespace ServiciosPublicos.Core.Repository
 {
-    public interface ITipoUsuarioRepository : IRepositoryBase<TiposUsuario>
+    /*public interface ITipoUsuarioRepository : IRepositoryBase<TiposUsuario>
     {
     }
 
@@ -12,5 +12,5 @@ namespace ServiciosPublicos.Core.Repository
         public TipoUsuarioRepository(IDbFactory dbFactory) : base(dbFactory)
         {
         }
-    }
+    }*/
 }

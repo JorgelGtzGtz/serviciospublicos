@@ -33,14 +33,14 @@ namespace ServiciosPublicos.Api.Filters
         /// </summary>
         public bool? SuperAdmin { get; set; }
 
-        public Authentication(string userName, string password, string role, int userID, bool? superAdmin)
+        public Authentication(string userName, string password, string role, int userID)
             : base(userName, "Basic")
         {
             Role = role;
             Password = password;
             UserName = userName;
             UserID = userID;
-            SuperAdmin = superAdmin;
+            //SuperAdmin = superAdmin;
         }
     }
 }

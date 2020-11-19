@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Repository;
 using PetaPoco;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ServiciosPublicos.Core.Services
 {
-    public interface ITipoUsuarioService
+   /* public interface ITipoUsuarioService
     {
         TiposUsuario GetTipoUsuario(int id);
         List<TiposUsuario> GetTipoUsuarios();
@@ -19,9 +19,9 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarTipoUsuario(int id, out string Message);
         List<Acceso> GetTipoUsuarioAccesos(int id);
         List<Acceso> GetAccesos();
-    }
+    }*/
 
-    public class TipoUsuarioService : ITipoUsuarioService
+    /*public class TipoUsuarioService : ITipoUsuarioService
     {
         private readonly ITipoUsuarioRepository _tipoUsuarioRepository;
         private readonly IAccesosTipoUsuarioRepository _accesosTipoUsuarioRepository;
@@ -146,5 +146,5 @@ namespace ServiciosPublicos.Core.Services
         {
             return _accesosRepository.GetAll("Accesos").ToList();
         }
-    }
+    }*/
 }

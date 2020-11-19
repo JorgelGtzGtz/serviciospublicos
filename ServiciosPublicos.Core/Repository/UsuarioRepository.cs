@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Factories;
 using PetaPoco;
@@ -27,8 +27,8 @@ namespace ServiciosPublicos.Core.Repository
         {
             var query = new Sql()
                 .Select("*")
-                .From("Usuarios")
-                .Where("lower(Usuario) = @0 and Contrasena = @1", usr.ToLower(), password);
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Login_usuario) = @0 and Password_usuario = @1", usr.ToLower(), password);
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -39,8 +39,8 @@ namespace ServiciosPublicos.Core.Repository
         {
             var query = new Sql()
                 .Select("*")
-                .From("Usuarios")
-                .Where("lower(Usuario) = @0", usr.ToLower());
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Login_usuario) = @0", usr.ToLower());
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 

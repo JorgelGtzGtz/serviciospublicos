@@ -33,6 +33,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     this.imagenesCierre = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
     this. inicializarVariablesImagenes();
     this.tipoFormularioAccion();
+    console.log('RECIBE:', this.data.registro);
   }
 
   // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs

@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Factories;
 using System;
@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace ServiciosPublicos.Core.Repository
 {
-    public interface IAccesosTipoUsuarioRepository : IRepositoryBase<AccesosTipoUsuario>
+    /*public interface IAccesosTipoUsuarioRepository : IRepositoryBase<AccesosTipoUsuario>
     {
     }
 
@@ -18,5 +18,5 @@ namespace ServiciosPublicos.Core.Repository
         public AccesosTipoUsuarioRepository(IDbFactory dbFactory) : base(dbFactory)
         {
         }
-    }
+    }*/
 }

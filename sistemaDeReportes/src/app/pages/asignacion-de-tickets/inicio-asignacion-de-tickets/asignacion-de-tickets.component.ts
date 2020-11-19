@@ -20,6 +20,8 @@ interface Reporte{
 export class AsignacionDeTicketsComponent implements OnInit {
   nombreSeccion = 'Asignación de tickets a cuadrilla';
   datosAsignacionTickets: any;
+  headersTabla: string [];
+  datosTabla: object [];
   form: FormGroup;
   datos: Reporte[] = [
     {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
@@ -35,15 +37,7 @@ export class AsignacionDeTicketsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let dataArray = [];
-    this.datos.forEach(element => {
-      dataArray.push(Object.values(element));
-    });
-    this.datosAsignacionTickets = {
-      pagina: 'asignacionticketsCuadrilla',
-      headers: ['No. Reporte', 'Fecha inicio', 'No. tickets', 'Estado', 'Sector', 'Dirección', 'Seleccionar'],
-      data: dataArray
-    };
+    this.inicializarTabla();
   }
 
    // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
@@ -58,6 +52,18 @@ export class AsignacionDeTicketsComponent implements OnInit {
     this.form.valueChanges.subscribe(value => {
       console.log('se interactuo:', value);
     });
+  }
+
+  // Método para inicializar las variables que contienen los datos que se
+  //  mostrarán en la tabla
+  inicializarTabla(){
+    this.datosTabla = [];
+    this.datos.forEach(element => {
+      this.datosTabla.push(Object.values(element));
+    });
+    this.headersTabla = ['No. Reporte', 'Fecha inicio', 'No. tickets', 'Estado', 'Sector', 'Dirección', 'Seleccionar'];
+    console.log('datos tabla:', this.datosTabla);
+    console.log('datos:', this.datos);
   }
 
   // Métodos get para obtener acceso a los campos del formulario
@@ -81,21 +87,31 @@ export class AsignacionDeTicketsComponent implements OnInit {
     return this.form.get('fechaFinal');
   }
 
+  // Agregar clases a las columnas 'th' según el contenido
+  // que encabecen, para agregar estilos
+  // También se añade un estilo general.
+  tamanoColumna( encabezado: string): any{
+    return {
+      'id-col': encabezado === 'No. Reporte',
+      'boton-seleccionar-col': encabezado === 'Seleccionar',
+      'general-col': encabezado
+    };
+  }
 
  // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
   // También contiene el método que se ejecuta cuando el diálogo se cierra.
-  abrirDialogSeleccionar(accion: string): void{
+  abrirDialogSeleccionar(accion: string, registro: object): void{
     const DIALOG_REF = this.dialog.open( DialogAsignacionTicketsComponent, {
       width: '900px',
       height: '600px',
       disableClose: true,
-      data: {accion}
+      data: {accion, registro}
     });
   }
 
-  seleccionarReporte(event: string): void{
-    this.abrirDialogSeleccionar(event);
+  seleccionarReporte(event: string, registro: object): void{
+    this.abrirDialogSeleccionar(event, registro);
   }
 
   buscar(): void{

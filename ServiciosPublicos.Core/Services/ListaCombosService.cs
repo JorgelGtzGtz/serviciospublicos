@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Repository;
 using PetaPoco;
 using System;
@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace ServiciosPublicos.Core.Services
 {
-    public interface IListaCombosService
+   /* public interface IListaCombosService
     {
         List<TiposUsuario> GetTipoUsuarios();
-    }
+    }*/
 
-    public class ListaCombosService : IListaCombosService
+    /*public class ListaCombosService : IListaCombosService
     {
         private readonly ITipoUsuarioRepository _tipoUsuarioRepository;
 
@@ -31,5 +31,5 @@ namespace ServiciosPublicos.Core.Services
         }
 
 
-    }
+    }*/
 }

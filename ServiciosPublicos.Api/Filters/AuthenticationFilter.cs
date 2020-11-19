@@ -105,7 +105,7 @@ namespace ServiciosPublicos.Api.Filters
                     var user = _userservice.GetUsuario(userName);
 
                     if (user != null)
-                        basicAuthentication = new Authentication(user._Usuario, credentials[1], "Normal", user.ID, user.SuperAdmin);
+                        basicAuthentication = new Authentication(user.Login_usuario, credentials[1], "Normal", user.ID_usuario);
                     else
                         errors.Add("Usuario " + userName + " no encontrado.");
                 }
