@@ -10,19 +10,21 @@ using System.Threading.Tasks;
 
 namespace ServiciosPublicos.Core.Services
 {
-   /* public interface ITipoUsuarioService
+   public interface ITipoUsuarioService
     {
-        TiposUsuario GetTipoUsuario(int id);
+        /*TiposUsuario GetTipoUsuario(int id);
         List<TiposUsuario> GetTipoUsuarios();
         List<TiposUsuario> GetTipoUsuariosFiltro(string nombre = null);
         bool InsertUpdateTipoUsuario(TiposUsuario tipoPersonal, List<Acceso> accesos, out string Message);
         bool EliminarTipoUsuario(int id, out string Message);
         List<Acceso> GetTipoUsuarioAccesos(int id);
         List<Acceso> GetAccesos();
-    }*/
+        */
+    }
 
-    /*public class TipoUsuarioService : ITipoUsuarioService
+    public class TipoUsuarioService : ITipoUsuarioService
     {
+        /*
         private readonly ITipoUsuarioRepository _tipoUsuarioRepository;
         private readonly IAccesosTipoUsuarioRepository _accesosTipoUsuarioRepository;
         private readonly IAccesosRepository _accesosRepository;
@@ -146,5 +148,6 @@ namespace ServiciosPublicos.Core.Services
         {
             return _accesosRepository.GetAll("Accesos").ToList();
         }
-    }*/
+        */
+    }
 }

@@ -62,12 +62,14 @@
     </Compile>
     <Compile Include="Models\PetaPoco.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\TicketRepository.cs" />
     <Compile Include="Repository\TipoUsuarioRepository.cs" />
     <Compile Include="Repository\UsuarioRepository.cs" />
     <Compile Include="Repository\AccesosTipoUsuarioRepository.cs" />
     <Compile Include="Repository\AccesosRepository.cs" />
     <Compile Include="Repository\RepositoryBase.cs" />
     <Compile Include="Services\ListaCombosService.cs" />
+    <Compile Include="Services\TicketService.cs" />
     <Compile Include="Services\TipoUsuarioService.cs" />
     <Compile Include="Services\UsuarioService.cs" />
   </ItemGroup>

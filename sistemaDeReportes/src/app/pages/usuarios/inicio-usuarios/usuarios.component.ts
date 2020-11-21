@@ -2,12 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoUsuarioComponent } from '../dialog-ver-editar-nuevo-usuario/dialog-ver-editar-nuevo-usuario.component';
 import { FormGroup, FormBuilder} from '@angular/forms';
+import { Usuario } from '../../../Interfaces/IUsuario';
 
-interface Usuario{
-  id: number;
-  tipoUsuario: string;
-  nombre: string;
-}
+
 
 @Component({
   selector: 'app-usuarios',
@@ -17,17 +14,20 @@ interface Usuario{
 export class UsuariosComponent implements OnInit {
   form: FormGroup;
   nombreSeccion = 'Usuarios';
-  datosUsuario: any;
+  headersTabla: string [];
+  datosTabla: object [];
   datos: Usuario[] = [
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Damaris'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Jason'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Elsia'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Diana'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Elena'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Alberto'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Jorge'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Ana'},
-    {id: 0, tipoUsuario: 'prueba', nombre: 'Claudia'},
+    {ID_usuario: 0,
+      Nombre_usuario: 'UsuarioPrueba',
+      Correo_usuario: 'prueba123@gmail.com',
+      Telefono_usuario: '6441598423',
+      Genero_usuario: 'F',
+      ID_tipoUsuario: 1,
+      Login_usuario: 'uTest',
+      Password_usuario: '1234',
+      Estatus_usuario: true,
+      Jefe_asignado: false
+    },
   ];
 
   constructor( public dialog: MatDialog, private formBuilder: FormBuilder) {
@@ -35,16 +35,7 @@ export class UsuariosComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    let dataArr = [];
-    this.datos.forEach(element => {
-      dataArr.push(Object.values(element));
-    });
-    this.datosUsuario = {
-      pagina: 'usuarios',
-      headers: ['ID', 'Tipo usuario', 'Nombre', 'Procesos'],
-      data: dataArr
-    };
-    console.log('dataArr: ', dataArr);
+    this.inicializarTabla();
   }
 
    // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
@@ -60,6 +51,16 @@ export class UsuariosComponent implements OnInit {
     });
   }
 
+  inicializarTabla(){
+    this.datosTabla = [];
+    this.datos.forEach(element => {
+      this.datosTabla.push(Object.values(element));
+    });
+    this.headersTabla = ['ID', 'Tipo usuario', 'Nombre', 'Procesos'];
+    console.log('datos tabla:', this.datosTabla);
+    console.log('datos:', this.datos);
+  }
+
   // Métodos get para obtener acceso a los campos del formulario
   get campoBusqueda(){
     return this.form.get('busqueda');
@@ -72,6 +73,17 @@ export class UsuariosComponent implements OnInit {
   }
   get campoReportesActivos(){
     return this.form.get('reportesActivos');
+  }
+
+     // Agregar clases a las columnas 'th' según el contenido
+  // que encabecen, para agregar estilos
+  // También se añade un estilo general.
+  tamanoColumna( encabezado: string): any{
+    return {
+      'id-col': encabezado === 'ID',
+      'botones-procesos-col': encabezado === 'Procesos',
+      'general-col': encabezado
+    };
   }
 
     // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
@@ -92,10 +104,20 @@ export class UsuariosComponent implements OnInit {
     this.abrirDialogVerEditarNuevo('nuevo');
   }
 
+  // Método para editar un usuario de la tabla
+  editarUsuario(registro: object){
+    this.abrirDialogVerEditarNuevo('editar');
+  }
+
+  // Método para ver un usuario de la tabla
+  verUsuario(registro: object){
+    this.abrirDialogVerEditarNuevo('ver');
+  }
+
   // Método que se llama, al recibir de la tabla la acción de eliminar, al haber 
   // hecho click en el botón eliminar. Emite un mensaje de confirmación al usuario
   // Al ser respuesta "true" continúa la eliminación, y "false" no lo elimina
- eliminarUsuario(): void{
+ eliminarUsuario(registro: object): void{
   let result = confirm('¿Seguro que desea eliminar el usuario?');
   if (result) {
     console.log('Se elimina');
@@ -104,16 +126,6 @@ export class UsuariosComponent implements OnInit {
     console.log('no se elimina');
   }
 }
-
-    // Acción que se recibe según el botón que se seleccionó en la tabla
-  //  Se manda llamar al método que abre el dialog y se le manda esta acción
-  recibirAccion(event: string): void {
-    if (event === 'ver' || event === 'editar'){
-      this.abrirDialogVerEditarNuevo(event);
-    }else{
-      this.eliminarUsuario();
-    }
-  }
 
     // Método que se llama con el botón buscar 
   // Aquí se recuperan los criterios de búsqueda establecidos por 

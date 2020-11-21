@@ -23,6 +23,8 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
+       
+
         public Usuario GetUsuario(string usr, string password)
         {
             var query = new Sql()
@@ -50,6 +52,23 @@ namespace ServiciosPublicos.Core.Repository
         public List<dynamic> GetByDynamicFilter(Sql sql)
         {
             return this.Context.Fetch<dynamic>(sql);
+        }
+
+        public List<dynamic> GetUsuariosFiltroGeneral(string textoBusqueda = null)
+        {
+            string filter = " Where ";
+
+            if (!string.IsNullOrEmpty(textoBusqueda))
+            {
+                filter += string.Format("usuario.Nombre_usuario like '%{0}%' or " +
+                                        "usuario.Login_usuario like '%{0}%' or " +
+                                        "usuario.ID_usuario like '%{0}%' or " +
+                                        "tipoUsuario.Descripcion_tipoUsuario like '%{0}%'", textoBusqueda);
+            }
+
+            Sql query = new Sql(@"select usuario.*, tipoUsuario.Descripcion_tipoUsuario as NombreTipo from  [hiram74_residencias].[Usuario] usuario
+                                  inner join [hiram74_residencias].[Tipo_usuario] tipoUsuario on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+            return this.Context.Fetch<dynamic>(query);
         }
     }
 }

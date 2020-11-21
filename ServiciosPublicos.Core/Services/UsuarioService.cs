@@ -16,8 +16,9 @@ namespace ServiciosPublicos.Core.Services
         Usuario GetUsuario(string usr);
         Usuario GetUsuario(string usr, string password);
         List<Usuario> GetUsuarios();
-        List<dynamic> GetUsuarioesFiltro(string nombre = null);
+        List<dynamic> GetUsuariosFiltro(string nombre = null);
         bool InsertUpdateUsuario(Usuario Usuario, out string Message);
+        bool InsertarUsuario(Usuario Usuario, out string Message);
         bool EliminarUsuario(int id, out string Message);
     }
 
@@ -53,18 +54,38 @@ namespace ServiciosPublicos.Core.Services
             return _usuarioRepository.GetAll("hiram74_residencias.Usuario").ToList();
         }
 
-        public List<dynamic> GetUsuarioesFiltro(string nombre = null)
+        public List<dynamic> GetUsuariosFiltro(string nombre = null)
         {
             string filter = " Where ";
 
             if (!string.IsNullOrEmpty(nombre))
             {
-                filter += string.Format("p.Nombre like '%{0}%' or p.Usuario like '%{0}%' or p.ID like '%{0}%' or pt.Nombre like '%{0}%'", nombre);
+                filter += string.Format("usuario.Nombre_usuario like '%{0}%' or usuario.Login_usuario like '%{0}%' or usuario.ID_usuario like '%{0}%' or tipoUsuario.Descripcion_tipoUsuario like '%{0}%'", nombre);
             }
 
-            Sql query = new Sql(@"select p.*, pt.Nombre as NombreTipo from  [dbo].[Usuario] p
-                                  inner join [dbo].[TiposUsuario] pt on pt.ID = p.ID_TipoUsuario" + (!string.IsNullOrEmpty(nombre) ? filter : ""));
+            Sql query = new Sql(@"select usuario.*, tipoUsuario.Descripcion_tipoUsuario as NombreTipo from  [hiram74_residencias].[Usuario] usuario
+                                  inner join [hiram74_residencias].[Tipo_usuario] tipoUsuario on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(nombre) ? filter : ""));
             return _usuarioRepository.GetByDynamicFilter(query);
+        }
+
+        public bool InsertarUsuario(Usuario usuario, out string Message)
+        {
+            Message = string.Empty;
+            bool result = false;
+            try
+            {
+                _usuarioRepository.Add<int>(usuario);
+
+                Message = "Usuario registrado " + usuario.Login_usuario + "con exito";
+                result = true;
+            }
+            catch (Exception ex)
+            {
+
+                Message = "Usuario No pudo ser registrado Error: " + ex.Message;
+            }
+
+            return result;
         }
 
         public bool InsertUpdateUsuario(Usuario usuario, out string Message) {

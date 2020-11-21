@@ -79,7 +79,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _usuarioservice.GetUsuarioesFiltro(usuario);
+                    var item = _usuarioservice.GetUsuariosFiltro(usuario);
                     response = request.CreateResponse(HttpStatusCode.OK, item);
                 }
                 catch (Exception ex)
@@ -117,6 +117,45 @@ namespace ServiciosPublicos.Api.Controllers
                     {
                         error = "ERROR",
                         exception = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+        [HttpPost]
+        [Route("Registrar")]
+        public async Task<HttpResponseMessage> Registrar(HttpRequestMessage request, Usuario model)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var result = _usuarioservice.InsertarUsuario(model, out message);
+                    if (result)
+                    {
+                        response = request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        response = request.CreateResponse(HttpStatusCode.BadRequest,
+                        new
+                        {
+                            error = "ERROR",
+                            message = message
+                        });
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
                     });
                 }
 

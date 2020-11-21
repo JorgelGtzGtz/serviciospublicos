@@ -98,8 +98,17 @@ export class CuadrillasComponent implements OnInit {
   // " openDialogVerEditarNuevo" y le envía un parámetro
   // para indicar al dialog el tipo de actividad que se realizará
   nuevaCuadrilla(): void{
-    console.log('Nuevo');
     this.abrirDialogVerEditarNuevo('nuevo');
+  }
+
+  // Método para editar una cuadrilla de la tabla
+  editarCuadrilla(registro: object){
+    this.abrirDialogVerEditarNuevo('editar');
+  }
+
+  // Método para ver una cuadrilla de la tabla
+  verCuadrilla(registro: object){
+    this.abrirDialogVerEditarNuevo('ver');
   }
  
   // Método para eliminar sector. Lanza un mensaje de confirmación, que según
@@ -111,15 +120,6 @@ export class CuadrillasComponent implements OnInit {
       alert('La cuadrilla se ha eliminado.');
     }else{
       console.log('no se elimina');
-    }
-  }
-
-  // Método que se recibe de la tabla, el tipo de acción que se hará en el formulario del dialog
-  recibirAccion(event: string, registro: object): void {
-    if (event === 'ver' || event === 'editar'){
-      this.abrirDialogVerEditarNuevo(event, registro);
-    }else{
-      this.eliminarCuadrilla(registro);
     }
   }
 

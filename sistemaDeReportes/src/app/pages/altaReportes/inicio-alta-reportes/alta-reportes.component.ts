@@ -134,12 +134,16 @@ export class AltaReportesComponent implements OnInit {
 
   }
 
-  // Acción que se recibe según el botón que se seleccionó en la tabla
-  //  Se manda llamar al método que abre el dialog y se le manda esta acción
-  recibirAccion(event: string, registro: object): void{
-    let elemento: Reporte;
-    this.abrirDialogSeleccionar(event, registro);
+   // Método para editar un reporte de la tabla
+   editarReporte(registro: object){
+    this.abrirDialogSeleccionar('editar', registro);
   }
+
+  // Método para ver un reporte de la tabla
+  verReporte(registro: object){
+    this.abrirDialogSeleccionar('ver', registro);
+  }
+
 
   // Método que se llama con el botón buscar 
   // Aquí se recuperan los criterios de búsqueda establecidos por 

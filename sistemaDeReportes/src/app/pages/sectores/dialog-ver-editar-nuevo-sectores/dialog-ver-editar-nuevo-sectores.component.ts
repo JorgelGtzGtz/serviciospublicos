@@ -98,7 +98,7 @@ mensajeDeGuardado(): void{
   if (this.accion === 'editar'){
     alert('¡Los datos se han actualizado exitosamente!');
   } else{
-    alert('Registro exitoso!');
+    alert('¡Registro de sector exitoso!');
   }
 }
 

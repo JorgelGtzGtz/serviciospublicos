@@ -15,7 +15,7 @@ export const ROUTES: Routes = [
     {
         path: '**',
         pathMatch: 'full',
-        redirectTo: 'inicio'}
+        redirectTo: 'login'}
 ];
 
 @NgModule({

@@ -34,15 +34,16 @@ namespace ServiciosPublicos.Api.App_Start
             builder.RegisterType<DbFactory>().As<IDbFactory>().AsImplementedInterfaces();
            /* builder.RegisterType<AccesosRepository>().As<IAccesosRepository>().AsImplementedInterfaces();
             builder.RegisterType<AccesosTipoUsuarioRepository>().As<IAccesosTipoUsuarioRepository>().AsImplementedInterfaces();
-            builder.RegisterType<TipoUsuarioRepository>().As<ITipoUsuarioRepository>().AsImplementedInterfaces();
            */
+           // builder.RegisterType<TipoUsuarioRepository>().As<ITipoUsuarioRepository>().AsImplementedInterfaces();           
             builder.RegisterType<UsuarioRepository>().As<IUsuarioRepository>().AsImplementedInterfaces();
+            builder.RegisterType<TicketRepository>().As<ITicketRepository>().AsImplementedInterfaces();
             
 
-            /*builder.RegisterType<ListaCombosService>().As<IListaCombosService>().AsImplementedInterfaces();
-            builder.RegisterType<TipoUsuarioService>().As<ITipoUsuarioService>().AsImplementedInterfaces();
-            */
+            //builder.RegisterType<ListaCombosService>().As<IListaCombosService>().AsImplementedInterfaces();
+            builder.RegisterType<TipoUsuarioService>().As<ITipoUsuarioService>().AsImplementedInterfaces();            
             builder.RegisterType<UsuarioService>().As<IUsuarioService>().AsImplementedInterfaces();
+            builder.RegisterType<TicketService>().As<ITicketService>().AsImplementedInterfaces();
 
 
             Container = builder.Build();

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace ServiciosPublicos.Api.Controllers
-{/*
+{ /*
     [RoutePrefix("api/TiposUsuario")]
     public class TiposUsuarioController : BaseApiController
     {
@@ -187,5 +187,6 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
-    }*/
+    }
+    */
 }

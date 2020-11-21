@@ -29,7 +29,7 @@ export class DialogVerEditarNuevoComponent implements OnInit {
 
    ngOnInit(): void {
      this.accion = this.data.accion;
-     this.listA = ['prueba', 'prueba2', 'prueba3', 'prueba4', 'prueba5', 'prueba6', 'prueba7', 'prueba8'];
+     this.listA = ['proceso', 'proceso2', 'proceso3', 'proceso4', 'proceso5'];
      this.listB = [];
      this.tipoFormularioAccion();
     }
