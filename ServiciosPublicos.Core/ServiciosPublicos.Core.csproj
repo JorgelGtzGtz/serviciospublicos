@@ -62,14 +62,28 @@
     </Compile>
     <Compile Include="Models\PetaPoco.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repository\CuadrillaRepository.cs" />
+    <Compile Include="Repository\ImagenRepository.cs" />
+    <Compile Include="Repository\ReporteRepository.cs" />
+    <Compile Include="Repository\ReporteTicketRepository.cs" />
+    <Compile Include="Repository\SectorRepository.cs" />
     <Compile Include="Repository\TicketRepository.cs" />
     <Compile Include="Repository\TipoUsuarioRepository.cs" />
+    <Compile Include="Repository\TipoReporteRepository.cs" />
     <Compile Include="Repository\UsuarioRepository.cs" />
-    <Compile Include="Repository\AccesosTipoUsuarioRepository.cs" />
-    <Compile Include="Repository\AccesosRepository.cs" />
+    <Compile Include="Repository\IPermisosRepository.cs" />
+    <Compile Include="Repository\ProcesosPermisosRepository.cs" />
     <Compile Include="Repository\RepositoryBase.cs" />
+    <Compile Include="Services\CuadrillaService.cs" />
+    <Compile Include="Services\ImagenService.cs" />
     <Compile Include="Services\ListaCombosService.cs" />
+    <Compile Include="Services\PermisosService.cs" />
+    <Compile Include="Services\ProcesosPermisosService.cs" />
+    <Compile Include="Services\ReporteServicio.cs" />
+    <Compile Include="Services\ReporteTicketService.cs" />
+    <Compile Include="Services\SectorService.cs" />
     <Compile Include="Services\TicketService.cs" />
+    <Compile Include="Services\TipoReporteService.cs" />
     <Compile Include="Services\TipoUsuarioService.cs" />
     <Compile Include="Services\UsuarioService.cs" />
   </ItemGroup>

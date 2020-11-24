@@ -17,15 +17,6 @@ namespace ServiciosPublicos.Api.Controllers
     public class UsuariosController : BaseApiController
     {
         private readonly IUsuarioService _usuarioservice;
-        /* private readonly IListaCombosService _listaCombosService;
-         private readonly ITipoUsuarioService _tipoUsuarioService;
-        */
-        /*public UsuariosController(IUsuarioService usuarioservice, IListaCombosService listaCombosService, ITipoUsuarioService tipoUsuarioService)
-        {
-            _usuarioservice = usuarioservice;
-            _listaCombosService = listaCombosService;
-            _tipoUsuarioService = tipoUsuarioService;
-        }*/
         public UsuariosController(IUsuarioService usuarioservice)
         {
             _usuarioservice = usuarioservice;
@@ -44,14 +35,14 @@ namespace ServiciosPublicos.Api.Controllers
                     if (UserLogged != null)
                     {
                         var op = _usuarioservice.GetUsuario(UserLogged.UserName, UserLogged.Password);
-                        //var accesos = _tipoUsuarioService.GetTipoUsuarioAccesos(op.ID_TipoUsuario);
                         User = Thread.CurrentPrincipal;
                         response = request.CreateResponse(HttpStatusCode.OK, op);
                     }
                     else
                     {
                         message = "Usuario o contraseña invalidas, Intente de nuevo.";
-                        response = request.CreateResponse(HttpStatusCode.NotFound, new { Status = "ERROR", message = message, Sucess = false });
+                        response = request.CreateResponse(HttpStatusCode.NotFound, 
+                            new { Status = "ERROR", message = message, Sucess = false });
                     }
 
                 }
@@ -64,7 +55,6 @@ namespace ServiciosPublicos.Api.Controllers
                         Message = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
@@ -96,9 +86,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        [Route("GetUsuario/{id:int=0}/")]
+        [Route("GetUsuario/{id:int}/")]
         [HttpGet]
-        public async Task<HttpResponseMessage> getUsuario(HttpRequestMessage request, int id)
+        public async Task<HttpResponseMessage> GetUsuario(HttpRequestMessage request, int id)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -119,10 +109,10 @@ namespace ServiciosPublicos.Api.Controllers
                         exception = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
+
         [HttpPost]
         [Route("Registrar")]
         public async Task<HttpResponseMessage> Registrar(HttpRequestMessage request, Usuario model)
@@ -136,7 +126,7 @@ namespace ServiciosPublicos.Api.Controllers
                     var result = _usuarioservice.InsertarUsuario(model, out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {
@@ -147,7 +137,6 @@ namespace ServiciosPublicos.Api.Controllers
                             message = message
                         });
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -158,14 +147,13 @@ namespace ServiciosPublicos.Api.Controllers
                         message = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
 
-        [HttpPost]
-        [Route("Guardar")]
-        public async Task<HttpResponseMessage> Guardar(HttpRequestMessage request, Usuario model)
+        [HttpPut]
+        [Route("Actualizar")]
+        public async Task<HttpResponseMessage> ActualizarUsuario(HttpRequestMessage request, Usuario model)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -173,10 +161,10 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var result = _usuarioservice.InsertUpdateUsuario(model, out message);
+                    var result = _usuarioservice.UpdateUsuario(model, out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {
@@ -187,7 +175,6 @@ namespace ServiciosPublicos.Api.Controllers
                             message = message
                         });
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -198,14 +185,14 @@ namespace ServiciosPublicos.Api.Controllers
                         message = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
 
+        
         [HttpDelete]
-        [Route("Eliminar/{id}")]
-        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)
+        [Route("Eliminar/{id:int}")]
+        public async Task<HttpResponseMessage> EliminarUsuario(HttpRequestMessage request, int id)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -216,7 +203,7 @@ namespace ServiciosPublicos.Api.Controllers
                     var result = _usuarioservice.EliminarUsuario(id, out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {
@@ -227,7 +214,6 @@ namespace ServiciosPublicos.Api.Controllers
                             message = message
                         });
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -238,37 +224,8 @@ namespace ServiciosPublicos.Api.Controllers
                         message = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
-
-       /* [HttpGet]
-        [Route("TiposUsuarios")]
-        public async Task<HttpResponseMessage> GetTiposUsuarios(HttpRequestMessage request)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var item = _listaCombosService.GetTipoUsuarios();
-                    response = request.CreateResponse(HttpStatusCode.OK, item);
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        message = ex.Message
-                    });
-                }
-
-                return await Task.FromResult(response);
-            });
-        }*/
-
     }
 }

@@ -1,6 +1,5 @@
 ﻿using dbServiciosPublicos;
 using Newtonsoft.Json.Linq;
-using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -12,22 +11,22 @@ using System.Web.Http;
 
 namespace ServiciosPublicos.Api.Controllers
 {
-    [RoutePrefix("api/TipoUsuario")]
-    public class TiposUsuarioController : BaseApiController
+    [RoutePrefix("api/Reporte")]
+    public class ReporteController : BaseApiController
     {
-        private readonly ITipoUsuarioService _tipoUsuarioService;
-        private readonly IPermisosService _permisosService;
+        private readonly IReporteServicio _reporteServicio;
+        private readonly ITicketService _ticketService;
 
-        public TiposUsuarioController(ITipoUsuarioService tipoUsuarioService, IPermisosService permisosService)
+        public ReporteController(IReporteServicio reporteServicio, ITicketService ticketService)
         {
-            _tipoUsuarioService = tipoUsuarioService;
-            _permisosService = permisosService;
+            _reporteServicio = reporteServicio;
+            _ticketService = ticketService;
         }
 
-        //Regresa lista de todos los tipos de usuario existentes sin sus permisos
+        //Para obtener un listado de todos los reportes
         [HttpGet]
-        [Route("ListaGeneral")]
-        public async Task<HttpResponseMessage> GetTipoUsuarioFiltro(HttpRequestMessage request)
+        [Route("GetAll")]
+        public async Task<HttpResponseMessage> GetAllReportes(HttpRequestMessage request)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -35,7 +34,212 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _tipoUsuarioService.GetTipoUsuarios();
+                    var listaReportes = _reporteServicio.GetAllReportes();
+                        response = request.CreateResponse(HttpStatusCode.OK, listaReportes); 
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Para obtener un listado de todos los reportes filtrando por cuadrilla
+        [HttpGet]
+        [Route("GetReportesCuadrillas/{id}")]
+        public async Task<HttpResponseMessage> GetReportesCuadrilla(HttpRequestMessage request, int id)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var listaReportes = _reporteServicio.GetReporteCuadrilla(id);
+                    response = request.CreateResponse(HttpStatusCode.OK, listaReportes);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Obtener imagenes del reporte
+        //Para obtener un listado de todos los reportes
+        [HttpGet]
+        [Route("GetImagenesReporte/{id}/")]
+        public async Task<HttpResponseMessage> GetImagenesReporte(HttpRequestMessage request, int id)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var imagenesReporte = _reporteServicio.GetImagenesReporte(id,out message);
+                    response = request.CreateResponse(HttpStatusCode.OK, imagenesReporte);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Insertar imagenes del reporte, tomando a consideracion, una situacion de cierre de reporte.
+        //recibe un objeto JSON que contiene los datos del reporte y la lista de imagenes
+        [HttpPost]
+        [Route("InsertarImagenesReporte")]
+        public async Task<HttpResponseMessage> InsertarImagenesReporte(HttpRequestMessage request, [FromBody] JObject data)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                var imagenes = new List<Imagen>();
+                try
+                {
+                    var reporte = data["reporte"].ToObject<Reporte>();
+                    var value = data["imagenes"].HasValues;
+                    if (value)
+                    {
+                        imagenes = data["imagenes"].ToObject<List<Imagen>>();
+                        _reporteServicio.InsertarImagenesReporte(reporte.ID_reporte, imagenes, out message);
+                    }
+                    response = request.CreateResponse(HttpStatusCode.OK, message);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Registrar un nuevo reporte,
+        //recibe un objeto JSON con los datos del reporte y un listado de imagenes
+        [HttpPost]
+        [Route("Registrar")]
+        public async Task<HttpResponseMessage> Registrar(HttpRequestMessage request, [FromBody] JObject data)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                var imagenes = new List<Imagen>();
+                try
+                {
+                    var ticket = data["ticket"].ToObject<Ticket>();
+                    var value = data["imagenes"].HasValues;
+                    if (value)
+                    {
+                        imagenes = data["imagenes"].ToObject<List<Imagen>>();
+                    }
+                    var idTicket = _ticketService.InsertarTicket(ticket, out message);
+                    var nuevoTicket = _ticketService.GetTicket(idTicket);
+                    var result = _reporteServicio.AltaReporte(nuevoTicket, imagenes, out message);
+
+                    if (result)
+                    {
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
+                    }
+                    else
+                    {
+                        response = request.CreateResponse(HttpStatusCode.BadRequest, message);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Actualizacion de reporte, recibe un Reporte
+        [HttpPut]
+        [Route("Actualizar")]
+        public async Task<HttpResponseMessage> ActualizarReporte(HttpRequestMessage request, Reporte model)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var result = _reporteServicio.ActualizarReporte(model, out message);
+                    if (result)
+                    {
+                        response = request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        response = request.CreateResponse(HttpStatusCode.BadRequest,
+                        new
+                        {
+                            error = "ERROR",
+                            message = message
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+
+        //Regresa los reportes que coinciden con el parámetros que se manda
+        [HttpGet]
+        [Route("lista/{parametro?}/")]
+        public async Task<HttpResponseMessage> GetReportesFiltro(HttpRequestMessage request, string parametro = null)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var item = _reporteServicio.GetAllReportes(parametro);
                     response = request.CreateResponse(HttpStatusCode.OK, item);
                 }
                 catch (Exception ex)
@@ -51,190 +255,5 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
-        // Devuelve el tipo de usuario específico y sus permisos
-        // como objeto JSON
-        [HttpGet]
-        [Route("GetTipoUsuario/{id}/")]
-        public async Task<HttpResponseMessage> GetTipoUsuario(HttpRequestMessage request, int id)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var tipoUsuario = _tipoUsuarioService.GetTipoUsuario(id);
-                    var permisos = _permisosService.GetPermisos(tipoUsuario.Descripcion_tipoUsuario);
-                    response = request.CreateResponse(HttpStatusCode.OK, new { tipoUsuario, permisos });
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        message = ex.Message
-                    });
-                }
-
-                return await Task.FromResult(response);
-            });
-        }
-
-        //Insertar un nuevo tipo de usuario
-        [HttpPost]
-        [Route("Insertar")]
-        public async Task<HttpResponseMessage> Insertar(HttpRequestMessage request, [FromBody] JObject data)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var tipo = data["tipo"].ToObject<Tipo_usuario>();
-                    var permisos = data["permisos"].ToObject<List<Procesos_Permiso>>();
-
-                    var result = _tipoUsuarioService.InsertTipoUsuario(tipo, permisos, out message);
-                    if (result)
-                    {
-                        response = request.CreateResponse(HttpStatusCode.OK, message);
-                    }
-                    else
-                    {
-                        response = request.CreateResponse(HttpStatusCode.BadRequest,
-                        new
-                        {
-                            error = "ERROR",
-                            message = message
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        exception = ex.Message
-                    });
-                }
-                return await Task.FromResult(response);
-            });
-        }
-
-        /*Este método recibe un objeto JSON que contiene los datos del tipo de usuario como "tipo"
-         * y también contiene los datos de los accesos como "Procesos_Permiso", los convierte a sus
-         * respectivos objetos para después guardarlos
-         */
-        [HttpPut]
-        [Route("Actualizar")]
-        public async Task<HttpResponseMessage> Actualizar(HttpRequestMessage request, [FromBody] JObject data)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {                    
-                    var tipo = data["tipo"].ToObject<Tipo_usuario>();
-                    var permisos = data["permisos"].ToObject<List<Procesos_Permiso>>();
-
-                    var result = _tipoUsuarioService.UpdateTipoUsuario(tipo, permisos, out message);
-                    if (result)
-                    {
-                        response = request.CreateResponse(HttpStatusCode.OK, message);
-                    }
-                    else
-                    {
-                        response = request.CreateResponse(HttpStatusCode.BadRequest,
-                        new
-                        {
-                            error = "ERROR",
-                            message = message
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        exception = ex.Message
-                    });
-                }
-                return await Task.FromResult(response);
-            });
-        }
-        
-        //Eliminar un tipo de usuario con el id del tipo de usuario
-        [HttpDelete]
-        [Route("Eliminar/{id}")]
-        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var result = _tipoUsuarioService.EliminarTipoUsuario(id, out message);
-                    if (result)
-                    {
-                        response = request.CreateResponse(HttpStatusCode.OK, message);
-                    }
-                    else
-                    {
-                        response = request.CreateResponse(HttpStatusCode.BadRequest,
-                        new
-                        {
-                            error = "ERROR",
-                            message = message
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        message = ex.Message
-                    });
-                }
-                return await Task.FromResult(response);
-            });
-        }
-
-        //Obtener permisos de un tipo de usuario con el id del tipo de usuario
-        [HttpGet]
-        [Route("GetPermisos/{id}/")]
-        public async Task<HttpResponseMessage> GetPermisosTipoUsuario(HttpRequestMessage request, int id)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var tipoUsuario = _tipoUsuarioService.GetTipoUsuario(id);
-                    var permisos = _tipoUsuarioService.GetPermisosTipoUsuario(id, out message);
-                    response = request.CreateResponse(HttpStatusCode.OK, permisos );
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        message = ex.Message
-                    });
-                }
-                return await Task.FromResult(response);
-            });
-        }
-
     }
-
 }

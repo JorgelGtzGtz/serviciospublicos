@@ -155,6 +155,7 @@ namespace dbServiciosPublicos
     public partial class Reporte : dbServiciosPublicosDB.Record<Reporte>  
     {
 		[Column] public int ID_reporte { get; set; }
+		[Column] public int ID_tipoReporte { get; set; }
 		[Column] public double? Latitud_reporte { get; set; }
 		[Column] public double? Longitud_reporte { get; set; }
 		[Column] public DateTime FechaRegistro_reporte { get; set; }

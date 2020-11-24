@@ -1,5 +1,4 @@
 ﻿using dbServiciosPublicos;
-using Newtonsoft.Json.Linq;
 using ServiciosPublicos.Core.Services;
 using System;
 using System.Collections.Generic;
@@ -11,44 +10,29 @@ using System.Web.Http;
 
 namespace ServiciosPublicos.Api.Controllers
 {
-    [RoutePrefix("api/Ticket")]
-    public class TicketController : BaseApiController
+    [RoutePrefix("api/reporteTicket")]
+    public class ReporteTicketController : BaseApiController
     {
-        private readonly ITicketService _ticketService;
-        public TicketController(ITicketService ticketService)
+        private readonly IReporteTicketService _reporteTicketService;
+
+        public ReporteTicketController(IReporteTicketService reporteTicketService)
         {
-            _ticketService = ticketService;
+            _reporteTicketService = reporteTicketService;
         }
-   /*     
+          
+        //Para obtener los registros relacionados a el id de reporte que se manda
         [HttpPost]
-        [Route("Registrar")]
-        public async Task<HttpResponseMessage> InsertTicket(HttpRequestMessage request, [FromBody] JObject data)
+        [Route("Insertar")]
+        public async Task<HttpResponseMessage> InsertReporteTicket(HttpRequestMessage request, Reporte_Ticket model)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
                 HttpResponseMessage response = null;
                 string message = String.Empty;
-                var imagenes = new List<Imagen>();
                 try
                 {
-                    var ticket = data["ticket"].ToObject<Ticket>();
-                    var value = data["imagenes"].HasValues;
-                    if (value)
-                    {
-                        imagenes = data["imagenes"].ToObject<List<Imagen>>();
-                    }                    
-                    var idTicket = _ticketService.InsertarTicket(ticket, out message);
-                    var nuevoTicket = _ticketService.GetTicket(idTicket);
-                    var result = _ticketService.VerificarExistenciaReporte(nuevoTicket, imagenes, out message); 
-
-                    if (result)
-                    {
-                        response = request.CreateResponse(HttpStatusCode.OK, message);
-                    }
-                    else
-                    {
-                        response = request.CreateResponse(HttpStatusCode.BadRequest,message);
-                    }                   
+                    var result = _reporteTicketService.Insertar(model, out message);
+                    response = request.CreateResponse(HttpStatusCode.OK, result);
                 }
                 catch (Exception ex)
                 {
@@ -59,14 +43,16 @@ namespace ServiciosPublicos.Api.Controllers
                         exception = ex.Message
                     });
                 }
+
                 return await Task.FromResult(response);
             });
         }
-   */
 
+
+        //Para obtener todos los registros de la tabla
         [HttpGet]
-        [Route("GetTicket/{id}/")]
-        public async Task<HttpResponseMessage> GetTicket(HttpRequestMessage request, int id)
+        [Route("GetAll")]
+        public async Task<HttpResponseMessage> GetAllReporteTicket(HttpRequestMessage request)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -74,8 +60,8 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var ticket = _ticketService.GetTicket(id);
-                    response = request.CreateResponse(HttpStatusCode.OK, ticket);
+                    var reporteTicketLista = _reporteTicketService.GetAllReporteTickets();
+                    response = request.CreateResponse(HttpStatusCode.OK, reporteTicketLista);
                 }
                 catch (Exception ex)
                 {
@@ -90,9 +76,10 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        //Para obtener los registros relacionados a el id de reporte que se manda
         [HttpGet]
-        [Route("GetTicketsLista")]
-        public async Task<HttpResponseMessage> GetTicketsLista(HttpRequestMessage request)
+        [Route("GetTickets/{idReporte}")]
+        public async Task<HttpResponseMessage> GetTickets(HttpRequestMessage request, int idReporte)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -100,39 +87,8 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var listaTickets = _ticketService.GetTickets();
+                    var listaTickets = _reporteTicketService.GetReporteTickets(idReporte);
                     response = request.CreateResponse(HttpStatusCode.OK, listaTickets);
-
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                        new
-                        {
-                            error = "ERROR",
-                            exception = ex.Message
-
-                        });
-
-                }
-                return await Task.FromResult(response);
-            });
-            
-        }
-
-        [HttpPut]
-        [Route("ActualizarTicket")]
-        public async Task<HttpResponseMessage> ActualizarTicket(HttpRequestMessage request, Ticket model)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var ticket = _ticketService.ActualizarTicket(model, out message);
-
-                    response = request.CreateResponse(HttpStatusCode.OK, message);
                 }
                 catch (Exception ex)
                 {
@@ -147,5 +103,35 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
+
+
+        //Para obtener un registro especifico de esta tabla
+        [HttpGet]
+        [Route("GetReporteTicket/{folio}")]
+        public async Task<HttpResponseMessage> GetReporteTicket(HttpRequestMessage request, int folio)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var registro = _reporteTicketService.GetReporteTicket(folio);
+                    response = request.CreateResponse(HttpStatusCode.OK, registro);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
     }
 }

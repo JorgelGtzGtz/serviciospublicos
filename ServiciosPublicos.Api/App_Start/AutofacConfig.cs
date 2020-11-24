@@ -35,15 +35,33 @@ namespace ServiciosPublicos.Api.App_Start
            /* builder.RegisterType<AccesosRepository>().As<IAccesosRepository>().AsImplementedInterfaces();
             builder.RegisterType<AccesosTipoUsuarioRepository>().As<IAccesosTipoUsuarioRepository>().AsImplementedInterfaces();
            */
-           // builder.RegisterType<TipoUsuarioRepository>().As<ITipoUsuarioRepository>().AsImplementedInterfaces();           
+            //REPOSITORIOS          
             builder.RegisterType<UsuarioRepository>().As<IUsuarioRepository>().AsImplementedInterfaces();
             builder.RegisterType<TicketRepository>().As<ITicketRepository>().AsImplementedInterfaces();
-            
+            builder.RegisterType<TipoUsuarioRepository>().As<ITipoUsuarioRepository>().AsImplementedInterfaces();
+            builder.RegisterType<PermisosRepository>().As<IPermisosRepository>().AsImplementedInterfaces();
+            builder.RegisterType<ProcesosPermisosRepository>().As<IProcesosPermisosRepository>().AsImplementedInterfaces();
+            builder.RegisterType<ReporteTicketRepository>().As<IReporteTicketRepository>().AsImplementedInterfaces();
+            builder.RegisterType<ReporteRepository>().As<IReporteRepository>().AsImplementedInterfaces();
+            builder.RegisterType<TipoReporteRepository>().As<ITipoReporteRepository>().AsImplementedInterfaces();
+            builder.RegisterType<ImagenRepository>().As<IImagenRepository>().AsImplementedInterfaces();
+            builder.RegisterType<SectorRepository>().As<ISectorRepository>().AsImplementedInterfaces();
+            builder.RegisterType<CuadrillaRepository>().As<ICuadrillaRepository>().AsImplementedInterfaces();
 
-            //builder.RegisterType<ListaCombosService>().As<IListaCombosService>().AsImplementedInterfaces();
+
+            //SERVICIOS
+            builder.RegisterType<PermisosService>().As<IPermisosService>().AsImplementedInterfaces();
+            builder.RegisterType<ListaCombosService>().As<IListaCombosService>().AsImplementedInterfaces();
             builder.RegisterType<TipoUsuarioService>().As<ITipoUsuarioService>().AsImplementedInterfaces();            
             builder.RegisterType<UsuarioService>().As<IUsuarioService>().AsImplementedInterfaces();
             builder.RegisterType<TicketService>().As<ITicketService>().AsImplementedInterfaces();
+            builder.RegisterType<ProcesosPermisosService>().As<IProcesosPermisosService>().AsImplementedInterfaces();
+            builder.RegisterType<ReporteTicketService>().As<IReporteTicketService>().AsImplementedInterfaces();
+            builder.RegisterType<ReporteServicio>().As<IReporteServicio>().AsImplementedInterfaces();
+            builder.RegisterType<TipoReporteService>().As<ITipoReporteService>().AsImplementedInterfaces();
+            builder.RegisterType<ImagenService>().As<IImagenService>().AsImplementedInterfaces();
+            builder.RegisterType<SectorService>().As<ISectorService>().AsImplementedInterfaces();
+            builder.RegisterType<CuadrillaService>().As<ICuadrillaService>().AsImplementedInterfaces();
 
 
             Container = builder.Build();

@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace ServiciosPublicos.Core.Services
 {
-   /* public interface IListaCombosService
+    public interface IListaCombosService
     {
-        List<TiposUsuario> GetTipoUsuarios();
-    }*/
+        List<Tipo_usuario> GetTipoUsuarios();
+    }
 
-    /*public class ListaCombosService : IListaCombosService
+    public class ListaCombosService : IListaCombosService
     {
         private readonly ITipoUsuarioRepository _tipoUsuarioRepository;
 
@@ -23,7 +23,7 @@ namespace ServiciosPublicos.Core.Services
             _tipoUsuarioRepository = tipoUsuarioRepository;
         }
 
-        public List<TiposUsuario> GetTipoUsuarios()
+        public List<Tipo_usuario> GetTipoUsuarios()
         {
             Sql query = new Sql()
                 .Select("*").From("TiposUsuario");
@@ -31,5 +31,5 @@ namespace ServiciosPublicos.Core.Services
         }
 
 
-    }*/
+    }
 }

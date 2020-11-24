@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoUsuarioComponent } from '../dialog-ver-editar-nuevo-usuario/dialog-ver-editar-nuevo-usuario.component';
 import { FormGroup, FormBuilder} from '@angular/forms';
 import { Usuario } from '../../../Interfaces/IUsuario';
+import { UsuarioModelo } from '../../../Models/UsuarioModelo';
 
 
 
@@ -16,8 +17,10 @@ export class UsuariosComponent implements OnInit {
   nombreSeccion = 'Usuarios';
   headersTabla: string [];
   datosTabla: object [];
-  datos: Usuario[] = [
-    {ID_usuario: 0,
+  //usuario: UsuarioModelo = new UsuarioModelo(0, 'UsuarioPrueba', 'prueba123@gmail.com', '6441598423', 'F', 1, 'uTest', '1234', true, false);
+  datos:Usuario[] =[
+    {
+      ID_usuario: 0,
       Nombre_usuario: 'UsuarioPrueba',
       Correo_usuario: 'prueba123@gmail.com',
       Telefono_usuario: '6441598423',
@@ -27,8 +30,7 @@ export class UsuariosComponent implements OnInit {
       Password_usuario: '1234',
       Estatus_usuario: true,
       Jefe_asignado: false
-    },
-  ];
+    }];
 
   constructor( public dialog: MatDialog, private formBuilder: FormBuilder) {
     this.buildForm();
@@ -59,6 +61,7 @@ export class UsuariosComponent implements OnInit {
     this.headersTabla = ['ID', 'Tipo usuario', 'Nombre', 'Procesos'];
     console.log('datos tabla:', this.datosTabla);
     console.log('datos:', this.datos);
+    
   }
 
   // Métodos get para obtener acceso a los campos del formulario

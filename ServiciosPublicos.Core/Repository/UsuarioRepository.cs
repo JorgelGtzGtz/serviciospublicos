@@ -48,7 +48,7 @@ namespace ServiciosPublicos.Core.Repository
 
             return user;
         }
-
+       
         public List<dynamic> GetByDynamicFilter(Sql sql)
         {
             return this.Context.Fetch<dynamic>(sql);
@@ -66,9 +66,11 @@ namespace ServiciosPublicos.Core.Repository
                                         "tipoUsuario.Descripcion_tipoUsuario like '%{0}%'", textoBusqueda);
             }
 
-            Sql query = new Sql(@"select usuario.*, tipoUsuario.Descripcion_tipoUsuario as NombreTipo from  [hiram74_residencias].[Usuario] usuario
-                                  inner join [hiram74_residencias].[Tipo_usuario] tipoUsuario on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
-            return this.Context.Fetch<dynamic>(query);
+            Sql query = new Sql(@"select usuario.*, tipoUsuario.Descripcion_tipoUsuario as NombreTipo
+                                from  [hiram74_residencias].[Usuario] usuario
+                                inner join [hiram74_residencias].[Tipo_usuario] tipoUsuario 
+                                on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+            return this.Context.Fetch<dynamic>(query);            
         }
     }
 }
