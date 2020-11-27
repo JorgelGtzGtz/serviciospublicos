@@ -28,11 +28,14 @@ namespace ServiciosPublicos.Core.Repository
         public Reporte VerificarExistenciaReporte(Ticket ticket)
         {
             Sql query = new Sql(
-                @"SELECT * FROM Reporte WHERE Direccion_reporte like @0 AND ID_tipoReporte = @1",
-                "%"+ ticket.Direccion_ticket + "%", ticket.ID_tipoReporte);
+                @"SELECT * FROM Reporte WHERE (
+          acos(sin(Latitud_reporte * 0.0175) * sin(@0 * 0.0175) 
+               + cos(Latitud_reporte * 0.0175) * cos(@0 * 0.0175) *    
+                 cos((@1 * 0.0175) - (Longitud_reporte * 0.0175))
+              ) * 3959 <= 0.16
+      ) AND ID_tipoReporte = @2", ticket.Latitud_ticket, ticket.Longitud_ticket, ticket.ID_tipoReporte);
             return this.Context.SingleOrDefault<Reporte>(query);
         }
-
 
         public List<dynamic> GetReporteCuadrilla(int idCuadrilla)
         {
@@ -52,7 +55,7 @@ namespace ServiciosPublicos.Core.Repository
         public int InsertarReporte(Ticket ticket)
         {
             Reporte reporte = new Reporte();
-            reporte.ID_reporte = ticket.ID_tipoReporte;
+            reporte.ID_tipoReporte = ticket.ID_tipoReporte;
             reporte.Latitud_reporte = ticket.Latitud_ticket;
             reporte.Longitud_reporte = ticket.Longitud_ticket;
             reporte.FechaRegistro_reporte = ticket.FechaRegistro_ticket;
