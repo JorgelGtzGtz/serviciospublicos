@@ -69,7 +69,7 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   inicializarCampos(){
     if (this.accion !== 'nuevo'){
       this.campoId.setValue( this.tipoUsuario.ID_tipoUsuario);
-      this.campoEstado.setValue(this.tipoUsuario.Estatus_tipoUsuario);
+      this.campoEstado.setValue(!this.tipoUsuario.Estatus_tipoUsuario);
       this.campoDescripcion.setValue(this.tipoUsuario.Descripcion_tipoUsuario);
     } else{
       this.campoEstado.setValue(false);
@@ -244,10 +244,11 @@ guardar() {
 }
 
 generarTipo(){
+  const estado = !this.campoEstado.value;
   return new TipoUsuarioM(
     this.campoId.value,
     this.campoDescripcion.value,
-    this.campoEstado.value
+    estado
   );
 }
 

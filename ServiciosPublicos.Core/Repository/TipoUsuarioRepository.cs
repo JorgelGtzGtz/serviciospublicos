@@ -34,17 +34,18 @@ namespace ServiciosPublicos.Core.Repository
 
             if (!string.IsNullOrEmpty(textoBusqueda))
             {
-                filter += string.Format("ID_tipoUsuario LIKE '%{0}%' OR " +
-                                        "Descripcion_tipoUsuario LIKE '%{0}%'", textoBusqueda);
+                filter += string.Format("(ID_tipoUsuario LIKE '%{0}%' OR " +
+                                        "Descripcion_tipoUsuario LIKE '%{0}%')", textoBusqueda);
                 operacion = true;
             }
 
             if (!string.IsNullOrEmpty(estado))
             {
                 filter += (operacion ? " AND ": "") +  string.Format("Estatus_tipoUsuario LIKE '%{0}%'", estado);
+                operacion = true;
             }
 
-            Sql query = new Sql(@"SELECT * FROM Tipo_usuario " + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+            Sql query = new Sql(@"SELECT * FROM Tipo_usuario " + (operacion ? filter : ""));
             return this.Context.Fetch<dynamic>(query);
         }
 

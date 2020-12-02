@@ -47,8 +47,8 @@ export class TiposDeUsuarioComponent implements OnInit {
   }
 
   // Metodo para actualizar los datos de la tabla
-  actualizarTabla(parametro?: string){
-    this.tipoService.obtenerListaTipoU(parametro).subscribe( tipos => {
+  actualizarTabla(){
+    this.tipoService.obtenerListaTipoU(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
       this.tiposUsuario = tipos;
       console.log( this.tiposUsuario);
     });
