@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogState } from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root'
 })
-export class DialogServiceService {
+export class DialogService {
   modificado: boolean; // para saber si el usuario ya modificó el formulario
 
   constructor(private dialog: MatDialog) {
@@ -24,13 +24,16 @@ verificarDialogs(): boolean{
 }
 
 // Este método verifica si existen dialogs abiertos, si los hay,
-// llama al método "verificarCambios" para saber si el usuario
+// llama al método "obtenerDialogAbierto()" para encontrar el dialog en uso.
+// Después, llama al método "verificarCambios" para saber si el usuario
 //  ha interactuado con el formulario y evitar que pierda datos
 // Regresa la variable navegar, que puede ser true o false, según se cumpla la condición.
   verificarDialogsAbiertos(): boolean{
     let navegar: boolean;
+    let dialogAbierto;
     if (this.dialog.openDialogs.length > 0){
-      navegar = this.verificarCambios();
+      dialogAbierto = this.obtenerDialogAbierto();
+      navegar = this.verificarCambios(dialogAbierto);
     }else{
       navegar = true;
     }
@@ -38,22 +41,33 @@ verificarDialogs(): boolean{
     return navegar;
   }
 
-  // Este método verifica si la variable "modificado" que existe en los dialogs
+  // Método que permite obtener el dialog que se encuentra abierto actualmente.
+  // No recibe parámetros, devuelve el MatDialogRef del dialog cuyo estado sea "OPEN"
+  obtenerDialogAbierto(): any{
+    for (let d of this.dialog.openDialogs) {
+      if (d.getState() === MatDialogState.OPEN ){
+        console.log('dialog abierto:', d);
+        return d;
+      }
+    }
+  }
+
+  // Este método verifica si la variable "modificado" que existe en el componente del dialog
   //  es true o false; si es true, manda a llamar el método "mostrarMensajeConfirmacion"
   //  para permitir que el usuario decida si quiere salir de la página actual con el dialog abierto
   //  o cambiar de página, aunque esto implique que el dialog se cierra sin guardar cambios.
-  // El método regresa navegar el cual puede ser true o false.
-  verificarCambios(): boolean{
+  // Recibe un MatDialogRef y regresa el boolean "navegar" el cual puede ser true o false.
+  verificarCambios(dialogAbierto: any): boolean{
     let navegar: boolean;
-    for (let d of this.dialog.openDialogs) {
-      let dialogoAbierto = d.componentInstance;
-      if (dialogoAbierto.obtenerEstadoFormulario()){
-        navegar = this.mostrarMensajeConfirmacion();
+    let d;
+    d = dialogAbierto.componentInstance; // Con esto se accede al componente del dialog
+    console.log('component Instance:', d);
+    if (d.obtenerEstadoFormulario()){
+        navegar = this.mostrarMensajeConfirmacion(dialogAbierto);
       }else{
-        this.dialog.closeAll();
+        dialogAbierto.close();
         navegar =  true;
       }
-    }
     return navegar;
   }
 
@@ -61,11 +75,12 @@ verificarDialogs(): boolean{
   //  en este mensaje se le pide confirme su decisión de salir. Al ser una respuesta true, los 
   // dialogs abiertos se cierra y regresa un true. Al ser false, los dialogs se quedan abiertos
   //  y regresa un false;
-  mostrarMensajeConfirmacion(): boolean{
-    let respuesta = confirm('Esta seguro que desea salir?');
+  // Recibe un MatDialogRef y devuelve un true o false según la respuesta del usuario
+  mostrarMensajeConfirmacion(d: any): boolean{
+    let respuesta = confirm('¿Está seguro que desea salir?');
     if (respuesta){
-      console.log('se mandó a cerrar el dialog');
-      this.dialog.closeAll();
+      console.log('se mandó a cerrar el dialog', d);
+      d.close();
       return true;
     }else{
       console.log('se queda el dialog abierto');

@@ -49,6 +49,20 @@
                 </div>
             </div>
             <!-- TERMINA ENCARGADO -->
+
+            <!-- TIPO DE CUADRILLA -->
+            <div class="row form-sections row-input-group">
+                <label class="lblForm col-form-label col-md-auto" for="tipoCuadrillaSelector">Tipo de cuadrilla</label>
+                <div class="col-lg-6 col-md-6 col-12">
+                    <select class="custom-select" id="tipoCuadrillaSelector" formControlName="tipoCuadrilla">
+                        <option selected>Todos</option>
+                    </select>
+                    <div *ngIf="campoTipoCuadrilla.errors && campoTipoCuadrilla.touched">
+                        <p class="error" *ngIf="campoTipoCuadrilla.hasError('required')">Campo requerido</p>
+                    </div>
+                </div>
+            </div>
+            <!-- TERMINA TIPO DE CUADRILLA -->
         </form>
     </div>
 </div>

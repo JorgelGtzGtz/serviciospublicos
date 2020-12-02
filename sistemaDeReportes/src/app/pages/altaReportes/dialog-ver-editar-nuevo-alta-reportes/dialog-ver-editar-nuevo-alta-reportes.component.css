@@ -52,7 +52,11 @@ button {
 }
 
 
-/* BOTONES */
+/* ESTILO CANCELACION REPORTE */
+
+#cancelacionReporte {
+    margin-top: 80px;
+}
 
 #btn-cancelar {
     background-color: #ecebf0;

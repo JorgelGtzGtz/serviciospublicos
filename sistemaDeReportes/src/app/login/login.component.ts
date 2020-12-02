@@ -1,8 +1,9 @@
 import { Component, OnInit, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
-import { MyErrorStateMatcher } from './myErrorStateMatcher';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NavigationExtras } from '@angular/router';
+import { UsuarioService } from '../services/usuario.service';
+import { Usuario } from '../Interfaces/IUsuario';
+import { HttpErrorResponse } from '@angular/common/http';
 // import { ScriptService } from '../services/script.service';
 
 
@@ -13,34 +14,49 @@ import { NavigationExtras } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   @ViewChild('password') passwordInput: ElementRef;
+  usuarioForm: FormControl;
+  passwordForm: FormControl;
   visible = false;
-// PARA VALIDACIONES; SE HICIERON CONTEMPLANDO INPUTS DE ANGULAR MATERIAL
-  // userFormControl = new FormControl('', [
-  //   Validators.required
-  // ]);
-  // passwordFormControl = new FormControl('', [
-  //   Validators.required,
-  //   Validators.minLength(8),
-  // ]);
 
-  // matcher = new MyErrorStateMatcher();
-  // usuario = 'nalupre94';
-  // password = 'password';
-  // hide = true;
 
-  constructor( private renderer: Renderer2, private router: Router, private route: ActivatedRoute) {
+  constructor( private renderer: Renderer2,
+               private router: Router,
+               private route: ActivatedRoute,
+               private usuarioServicio: UsuarioService) {
+    this.formBuilder();
    }
 
   ngOnInit(): void {
-  //   this.scripts.load('jQuery', 'bootstrap', 'adminlteApp', 'adminlteDemo').then(data => {
-  //     console.log('script loaded ', data);
-  // }).catch(error => console.log(error));
-  //   console.log(this.scripts);
   }
 
-  guardar(): void{
+  formBuilder(){
+    this.usuarioForm = new FormControl('');
+    this.passwordForm = new FormControl('');
+    this.usuarioForm.valueChanges.subscribe(value => {
+      console.log('se interactuo busqueda:', value);
+    });
+    this.passwordForm.valueChanges.subscribe(value => {
+      console.log('se interactuo estado:', value);
+    });
+  }
+
+  get campoUsuario(){
+    return this.usuarioForm;
+  }
+  get campoPassword(){
+    return this.passwordForm;
+  }
+
+  ingresar(): void{
     console.log('formulario se ha subido');
-    this.router.navigate(['../inicio']);
+    this.usuarioServicio.login(this.campoUsuario.value, this.passwordForm.value).subscribe((datos: Usuario) => {
+      console.log('datos', datos);
+      this.router.navigate(['../inicio']);
+    },
+    (err: HttpErrorResponse) => {
+      alert(err.message);
+      console.log(err);
+    });
   }
 
   visibilidadContra(): void{

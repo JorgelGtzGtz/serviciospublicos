@@ -133,17 +133,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="row form-group row-input-group">
-                            <label id="lblPoblacion" class="col-form-label col-md-auto" for="poblacion">Poblacion</label>
-                            <div class="col-md-6 p-0">
-                                <input type="text" class="form-control" id="poblacion" formControlName="poblacion">
-                                <div *ngIf="campoPoblacion.errors && campoPoblacion.touched">
-                                    <p class="error" *ngIf="campoPoblacion.hasError('required')">Campo requerido</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
 
@@ -160,8 +149,7 @@
                 </div>
             </section>
 
-            <section id="imagenesReporte">
-                <!-- <div class="mt-6"> -->
+            <section id="imagenesReporte" *ngIf="accion === 'nuevo' || accion === 'ver'">
                 <h3>Imágenes del reporte</h3>
                 <hr>
                 <div class="form-group form-sections row" *ngIf="accion === 'nuevo'">
@@ -198,7 +186,6 @@
                         </div>
                     </div>
                 </div>
-                <!-- </div> -->
             </section>
 
             <section id="cancelacionReporte" *ngIf="accion === 'editar'">

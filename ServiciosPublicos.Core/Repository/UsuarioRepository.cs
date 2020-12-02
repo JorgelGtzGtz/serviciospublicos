@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Factories;
 using PetaPoco;
@@ -23,12 +23,14 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
+       
+
         public Usuario GetUsuario(string usr, string password)
         {
             var query = new Sql()
                 .Select("*")
-                .From("Usuarios")
-                .Where("lower(Usuario) = @0 and Contrasena = @1", usr.ToLower(), password);
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Login_usuario) = @0 and Password_usuario = @1", usr.ToLower(), password);
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -39,17 +41,36 @@ namespace ServiciosPublicos.Core.Repository
         {
             var query = new Sql()
                 .Select("*")
-                .From("Usuarios")
-                .Where("lower(Usuario) = @0", usr.ToLower());
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Login_usuario) = @0", usr.ToLower());
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
             return user;
         }
-
+       
         public List<dynamic> GetByDynamicFilter(Sql sql)
         {
             return this.Context.Fetch<dynamic>(sql);
+        }
+
+        public List<dynamic> GetUsuariosFiltroGeneral(string textoBusqueda = null)
+        {
+            string filter = " Where ";
+
+            if (!string.IsNullOrEmpty(textoBusqueda))
+            {
+                filter += string.Format("usuario.Nombre_usuario like '%{0}%' or " +
+                                        "usuario.Login_usuario like '%{0}%' or " +
+                                        "usuario.ID_usuario like '%{0}%' or " +
+                                        "tipoUsuario.Descripcion_tipoUsuario like '%{0}%'", textoBusqueda);
+            }
+
+            Sql query = new Sql(@"select usuario.*, tipoUsuario.Descripcion_tipoUsuario as NombreTipo
+                                from  [hiram74_residencias].[Usuario] usuario
+                                inner join [hiram74_residencias].[Tipo_usuario] tipoUsuario 
+                                on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+            return this.Context.Fetch<dynamic>(query);            
         }
     }
 }

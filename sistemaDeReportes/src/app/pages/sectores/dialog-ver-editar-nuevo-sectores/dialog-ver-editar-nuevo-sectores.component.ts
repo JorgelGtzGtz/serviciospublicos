@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA  } from '@angular/material/dialog';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { DialogService } from '../../../services/dialog-service.service';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-sectores',
@@ -14,6 +15,7 @@ modificado: boolean;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoSectoresComponent>,
               @Inject (MAT_DIALOG_DATA) private data,
+              private dialogService: DialogService,
               private formBuilder: FormBuilder) {
       dialogRef.disableClose = true;
       this.buildForm();
@@ -96,12 +98,15 @@ mensajeDeGuardado(): void{
   if (this.accion === 'editar'){
     alert('¡Los datos se han actualizado exitosamente!');
   } else{
-    alert('Registro exitoso!');
+    alert('¡Registro de sector exitoso!');
   }
 }
 
-  cerrarDialog(): void{
-    this.dialogRef.close();
-  }
+// Método que a través del método "verificarCambios" del servicio de DialogService
+// verifica si el usuario interactuó con el formulario.
+// Si la interacción sucedió se despliega un mensaje de confirmación.
+cerrarDialog(): void{
+  this.dialogService.verificarCambios(this.dialogRef);
+}
 
 }

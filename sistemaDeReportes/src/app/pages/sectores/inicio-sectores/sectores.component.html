@@ -43,7 +43,28 @@
             </form>
         </div>
         <div class="content-card">
-            <app-tabla [modeloTabla]="datosSectores" (enviarAccion)="recibirAccion($event)"></app-tabla>
+            <div class="table-wrapper">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let registro of datosTabla">
+                            <td *ngFor="let campo of registro">{{campo}}</td>
+                            <td>
+                                <div class="botones-wrapper">
+                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verSector(registro)"> <i class="fas fa-eye"></i> Ver</button>
+                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarSector(registro)"><i class="fas fa-pen"></i> Editar</button>
+                                    <button type="button" id="btn-eliminar" class="btn-proceso" mat-raised-button (click)="eliminarSector(registro)"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- <app-tabla [modeloTabla]="datosSectores" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
         </div>
     </div>
 </div>

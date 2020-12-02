@@ -11,16 +11,13 @@ import { TablaComponent } from '../../shared/tabla/tabla.component';
 // PIPES
 import { CapitalizadoPipe } from '../../pipes/capitalizado.pipe';
 
-// MAPA
-import { AgmCoreModule } from '@agm/core';
-
 // MODULES
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 
 // SERVICES
-import { DialogServiceService } from '../../services/dialog-service.service';
+import { DialogService } from '../../services/dialog-service.service';
 
 @NgModule({
   declarations: [
@@ -35,9 +32,6 @@ import { DialogServiceService } from '../../services/dialog-service.service';
     CommonModule,
     MatIconModule,
     MatButtonModule,
-    AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyCJv_Hxz7_A7OTUNDIz-CnyOOcLlnuq530'
-    }),
     RouterModule
   ],
   exports: [
@@ -49,7 +43,7 @@ import { DialogServiceService } from '../../services/dialog-service.service';
     CapitalizadoPipe
   ],
   providers: [
-    DialogServiceService
+    DialogService
   ]
 })
 export class SharedModule { }

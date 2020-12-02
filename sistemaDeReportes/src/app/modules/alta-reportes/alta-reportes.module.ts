@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 // ROUTING
 import { AltaReportesRoutingModule } from './alta-reportes-routing.module';
 
+// SERVICIOS
+// import { DialogService } from '../../services/dialog-service.service';
+
 // MODULES
 import { SharedModule } from '../shared/shared.module';
 import { MatIconModule } from '@angular/material/icon';
@@ -16,6 +19,7 @@ import { DialogAltaRModule } from '../../modules/alta-reportes/dialog-alta-r/dia
 
 // FORMULARIOS
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 
 
 @NgModule({
@@ -34,8 +38,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
     ReactiveFormsModule,
     AltaReportesRoutingModule
   ],
-  entryComponents: [
-    // DialogVerEditarNuevoAltaReportesComponent
+  providers: [
+    // DialogService
   ],
   exports: [
     AltaReportesComponent

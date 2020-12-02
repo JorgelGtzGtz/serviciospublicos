@@ -9,7 +9,7 @@ namespace ServiciosPublicos.Core.Data
 {
     public class DataContext : Database
     {
-        public DataContext() : base("dbconnection")
+        public DataContext() : base("dbServiciosPublicos")
         {
         }
 

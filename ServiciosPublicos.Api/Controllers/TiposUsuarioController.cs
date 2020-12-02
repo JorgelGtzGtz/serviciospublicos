@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using Newtonsoft.Json.Linq;
 using ServiciosPublicos.Core.Entities;
 using ServiciosPublicos.Core.Services;
@@ -12,19 +12,22 @@ using System.Web.Http;
 
 namespace ServiciosPublicos.Api.Controllers
 {
-    [RoutePrefix("api/TiposUsuario")]
+    [RoutePrefix("api/TipoUsuario")]
     public class TiposUsuarioController : BaseApiController
     {
         private readonly ITipoUsuarioService _tipoUsuarioService;
+        private readonly IPermisosService _permisosService;
 
-        public TiposUsuarioController(ITipoUsuarioService tipoUsuarioService)
+        public TiposUsuarioController(ITipoUsuarioService tipoUsuarioService, IPermisosService permisosService)
         {
             _tipoUsuarioService = tipoUsuarioService;
+            _permisosService = permisosService;
         }
 
+        //Regresa lista de todos los tipos de usuario existentes sin sus permisos
         [HttpGet]
-        [Route("Lista/{usuario?}/")]
-        public async Task<HttpResponseMessage> GetTiposUsuario(HttpRequestMessage request, string usuario = null)
+        [Route("ListaGeneral")]
+        public async Task<HttpResponseMessage> GetTipoUsuarioFiltro(HttpRequestMessage request)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -32,7 +35,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _tipoUsuarioService.GetTipoUsuariosFiltro(usuario);
+                    var item = _tipoUsuarioService.GetTipoUsuarios();
                     response = request.CreateResponse(HttpStatusCode.OK, item);
                 }
                 catch (Exception ex)
@@ -48,10 +51,11 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
-
-        [Route("GetTipoUsuario/{id:int=0}/")]
+        // Devuelve el tipo de usuario específico y sus permisos
+        // como objeto JSON
         [HttpGet]
-        public async Task<HttpResponseMessage> getTipoUsuario(HttpRequestMessage request, int id)
+        [Route("GetTipoUsuario/{id}/")]
+        public async Task<HttpResponseMessage> GetTipoUsuario(HttpRequestMessage request, int id)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -59,10 +63,9 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var usuario = _tipoUsuarioService.GetTipoUsuario(id);
-                    var accesos = _tipoUsuarioService.GetTipoUsuarioAccesos(id);
-
-                    response = request.CreateResponse(HttpStatusCode.OK,new { usuario, accesos });
+                    var tipoUsuario = _tipoUsuarioService.GetTipoUsuario(id);
+                    var permisos = _permisosService.GetPermisos(tipoUsuario.Descripcion_tipoUsuario);
+                    response = request.CreateResponse(HttpStatusCode.OK, new { tipoUsuario, permisos });
                 }
                 catch (Exception ex)
                 {
@@ -78,9 +81,10 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        //Insertar un nuevo tipo de usuario
         [HttpPost]
-        [Route("Guardar")]
-        public async Task<HttpResponseMessage> Guardar(HttpRequestMessage request, [FromBody] JObject data)
+        [Route("Insertar")]
+        public async Task<HttpResponseMessage> Insertar(HttpRequestMessage request, [FromBody] JObject data)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -88,13 +92,13 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var tipo = data["tipo"].ToObject<TiposUsuario>();
-                    var accesos = data["accesos"].ToObject<List<Acceso>>();
+                    var tipo = data["tipo"].ToObject<Tipo_usuario>();
+                    var permisos = data["permisos"].ToObject<List<Procesos_Permiso>>();
 
-                    var result = _tipoUsuarioService.InsertUpdateTipoUsuario(tipo, accesos, out message);
+                    var result = _tipoUsuarioService.InsertTipoUsuario(tipo, permisos, out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {
@@ -105,7 +109,6 @@ namespace ServiciosPublicos.Api.Controllers
                             message = message
                         });
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -116,11 +119,56 @@ namespace ServiciosPublicos.Api.Controllers
                         exception = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
 
+        /*Este método recibe un objeto JSON que contiene los datos del tipo de usuario como "tipo"
+         * y también contiene los datos de los accesos como "Procesos_Permiso", los convierte a sus
+         * respectivos objetos para después guardarlos
+         */
+        [HttpPut]
+        [Route("Actualizar")]
+        public async Task<HttpResponseMessage> Actualizar(HttpRequestMessage request, [FromBody] JObject data)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {                    
+                    var tipo = data["tipo"].ToObject<Tipo_usuario>();
+                    var permisos = data["permisos"].ToObject<List<Procesos_Permiso>>();
+
+                    var result = _tipoUsuarioService.UpdateTipoUsuario(tipo, permisos, out message);
+                    if (result)
+                    {
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
+                    }
+                    else
+                    {
+                        response = request.CreateResponse(HttpStatusCode.BadRequest,
+                        new
+                        {
+                            error = "ERROR",
+                            message = message
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+        
+        //Eliminar un tipo de usuario con el id del tipo de usuario
         [HttpDelete]
         [Route("Eliminar/{id}")]
         public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)
@@ -134,7 +182,7 @@ namespace ServiciosPublicos.Api.Controllers
                     var result = _tipoUsuarioService.EliminarTipoUsuario(id, out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {
@@ -145,7 +193,6 @@ namespace ServiciosPublicos.Api.Controllers
                             message = message
                         });
                     }
-
                 }
                 catch (Exception ex)
                 {
@@ -156,14 +203,14 @@ namespace ServiciosPublicos.Api.Controllers
                         message = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
 
+        //Obtener permisos de un tipo de usuario con el id del tipo de usuario
         [HttpGet]
-        [Route("Accesos")]
-        public async Task<HttpResponseMessage> GetAccesos(HttpRequestMessage request)
+        [Route("GetPermisos/{id}/")]
+        public async Task<HttpResponseMessage> GetPermisosTipoUsuario(HttpRequestMessage request, int id)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -171,8 +218,9 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _tipoUsuarioService.GetAccesos();
-                    response = request.CreateResponse(HttpStatusCode.OK, item);
+                    var tipoUsuario = _tipoUsuarioService.GetTipoUsuario(id);
+                    var permisos = _tipoUsuarioService.GetPermisosTipoUsuario(id, out message);
+                    response = request.CreateResponse(HttpStatusCode.OK, permisos );
                 }
                 catch (Exception ex)
                 {
@@ -183,9 +231,10 @@ namespace ServiciosPublicos.Api.Controllers
                         message = ex.Message
                     });
                 }
-
                 return await Task.FromResult(response);
             });
         }
+
     }
+
 }

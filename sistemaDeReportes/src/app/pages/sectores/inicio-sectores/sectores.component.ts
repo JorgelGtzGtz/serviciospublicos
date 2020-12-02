@@ -17,7 +17,8 @@ export class SectoresComponent implements OnInit {
   busquedaForm: FormControl;
   estadoForm: FormControl;
   nombreSeccion = 'Sectores';
-  datosSectores: any;
+  headersTabla: string [];
+  datosTabla: object [];
   datos: Sector[] = [
     {id: 0, nombre: 'sector 1'},
     {id: 0, nombre: 'sector 2'},
@@ -37,11 +38,7 @@ export class SectoresComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    let datosArray = [];
-    this.datos.forEach(element => {
-      datosArray.push(Object.values(element));
-    });
-    this.datosSectores = {pagina: 'sectores', headers: [ 'ID', 'Nombre del sector', 'Procesos'], data: datosArray};
+   this.inicializarTabla();
   }
 
     // Inicializa los controladores del formulario
@@ -55,7 +52,19 @@ export class SectoresComponent implements OnInit {
         console.log('se interactuo estado:', value);
       });
     }
-    
+
+  // Método para inicializar las variables que contienen los datos que se
+  //  mostrarán en la tabla
+  inicializarTabla(){
+    this.datosTabla = [];
+    this.datos.forEach(element => {
+      this.datosTabla.push(Object.values(element));
+    });
+    this.headersTabla = ['ID', 'Nombre del sector', 'Procesos'];
+    console.log('datos tabla:', this.datosTabla);
+    console.log('datos:', this.datos);
+  }
+
    // Métodos get para obtener acceso a los campos del formulario
    get campoBusqueda(){
      return this.busquedaForm;
@@ -63,6 +72,17 @@ export class SectoresComponent implements OnInit {
    get campoEstado(){
      return this.estadoForm;
    }
+
+   // Agregar clases a las columnas 'th' según el contenido
+  // que encabecen, para agregar estilos
+  // También se añade un estilo general.
+  tamanoColumna( encabezado: string): any{
+    return {
+      'id-col': encabezado === 'ID',
+      'botones-procesos-col': encabezado === 'Procesos',
+      'general-col': encabezado
+    };
+  }
 
    // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
@@ -84,23 +104,25 @@ export class SectoresComponent implements OnInit {
     this.abrirDialogVerEditarNuevo('nuevo');
   }
 
-  // Método para eliminar sector. Lanza un mensaje de confirmación, que según
-  // la respuesta, continúa o no con la eliminación
-  eliminarSector(): void{
-    let result = confirm('Seguro que desea eliminar el sector?');
-    if (result) {
-      console.log('Se elimina');
-    }else{
-      console.log('no se elimina');
-    }
+  // Método para editar un sector de la tabla
+  editarSector(registro: object){
+    this.abrirDialogVerEditarNuevo('editar');
   }
 
-  // Método que recibe de la tabla, el tipo de acción que se hará en el formulario del dialog
-  recibirAccion(event: string): void {
-    if (event === 'ver' || event === 'editar'){
-      this.abrirDialogVerEditarNuevo(event);
+  // Método para ver un sector de la tabla
+  verSector(registro: object){
+    this.abrirDialogVerEditarNuevo('ver');
+  }
+
+  // Método para eliminar sector. Lanza un mensaje de confirmación, que según
+  // la respuesta, continúa o no con la eliminación
+  eliminarSector(registro: object): void{
+    let result = confirm('¿Seguro que desea eliminar el sector?');
+    if (result) {
+      console.log('Se elimina');
+      alert('El sector se ha eliminado.');
     }else{
-      this.eliminarSector();
+      console.log('no se elimina');
     }
   }
 

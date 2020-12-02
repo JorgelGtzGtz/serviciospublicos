@@ -19,7 +19,8 @@ export class CuadrillasComponent implements OnInit {
   nombreSeccion = 'Cuadrillas';
   busquedaForm: FormControl;
   estadoForm: FormControl;
-  datosCuadrillas: any;
+  headersTabla: string [];
+  datosTabla: object [];
   datos: Cuadrilla[] = [
     {id: 0, nombre: 'cuadrilla 1', responsable: 'jefe 1'},
     {id: 0, nombre: 'cuadrilla 2', responsable: 'jefe 2'},
@@ -35,11 +36,7 @@ export class CuadrillasComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let dataArray = [];
-    this.datos.forEach(element =>{
-      dataArray.push(Object.values(element));
-    });
-    this.datosCuadrillas = { pagina: 'cuadrillas', headers: ['ID', 'Cuadrilla', 'Responsable', 'Procesos'], data: dataArray};
+    this.inicializarTabla();
   }
 
   // Inicializa los controladores del formulario
@@ -53,6 +50,18 @@ export class CuadrillasComponent implements OnInit {
       console.log('se interactuo estado:', value);
     });
   }
+
+  // Método para inicializar las variables que contienen los datos que se
+  //  mostrarán en la tabla
+  inicializarTabla(){
+    this.datosTabla = [];
+    this.datos.forEach(element => {
+      this.datosTabla.push(Object.values(element));
+    });
+    this.headersTabla = ['ID', 'Cuadrilla', 'Responsable', 'Procesos'];
+    console.log('datos tabla:', this.datosTabla);
+    console.log('datos:', this.datos);
+  }
   
  // Métodos get para obtener acceso a los campos del formulario
  get campoBusqueda(){
@@ -62,15 +71,26 @@ export class CuadrillasComponent implements OnInit {
    return this.estadoForm;
  }
 
+// Agregar clases a las columnas 'th' según el contenido
+  // que encabecen, para agregar estilos
+  // También se añade un estilo general.
+  tamanoColumna( encabezado: string): any{
+    return {
+      'id-col': encabezado === 'ID',
+      'botones-procesos-col': encabezado === 'Procesos',
+      'general-col': encabezado
+    };
+  }
+
  // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
   // También contiene el método que se ejecuta cuando el diálogo se cierra.
-  abrirDialogVerEditarNuevo(accion: string): void{
+  abrirDialogVerEditarNuevo(accion: string, registro?: object): void{
     const DIALOG_REF = this.dialog.open(DialogVerEditarNuevoCuadrillasComponent, {
       width: '900px',
       height: '400px',
       disableClose: true,
-      data: {accion}
+      data: {accion, registro}
     });
   }
 
@@ -78,27 +98,28 @@ export class CuadrillasComponent implements OnInit {
   // " openDialogVerEditarNuevo" y le envía un parámetro
   // para indicar al dialog el tipo de actividad que se realizará
   nuevaCuadrilla(): void{
-    console.log('Nuevo');
     this.abrirDialogVerEditarNuevo('nuevo');
+  }
+
+  // Método para editar una cuadrilla de la tabla
+  editarCuadrilla(registro: object){
+    this.abrirDialogVerEditarNuevo('editar');
+  }
+
+  // Método para ver una cuadrilla de la tabla
+  verCuadrilla(registro: object){
+    this.abrirDialogVerEditarNuevo('ver');
   }
  
   // Método para eliminar sector. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
-  eliminarCuadrilla(): void{
-    let result = confirm('Seguro que desea eliminar la cuadrilla?');
+  eliminarCuadrilla( registro: object): void{
+    let result = confirm('¿Seguro que desea eliminar la cuadrilla?');
     if (result) {
       console.log('Se elimina');
+      alert('La cuadrilla se ha eliminado.');
     }else{
       console.log('no se elimina');
-    }
-  }
-
-  // Método que se recibe de la tabla, el tipo de acción que se hará en el formulario del dialog
-  recibirAccion(event: string): void {
-    if (event === 'ver' || event === 'editar'){
-      this.abrirDialogVerEditarNuevo(event);
-    }else{
-      this.eliminarCuadrilla();
     }
   }
 

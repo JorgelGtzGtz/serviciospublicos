@@ -8,6 +8,8 @@ import { LoginComponent } from './login/login.component';
 
 // SERVICES
 // import { ScriptService } from './services/script.service';
+import { HttpClientModule } from '@angular/common/http';
+import { UsuarioService } from './services/usuario.service';
 
 // ROUTES
 import { AppRoutingModule } from './app.routes';
@@ -16,6 +18,7 @@ import { RouteCloseDialogGuard } from './guards/route-close-dialog.guard';
 
 // ANGULAR MATERIAL COMPONENTS
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+
 
 
 
@@ -29,10 +32,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule,
     AppRoutingModule
    ],
   providers: [
-    RouteCloseDialogGuard
+    RouteCloseDialogGuard,
+    UsuarioService
     // ScriptService
   ],
   bootstrap: [AppComponent]

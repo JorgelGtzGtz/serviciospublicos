@@ -1,6 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { DialogService } from '../../../services/dialog-service.service';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-cuadrillas',
@@ -14,6 +15,7 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoCuadrillasComponent>,
               @Inject (MAT_DIALOG_DATA) private data,
+              private dialogService: DialogService,
               private formBuilder: FormBuilder) {
                 dialogRef.disableClose = true;
                 this.buildForm();
@@ -29,7 +31,8 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
       id: ['', [Validators.required]],
       estado: [''],
       nombreC: ['', [Validators.required]],
-      encargado: ['', [Validators.required]]
+      encargado: ['', [Validators.required]],
+      tipoCuadrilla: ['', [Validators.required]]
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
@@ -56,6 +59,10 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 
   get campoNombreEncargado(){
     return this.form.get('encargado');
+  }
+
+  get campoTipoCuadrilla(){
+    return this.form.get('tipoCuadrilla');
   }
 
   // Devuelve true si el usuario interactuó con el formulario o false si no.
@@ -104,8 +111,11 @@ mensajeDeGuardado(): void{
   }
 }
 
-  cerrarDialog(): void{
-    this.dialogRef.close();
-  }
+// Método que a través del método "verificarCambios" del servicio de DialogService
+// verifica si el usuario interactuó con el formulario.
+// Si la interacción sucedió se despliega un mensaje de confirmación.
+cerrarDialog(): void{
+  this.dialogService.verificarCambios(this.dialogRef);
+}
 
 }

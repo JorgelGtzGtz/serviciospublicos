@@ -21,7 +21,8 @@ export class AltaReportesComponent implements OnInit {
  @Output() seccion = new EventEmitter<string> ();
  form: FormGroup;
   nombreSeccion = 'Alta de reportes';
-  datosAltaReportes: any;
+  headersTabla: string [];
+  datosTabla: object [];
   datos: Reporte[] = [
     {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
     {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
@@ -37,17 +38,7 @@ export class AltaReportesComponent implements OnInit {
 
   ngOnInit(): void {
     this.seccion.emit('Alta de reportes');
-    let dataArray = [];
-    console.log('datos:', this.datos);
-    this.datos.forEach(element => {
-      dataArray.push(Object.values(element));
-    });
-    console.log('dataArray:', dataArray);
-    this.datosAltaReportes = {
-      pagina: 'altaReportes',
-      headers: ['No. Reporte', 'Fecha inicio', 'Fecha cierre', 'Estado', 'Sector', 'Dirección', 'Proceso'],
-      data: dataArray
-    };
+    this.inicializarTabla();
   }
 
   // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
@@ -64,6 +55,18 @@ export class AltaReportesComponent implements OnInit {
     this.form.valueChanges.subscribe(value => {
       console.log('se interactuo:', value);
     });
+  }
+
+  // Método para inicializar las variables que contienen los datos que se
+  //  mostrarán en la tabla
+  inicializarTabla(){
+    this.datosTabla = [];
+    this.datos.forEach(element => {
+      this.datosTabla.push(Object.values(element));
+    });
+    this.headersTabla = ['No. Reporte', 'Fecha inicio', 'Fecha cierre', 'Estado', 'Sector', 'Dirección', 'Proceso'];
+    console.log('datos tabla:', this.datosTabla);
+    console.log('datos:', this.datos);
   }
 
   // Métodos get para obtener acceso a los campos del formulario
@@ -95,22 +98,34 @@ export class AltaReportesComponent implements OnInit {
     return this.form.get('fechaFinal');
   }
 
+  
+  // Agregar clases a las columnas 'th' según el contenido
+  // que encabecen, para agregar estilos
+  // También se añade un estilo general.
+  tamanoColumna( encabezado: string): any{
+    return {
+      'id-col': encabezado === 'No. Reporte',
+      'botones-procesos-col': encabezado === 'Procesos',
+      'general-col': encabezado
+    };
+  }
+
   // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
   // También contiene el método que se ejecuta cuando el diálogo se cierra.
-  abrirDialogSeleccionar(accion: string, elemento: Reporte): void{
+  abrirDialogSeleccionar(accion: string, registro: object): void{
     const DIALOG_REF = this.dialog.open( DialogVerEditarNuevoAltaReportesComponent, {
       width: '900px',
       height: '600px',
       disableClose: true,
-      data: {accion, elemento}
+      data: {accion, registro}
     });
 
     DIALOG_REF.afterClosed().subscribe(result => {
       console.log('The dialog was closed result:', result);
     });
   }
-  
+
 // Metodo que se llama cuando se da click al botón nuevo
 // Abre el dialogo con las configuraciones para crear un nuevo registro
   nuevoReporte(): void{
@@ -119,12 +134,16 @@ export class AltaReportesComponent implements OnInit {
 
   }
 
-  // Acción que se recibe según el botón que se seleccionó en la tabla
-  //  Se manda llamar al método que abre el dialog y se le manda esta acción
-  recibirAccion(event: any): void{
-    let elemento: Reporte;
-    this.abrirDialogSeleccionar(event, elemento);
+   // Método para editar un reporte de la tabla
+   editarReporte(registro: object){
+    this.abrirDialogSeleccionar('editar', registro);
   }
+
+  // Método para ver un reporte de la tabla
+  verReporte(registro: object){
+    this.abrirDialogSeleccionar('ver', registro);
+  }
+
 
   // Método que se llama con el botón buscar 
   // Aquí se recuperan los criterios de búsqueda establecidos por 
