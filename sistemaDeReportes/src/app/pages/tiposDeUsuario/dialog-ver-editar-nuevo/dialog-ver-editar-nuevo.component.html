@@ -49,7 +49,7 @@
                                     <p>Procesos</p>
                                 </div>
                                 <ul #ulLista id="procesosLista" class="list-group overflow-auto">
-                                    <li *ngFor="let item of listA" (click)="itemSeleccionado($event)" class="list-group-item list-group-item-action">{{ item }}</li>
+                                    <li *ngFor="let proceso of listaProcesos" (click)="itemSeleccionado($event)" class="list-group-item list-group-item-action">{{ proceso.Descripcion_procesoPermiso }}</li>
                                 </ul>
                             </div>
                         </div>
@@ -57,12 +57,12 @@
                         <div class="col-md-2 col-sm-12 align-self-center botones-flecha-wrapper">
                             <div class="row">
                                 <div class="col-md-12 col-6" id="botones-flecha-container">
-                                    <button [disabled]="accion === 'ver' || listA.length ===0" (click)="cambiarListAListB()" type="button" class=" btn btn-light shadow-sm btn-pickList">                                    
+                                    <button [disabled]="accion === 'ver' || listaProcesos.length ===0" (click)="cambiarListAListB()" type="button" class=" btn btn-light shadow-sm btn-pickList">                                    
                                         <i class="icono-btn-flecha fas fa-2x fa-long-arrow-alt-right"></i>
                                     </button>
                                 </div>
                                 <div class="col-md-12 col-6" id="botones-flecha-container ">
-                                    <button [disabled]="accion === 'ver' || listB.length ===0" (click)="cambiarListBListA()" type="button" class=" btn btn-light shadow-sm btn-pickList">
+                                    <button [disabled]="accion === 'ver' || listaProcTipo.length ===0" (click)="cambiarListBListA()" type="button" class=" btn btn-light shadow-sm btn-pickList">
                                         <i class=" icono-btn-flecha fas fa-2x fa-long-arrow-alt-left"></i>
                                     </button>
                                 </div>
@@ -75,7 +75,7 @@
                                     <p>Autorizados</p>
                                 </div>
                                 <ul #ulLista id="autorizadosLista" class="list-group overflow-auto">
-                                    <li *ngFor="let item2 of listB" (click)="itemSeleccionado($event)" class="list-group-item list-group-item-action">{{ item2 }}</li>
+                                    <li *ngFor="let permiso of listaProcTipo" (click)="itemSeleccionado($event)" class="list-group-item list-group-item-action">{{ permiso.Descripcion_procesoPermiso }}</li>
                                 </ul>
                             </div>
                         </div>

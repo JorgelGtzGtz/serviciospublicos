@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-// import { RouteCloseDialogGuard } from '../../guards/route-close-dialog.guard';
 
 import { PagesComponent } from '../../pages/pages/pages.component';
 
@@ -9,7 +8,6 @@ const routes: Routes = [
   {
     path: '',
    component: PagesComponent,
-  //  canActivateChild: [RouteCloseDialogGuard ],
     children: [
     {
       path: 'home',

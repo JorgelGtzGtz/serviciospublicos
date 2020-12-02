@@ -81,7 +81,6 @@ namespace ServiciosPublicos.Api.Controllers
         }
 
         //Obtener imagenes del reporte
-        //Para obtener un listado de todos los reportes
         [HttpGet]
         [Route("GetImagenesReporte/{id}/")]
         public async Task<HttpResponseMessage> GetImagenesReporte(HttpRequestMessage request, int id)

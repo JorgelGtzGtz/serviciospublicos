@@ -20,7 +20,6 @@ namespace ServiciosPublicos.Api.Controllers
             _reporteTicketService = reporteTicketService;
         }
           
-        //Para obtener los registros relacionados a el id de reporte que se manda
         [HttpPost]
         [Route("Insertar")]
         public async Task<HttpResponseMessage> InsertReporteTicket(HttpRequestMessage request, Reporte_Ticket model)

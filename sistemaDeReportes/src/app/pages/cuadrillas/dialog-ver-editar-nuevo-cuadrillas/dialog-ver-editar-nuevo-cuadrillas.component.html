@@ -41,7 +41,11 @@
                 <label class="lblForm col-form-label col-md-auto" for="encargadoSelector">Encargado</label>
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="encargadoSelector" formControlName="encargado">
-                        <option selected>Todos</option>
+                        <option>---</option>
+                        <option *ngFor="let jefe of jefesCuadrillaDisp" 
+                        [selected]="inicializarSelJefe(jefe.ID_usuario)" >
+                             {{ jefe.Nombre_usuario }}
+                            </option>
                     </select>
                     <div *ngIf="campoNombreEncargado.errors && campoNombreEncargado.touched">
                         <p class="error" *ngIf="campoNombreEncargado.hasError('required')">Campo requerido</p>
@@ -55,7 +59,7 @@
                 <label class="lblForm col-form-label col-md-auto" for="tipoCuadrillaSelector">Tipo de cuadrilla</label>
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="tipoCuadrillaSelector" formControlName="tipoCuadrilla">
-                        <option selected>Todos</option>
+                        <option *ngFor = "let tipo of tipoCuadrilla"> {{ tipo }} </option>
                     </select>
                     <div *ngIf="campoTipoCuadrilla.errors && campoTipoCuadrilla.touched">
                         <p class="error" *ngIf="campoTipoCuadrilla.hasError('required')">Campo requerido</p>

@@ -71,7 +71,7 @@ namespace ServiciosPublicos.Api.Controllers
                     var result = _sectorService.UpdateSector(model, out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {

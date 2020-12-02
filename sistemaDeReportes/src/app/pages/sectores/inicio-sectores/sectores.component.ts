@@ -2,11 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoSectoresComponent } from '../dialog-ver-editar-nuevo-sectores/dialog-ver-editar-nuevo-sectores.component';
 import { FormControl } from '@angular/forms';
-
-interface Sector{
-  id: number;
-  nombre: string;
-}
+import { SectorService } from '../../../services/sector.service';
+import { Sector } from '../../../Interfaces/ISector';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-sectores',
@@ -18,23 +16,11 @@ export class SectoresComponent implements OnInit {
   estadoForm: FormControl;
   nombreSeccion = 'Sectores';
   headersTabla: string [];
-  datosTabla: object [];
-  datos: Sector[] = [
-    {id: 0, nombre: 'sector 1'},
-    {id: 0, nombre: 'sector 2'},
-    {id: 0, nombre: 'sector 3'},
-    {id: 0, nombre: 'sector 4'},
-    {id: 0, nombre: 'sector 5'},
-    {id: 0, nombre: 'sector 6'},
-    {id: 0, nombre: 'sector 6'},
-    {id: 0, nombre: 'sector 6'},
-    {id: 0, nombre: 'sector 6'},
-    {id: 0, nombre: 'sector 6'},
-    {id: 0, nombre: 'sector 7'}
-  ];
+  sectores: Sector[] = [];
 
-  constructor(public dialog: MatDialog) {
+  constructor(public dialog: MatDialog, private sectorService: SectorService) {
     this.formBuilder();
+    this.obtenerListaSect();
    }
 
   ngOnInit(): void {
@@ -44,7 +30,7 @@ export class SectoresComponent implements OnInit {
     // Inicializa los controladores del formulario
     formBuilder(){
       this.busquedaForm = new FormControl('');
-      this.estadoForm = new FormControl('');
+      this.estadoForm = new FormControl('Todos');
       this.busquedaForm.valueChanges.subscribe(value => {
         console.log('se interactuo busqueda:', value);
       });
@@ -56,13 +42,14 @@ export class SectoresComponent implements OnInit {
   // Método para inicializar las variables que contienen los datos que se
   //  mostrarán en la tabla
   inicializarTabla(){
-    this.datosTabla = [];
-    this.datos.forEach(element => {
-      this.datosTabla.push(Object.values(element));
+    this.headersTabla = ['Clave', 'Nombre del sector', 'Procesos'];
+  }
+
+  obtenerListaSect(){
+    this.sectorService.obtenerSectores().subscribe( sectores => {
+      this.sectores = sectores;
+      console.log(this.sectores);
     });
-    this.headersTabla = ['ID', 'Nombre del sector', 'Procesos'];
-    console.log('datos tabla:', this.datosTabla);
-    console.log('datos:', this.datos);
   }
 
    // Métodos get para obtener acceso a los campos del formulario
@@ -87,12 +74,12 @@ export class SectoresComponent implements OnInit {
    // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
   // También contiene el método que se ejecuta cuando el diálogo se cierra.
-  abrirDialogVerEditarNuevo(accion: string): void{
+  abrirDialogVerEditarNuevo(accion: string, sector?: Sector): void{
     const DIALOG_REF = this.dialog.open(DialogVerEditarNuevoSectoresComponent, {
       width: '900px',
       height: '400px',
       disableClose: true,
-      data: {accion}
+      data: {accion, sector}
     });
   }
 
@@ -105,22 +92,26 @@ export class SectoresComponent implements OnInit {
   }
 
   // Método para editar un sector de la tabla
-  editarSector(registro: object){
-    this.abrirDialogVerEditarNuevo('editar');
+  editarSector(sector: Sector){
+    this.abrirDialogVerEditarNuevo('editar', sector);
   }
 
   // Método para ver un sector de la tabla
-  verSector(registro: object){
-    this.abrirDialogVerEditarNuevo('ver');
+  verSector(sector: Sector){
+    this.abrirDialogVerEditarNuevo('ver', sector);
   }
 
   // Método para eliminar sector. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
-  eliminarSector(registro: object): void{
+  eliminarSector(sector: Sector): void{
     let result = confirm('¿Seguro que desea eliminar el sector?');
     if (result) {
-      console.log('Se elimina');
-      alert('El sector se ha eliminado.');
+      this.sectorService.eliminarSector(sector.ID_sector).subscribe( res => {
+        this.obtenerListaSect();
+        alert('El sector' + sector.Descripcion_sector + ' se ha eliminado.');
+      }, (error: HttpErrorResponse) => {
+        alert('El sector ' + sector.Descripcion_sector + ' no pudo ser eliminado. Error: ' + error.message);
+      });
     }else{
       console.log('no se elimina');
     }

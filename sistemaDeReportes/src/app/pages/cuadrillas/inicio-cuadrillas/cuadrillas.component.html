@@ -19,7 +19,7 @@
                             <label id="lblEstado" class="lblForm col-auto" for="estadoCuadrilla">Estado</label>
                             <div class="col-xl-4 col-md-6 col-sm-4 col-12">
                                 <select class="custom-select" id="estadoCuadrilla" [formControl]="estadoForm">
-                                    <option selected>Todos</option>
+                                    <option>Todos</option>
                                     <option value="1">Activo</option>
                                     <option value="2">Inactivo</option>
                                  </select>
@@ -51,13 +51,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let registro of datosTabla">
-                            <td *ngFor="let campo of registro">{{campo}}</td>
+                        <tr *ngFor="let cuadrilla of listaCuadrillas">
+                            <td>{{ cuadrilla.ID_cuadrilla }}</td>
+                            <td>{{ cuadrilla.Nombre_cuadrilla }}</td>
+                            <td>{{ cuadrilla.jefe }}</td>
                             <td>
                                 <div class="botones-wrapper">
-                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verCuadrilla(registro )"> <i class="fas fa-eye"></i> Ver</button>
-                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarCuadrilla(registro)"><i class="fas fa-pen"></i> Editar</button>
-                                    <button type="button" id="btn-eliminar" class="btn-proceso" mat-raised-button (click)="eliminarCuadrilla(registro)"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verCuadrilla(cuadrilla)"> <i class="fas fa-eye"></i> Ver</button>
+                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarCuadrilla(cuadrilla)"><i class="fas fa-pen"></i> Editar</button>
+                                    <button type="button" id="btn-eliminar" class="btn-proceso" mat-raised-button (click)="eliminarCuadrilla(cuadrilla)"><i class="fas fa-trash-alt"></i> Eliminar</button>
                                 </div>
                             </td>
                         </tr>

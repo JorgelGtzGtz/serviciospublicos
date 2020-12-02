@@ -86,8 +86,7 @@ namespace ServiciosPublicos.Core.Repository
             //regresa el id
             return (TKey)Context.Insert(entity);
         }
-
-        
+                
 
         public void Modify(TEntity entity)
         {

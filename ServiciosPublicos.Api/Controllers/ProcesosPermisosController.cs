@@ -22,7 +22,7 @@ namespace ServiciosPublicos.Api.Controllers
 
         [HttpGet]
         [Route("GetProcesosPermisos")]
-        public async Task<HttpResponseMessage> getPermisos(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> GetPermisos(HttpRequestMessage request)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {

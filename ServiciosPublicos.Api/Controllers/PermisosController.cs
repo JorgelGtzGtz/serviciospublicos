@@ -22,8 +22,8 @@ namespace ServiciosPublicos.Api.Controllers
         }
 
         [HttpGet]
-        [Route("GetPermisos/{tipoUsuario?}/")]
-        public async Task<HttpResponseMessage> getPermisos(HttpRequestMessage request, string tipoUsuario=null)
+        [Route("GetPermisos/{idTipo}")]
+        public async Task<HttpResponseMessage> getPermisos(HttpRequestMessage request,int idTipo)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -31,7 +31,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var permisos = _permisosService.GetPermisos(tipoUsuario);
+                    var permisos = _permisosService.GetPermisos(idTipo);
                     response = request.CreateResponse(HttpStatusCode.OK, permisos);
                 }
                 catch (Exception ex)

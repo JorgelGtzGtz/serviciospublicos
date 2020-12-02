@@ -49,9 +49,9 @@ export class LoginComponent implements OnInit {
 
   ingresar(): void{
     console.log('formulario se ha subido');
-    this.usuarioServicio.login(this.campoUsuario.value, this.passwordForm.value).subscribe((datos: Usuario) => {
-      console.log('datos', datos);
+    this.usuarioServicio.login(this.campoUsuario.value, this.passwordForm.value).subscribe((usuario: Usuario) => {
       this.router.navigate(['../inicio']);
+      this.usuarioServicio.almacenarUsuario(usuario);
     },
     (err: HttpErrorResponse) => {
       alert(err.message);
@@ -69,9 +69,6 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  entrar(): void {
-    // this.router.navigate(['../inicio'], { relativeTo: this.route});
-  }
 
 
 }

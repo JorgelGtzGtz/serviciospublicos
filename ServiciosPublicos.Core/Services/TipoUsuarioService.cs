@@ -14,12 +14,12 @@ namespace ServiciosPublicos.Core.Services
     {
         Tipo_usuario GetTipoUsuario(int id);
         List<Tipo_usuario> GetTipoUsuarios();
-        List<Tipo_usuario> GetTipoUsuariosFiltro(string nombre = null);
+        List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado= null);
         bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message);
         bool InsertTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> permisosAsignados, out string Message);
         bool EliminarTipoUsuario(int id, out string Message);
         List<Procesos_Permiso> GetPermisos();
-        List<dynamic> GetPermisosTipoUsuario(int id, out string Message);
+        List<Permiso> GetPermisosTipoUsuario(int id, out string Message);
     }
 
     public class TipoUsuarioService : ITipoUsuarioService
@@ -51,17 +51,32 @@ namespace ServiciosPublicos.Core.Services
         }
 
         //FILTRO DINAMICO PARA BUSCAR TIPOS DE USUARIO CON VARIOS CRITERIOS DE BUSQUEDA
-        public List<Tipo_usuario> GetTipoUsuariosFiltro(string nombre = null)
+        public List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado = null)
         {
-            string filter = " Where ";
-
-            if (!string.IsNullOrEmpty(nombre))
+            Message = string.Empty;
+            var result = new List<dynamic>();
+            try
             {
-                filter += string.Format("Descripcion_tipoUsuario = '{0}' ", nombre);
+                result = _tipoUsuarioRepository.GetUsuariosFiltroGeneral(textoBusqueda, estado);
+            }catch(Exception ex)
+            {
+                Message = "Error al hacer busqueda. Error "+ex.Message;
+
             }
-            Sql query = new Sql(@"select * from Tipo_usuario " + (!string.IsNullOrEmpty(nombre) ? filter : ""));
-            return _tipoUsuarioRepository.GetByFilter(query);
+            return result;
         }
+
+        /*  public List<Tipo_usuario> GetTipoUsuariosFiltro(string nombre = null)
+          {
+              string filter = " Where ";
+
+              if (!string.IsNullOrEmpty(nombre))
+              {
+                  filter += string.Format("Descripcion_tipoUsuario = '{0}' ", nombre);
+              }
+              Sql query = new Sql(@"select * from Tipo_usuario " + (!string.IsNullOrEmpty(nombre) ? filter : ""));
+              return _tipoUsuarioRepository.GetByFilter(query);
+          }*/
 
         //Insertar nuevo tipo de usuario.
         //Recibe un modelo tipo de usuario, lo registra y obtiene el ID
@@ -200,13 +215,13 @@ namespace ServiciosPublicos.Core.Services
         }
 
         //DEVUELVE LOS PERMISOS QUE EL TIPO DE USUARIO TIENE ASIGNADO
-        public List<dynamic> GetPermisosTipoUsuario(int id, out string Message)
+        public List<Permiso> GetPermisosTipoUsuario(int id, out string Message)
         {
             Message = string.Empty;
-            List<dynamic> permisos = null;
+            List<Permiso> permisos = null;
             try
             {
-                permisos = _permisosRepository.GetPermisosTipoUsuario(id.ToString());
+                permisos = _permisosRepository.GetPermisosTipoUsuario(id);
                 Message = "Procesos del tipo de usuario recuperados correctamente";
             }
             catch(Exception ex)

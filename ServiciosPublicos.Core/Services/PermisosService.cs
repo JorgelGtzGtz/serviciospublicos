@@ -10,7 +10,7 @@ namespace ServiciosPublicos.Core.Services
 {
     public interface IPermisosService
     {
-        List<dynamic> GetPermisos(string tipoUsuario);
+        List<Permiso> GetPermisos(int tipoU);
         bool InsertarPermiso(Permiso permiso, out string Message);
         bool ActualizarPermiso(Permiso permiso, out string Message);
         bool EliminarPermiso(int id, out string Message);
@@ -25,9 +25,9 @@ namespace ServiciosPublicos.Core.Services
 
         }
 
-        public List<dynamic> GetPermisos(string tipoUsuario = null)
+        public List<Permiso> GetPermisos(int idTipo)
         {
-           return  _permisosRepository.GetPermisosTipoUsuario(tipoUsuario);
+           return  _permisosRepository.GetPermisosTipoUsuario(idTipo);
 
         }
 

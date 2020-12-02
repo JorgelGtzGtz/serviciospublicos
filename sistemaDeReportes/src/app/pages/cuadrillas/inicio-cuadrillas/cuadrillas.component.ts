@@ -2,13 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoCuadrillasComponent } from '../dialog-ver-editar-nuevo-cuadrillas/dialog-ver-editar-nuevo-cuadrillas.component';
 import { FormControl } from '@angular/forms';
+import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
+import { CuadrillaService } from '../../../services/cuadrilla.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
-
-interface Cuadrilla{
-  id: number;
-  nombre: string;
-  responsable: string;
-}
 
 @Component({
   selector: 'app-cuadrillas',
@@ -20,19 +17,11 @@ export class CuadrillasComponent implements OnInit {
   busquedaForm: FormControl;
   estadoForm: FormControl;
   headersTabla: string [];
-  datosTabla: object [];
-  datos: Cuadrilla[] = [
-    {id: 0, nombre: 'cuadrilla 1', responsable: 'jefe 1'},
-    {id: 0, nombre: 'cuadrilla 2', responsable: 'jefe 2'},
-    {id: 0, nombre: 'cuadrilla 3', responsable: 'jefe 3'},
-    {id: 0, nombre: 'cuadrilla 4', responsable: 'jefe 4'},
-    {id: 0, nombre: 'cuadrilla 5', responsable: 'jefe 5'},
-    {id: 0, nombre: 'cuadrilla 6', responsable: 'jefe 6'},
-    {id: 0, nombre: 'cuadrilla 7', responsable: 'jefe 7'}
-  ];
+  listaCuadrillas: any = [];
 
-  constructor(public dialog: MatDialog) {
+  constructor(public dialog: MatDialog, private cuadrillaService: CuadrillaService) {
     this.formBuilder();
+    this.obtenerListaCuadrilla();
   }
 
   ngOnInit(): void {
@@ -42,7 +31,7 @@ export class CuadrillasComponent implements OnInit {
   // Inicializa los controladores del formulario
   formBuilder(){
     this.busquedaForm = new FormControl('');
-    this.estadoForm = new FormControl('');
+    this.estadoForm = new FormControl('Todos');
     this.busquedaForm.valueChanges.subscribe(value => {
       console.log('se interactuo busqueda:', value);
     });
@@ -54,15 +43,16 @@ export class CuadrillasComponent implements OnInit {
   // Método para inicializar las variables que contienen los datos que se
   //  mostrarán en la tabla
   inicializarTabla(){
-    this.datosTabla = [];
-    this.datos.forEach(element => {
-      this.datosTabla.push(Object.values(element));
-    });
-    this.headersTabla = ['ID', 'Cuadrilla', 'Responsable', 'Procesos'];
-    console.log('datos tabla:', this.datosTabla);
-    console.log('datos:', this.datos);
+    this.headersTabla = ['Clave', 'Cuadrilla', 'Responsable', 'Procesos'];
   }
-  
+
+  obtenerListaCuadrilla(){
+    return this.cuadrillaService.obtenerCuadrillas().subscribe( cuadrillas => {
+      this.listaCuadrillas = cuadrillas;
+      console.log('Cuadrillas lista:', cuadrillas);
+    });
+  }
+
  // Métodos get para obtener acceso a los campos del formulario
  get campoBusqueda(){
    return this.busquedaForm;
@@ -85,12 +75,15 @@ export class CuadrillasComponent implements OnInit {
  // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
   // También contiene el método que se ejecuta cuando el diálogo se cierra.
-  abrirDialogVerEditarNuevo(accion: string, registro?: object): void{
+  abrirDialogVerEditarNuevo(accion: string, cuadrilla?: any): void{
     const DIALOG_REF = this.dialog.open(DialogVerEditarNuevoCuadrillasComponent, {
       width: '900px',
       height: '400px',
       disableClose: true,
-      data: {accion, registro}
+      data: {accion, cuadrilla}
+    });
+    DIALOG_REF.afterClosed().subscribe(result => {
+      this.obtenerListaCuadrilla();
     });
   }
 
@@ -102,22 +95,28 @@ export class CuadrillasComponent implements OnInit {
   }
 
   // Método para editar una cuadrilla de la tabla
-  editarCuadrilla(registro: object){
-    this.abrirDialogVerEditarNuevo('editar');
+  editarCuadrilla(cuadrilla: any){
+    this.abrirDialogVerEditarNuevo('editar', cuadrilla);
   }
 
   // Método para ver una cuadrilla de la tabla
-  verCuadrilla(registro: object){
-    this.abrirDialogVerEditarNuevo('ver');
+  verCuadrilla(cuadrilla: any){
+    this.abrirDialogVerEditarNuevo('ver', cuadrilla);
   }
  
   // Método para eliminar sector. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
-  eliminarCuadrilla( registro: object): void{
+  eliminarCuadrilla( cuadrilla: Cuadrilla): void{
     let result = confirm('¿Seguro que desea eliminar la cuadrilla?');
     if (result) {
+      this.cuadrillaService.eliminarCuadrilla(cuadrilla.ID_cuadrilla).subscribe( res => {
+        alert('La cuadrilla se ha eliminado.');
+        this.obtenerListaCuadrilla();
+      }, (error: HttpErrorResponse) => {
+        alert('Existió un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla +
+              '.Error:' + error.message);
+      });
       console.log('Se elimina');
-      alert('La cuadrilla se ha eliminado.');
     }else{
       console.log('no se elimina');
     }

@@ -113,6 +113,34 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        [Route("GetJefesCuadrilla")]
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetUsuariosJefes(HttpRequestMessage request)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var jefesCuadrillas = _usuarioservice.GetUsuariosJefeCuadrilla();
+
+                    response = request.CreateResponse(HttpStatusCode.OK, jefesCuadrillas);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+
         [HttpPost]
         [Route("Registrar")]
         public async Task<HttpResponseMessage> Registrar(HttpRequestMessage request, Usuario model)

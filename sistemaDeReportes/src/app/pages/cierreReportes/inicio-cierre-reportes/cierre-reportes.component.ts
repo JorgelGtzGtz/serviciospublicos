@@ -20,13 +20,13 @@ export class CierreReportesComponent implements OnInit {
   headersTabla: string [];
   datosTabla: object [];
   datos: ReporteCierre[] = [
-    {num: 0, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'}
+    {num: 1, sector: 'Norte', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 3, sector: 'Sur', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 4, sector: 'Noroeste', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 5, sector: 'Este', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 6, sector: 'Norte', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 8, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 10, sector: 'principal', direccion: 'Tamaulipas y guerrero #126'}
   ];
 
   constructor(public dialog: MatDialog) { 
@@ -39,7 +39,7 @@ export class CierreReportesComponent implements OnInit {
 
   // Inicializa los controladores del formulario
   formBuilder(){
-    this.cuadrillaForm = new FormControl('');
+    this.cuadrillaForm = new FormControl('Todos');
     this.cuadrillaForm.valueChanges.subscribe(value => {
       console.log('se interactuo:', value);
     });

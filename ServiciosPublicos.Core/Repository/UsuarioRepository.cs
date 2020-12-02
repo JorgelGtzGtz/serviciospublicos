@@ -15,6 +15,7 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetByDynamicFilter(Sql sql);
         Usuario GetUsuario(string usr, string password);
         Usuario GetUsuario(string usr);
+        List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe);
     }
 
     public class UsuarioRepository : RepositoryBase<Usuario>, IUsuarioRepository
@@ -24,6 +25,11 @@ namespace ServiciosPublicos.Core.Repository
         }
 
        
+        public int getUltimoID()
+        {            
+            var query = new Sql(@"SELECT IDENT_CURRENT('Usuario')");
+            return this.Context.Execute(query);
+        }
 
         public Usuario GetUsuario(string usr, string password)
         {
@@ -54,6 +60,14 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<dynamic>(sql);
         }
 
+        public List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe)
+        {
+            Sql query = new Sql()
+                .Select("*").From("hiram74_residencias.Usuario")
+                .Where("ID_tipoUsuario = @0 AND Jefe_asignado = 0", idTipoJefe);
+            return this.Context.Fetch<Usuario>(query);
+        }
+
         public List<dynamic> GetUsuariosFiltroGeneral(string textoBusqueda = null)
         {
             string filter = " Where ";
@@ -72,5 +86,7 @@ namespace ServiciosPublicos.Core.Repository
                                 on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
             return this.Context.Fetch<dynamic>(query);            
         }
+
+        
     }
 }

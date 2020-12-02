@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DialogService } from '../../services/dialog-service.service';
-import { MatDialog } from '@angular/material/dialog';
+import { UsuarioService } from '../../services/usuario.service';
 import * as $ from 'jquery';
 import * as AdminLte from 'admin-lte';
+import { UsuarioM } from '../../Models/UsuarioM';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,14 +12,16 @@ import * as AdminLte from 'admin-lte';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
+  usuario: UsuarioM;
 
   constructor(private servicioDialog: DialogService,
               private router: Router,
-              private dialog: MatDialog,
-              private route: ActivatedRoute) {
+              private route: ActivatedRoute,
+              private usuarioService: UsuarioService) {
    }
 
   ngOnInit(): void {
+    this.usuario = this.usuarioService.obtenerUsuarioLogueado();
   }
 
 //  Se inicializan las vistas del template debido a que este viene con un problema al momento

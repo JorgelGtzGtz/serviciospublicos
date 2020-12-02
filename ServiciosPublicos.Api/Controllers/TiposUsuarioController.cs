@@ -27,7 +27,7 @@ namespace ServiciosPublicos.Api.Controllers
         //Regresa lista de todos los tipos de usuario existentes sin sus permisos
         [HttpGet]
         [Route("ListaGeneral")]
-        public async Task<HttpResponseMessage> GetTipoUsuarioFiltro(HttpRequestMessage request)
+        public async Task<HttpResponseMessage> GetTipoUsuarioFiltro(HttpRequestMessage request, string textoB = null, string estado = null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -35,8 +35,8 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _tipoUsuarioService.GetTipoUsuarios();
-                    response = request.CreateResponse(HttpStatusCode.OK, item);
+                   var listaTipos = _tipoUsuarioService.GetTipoUsuariosFiltro(out message, textoB, estado);
+                    response = request.CreateResponse(HttpStatusCode.OK, listaTipos);
                 }
                 catch (Exception ex)
                 {
@@ -51,6 +51,32 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
+        /* [HttpGet]
+         [Route("ListaGeneral/{filtro?}/")]
+         public async Task<HttpResponseMessage> GetTipoUsuarioFiltro(HttpRequestMessage request, string filtro = null)
+         {
+             return await CreateHttpResponseAsync(request, async () =>
+             {
+                 HttpResponseMessage response = null;
+                 string message = String.Empty;
+                 try
+                 {
+                     var listaTipos = _tipoUsuarioService.GetTipoUsuariosFiltro(filtro);
+                     response = request.CreateResponse(HttpStatusCode.OK, listaTipos);
+                 }
+                 catch (Exception ex)
+                 {
+                     response = request.CreateResponse(HttpStatusCode.BadRequest,
+                     new
+                     {
+                         error = "ERROR",
+                         message = ex.Message
+                     });
+                 }
+
+                 return await Task.FromResult(response);
+             });
+         }*/
         // Devuelve el tipo de usuario específico y sus permisos
         // como objeto JSON
         [HttpGet]
@@ -64,8 +90,9 @@ namespace ServiciosPublicos.Api.Controllers
                 try
                 {
                     var tipoUsuario = _tipoUsuarioService.GetTipoUsuario(id);
-                    var permisos = _permisosService.GetPermisos(tipoUsuario.Descripcion_tipoUsuario);
-                    response = request.CreateResponse(HttpStatusCode.OK, new { tipoUsuario, permisos });
+                    response = request.CreateResponse(HttpStatusCode.OK, tipoUsuario);
+                    //var permisos = _permisosService.GetPermisos(tipoUsuario.Descripcion_tipoUsuario);
+                    //response = request.CreateResponse(HttpStatusCode.OK, new { tipoUsuario, permisos });
                 }
                 catch (Exception ex)
                 {
@@ -92,6 +119,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
+                    var datos = data;
                     var tipo = data["tipo"].ToObject<Tipo_usuario>();
                     var permisos = data["permisos"].ToObject<List<Procesos_Permiso>>();
 
@@ -218,7 +246,6 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var tipoUsuario = _tipoUsuarioService.GetTipoUsuario(id);
                     var permisos = _tipoUsuarioService.GetPermisosTipoUsuario(id, out message);
                     response = request.CreateResponse(HttpStatusCode.OK, permisos );
                 }

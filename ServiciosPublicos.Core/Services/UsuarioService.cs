@@ -17,6 +17,7 @@ namespace ServiciosPublicos.Core.Services
         Usuario GetUsuario(string usr, string password);
         List<Usuario> GetUsuarios();
         List<dynamic> GetUsuariosFiltro(string nombre = null);
+        List<Usuario> GetUsuariosJefeCuadrilla();
         bool UpdateUsuario(Usuario Usuario, out string Message);
         bool InsertarUsuario(Usuario Usuario, out string Message);
         bool EliminarUsuario(int id, out string Message);
@@ -25,9 +26,11 @@ namespace ServiciosPublicos.Core.Services
     public class UsuarioService : IUsuarioService
     {
         private readonly IUsuarioRepository _usuarioRepository;
-        public UsuarioService(IUsuarioRepository usuarioRepository)
+        private readonly ITipoUsuarioRepository _tipoUsuarioRepository;
+        public UsuarioService(IUsuarioRepository usuarioRepository, ITipoUsuarioRepository tipoUsuarioRepository)
         {
-            _usuarioRepository = usuarioRepository;            
+            _usuarioRepository = usuarioRepository;
+            _tipoUsuarioRepository = tipoUsuarioRepository;
         }
 
         public Usuario GetUsuario(int id) {
@@ -46,6 +49,13 @@ namespace ServiciosPublicos.Core.Services
 
         public List<Usuario> GetUsuarios() {
             return _usuarioRepository.GetAll("hiram74_residencias.Usuario").ToList();
+        }
+
+        public List<Usuario> GetUsuariosJefeCuadrilla()
+        {
+            var tipoUsuario = _tipoUsuarioRepository.GetTipo("Jefe de cuadrilla");
+            return _usuarioRepository.GetUsuarioJefeDisponible(tipoUsuario.ID_tipoUsuario);
+
         }
 
         //Regresa una lista de los usuarios y también se muestra el tipo de usuario

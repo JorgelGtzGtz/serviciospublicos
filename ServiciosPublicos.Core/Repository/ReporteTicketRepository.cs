@@ -32,7 +32,8 @@ namespace ServiciosPublicos.Core.Repository
             this.Add<int>(reporteTicket);
         }
 
-        //Devuelve una lista con los tickets relacionados al id del reporte
+        //Devuelve una lista con los registro reporte-ticket 
+        //relacionados al id del reporte
         public List<Reporte_Ticket> GetReporteTickets(int idReporte)
         {
             var query = new Sql()

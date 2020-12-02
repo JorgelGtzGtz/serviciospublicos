@@ -103,7 +103,8 @@ namespace ServiciosPublicos.Core.Services
             }
             else
             {
-                Message = "Sector no pudo ser eliminado porque se hace referencia a este en registros";
+                Message = "Sector no pudo ser eliminado porque se " +
+                            "hace referencia a este en registros";
             }           
             return result;
         }

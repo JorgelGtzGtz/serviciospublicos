@@ -69,11 +69,11 @@
                         <div class="row justify-content-end row-input-group">
                             <label id="lblGenero" class="col-md-auto">Género: </label>
                             <div class="col-md-4 custom-control custom-radio custom-control-inline">
-                                <input type="radio" id="masculinoRadio" name="genero" formControlName="genero" value="masculino" class="custom-control-input">
+                                <input type="radio" id="masculinoRadio" name="genero" formControlName="genero" value="M" class="custom-control-input">
                                 <label class="custom-control-label" for="masculinoRadio">Masculino</label>
                             </div>
                             <div class="col-md-4 custom-control custom-radio custom-control-inline">
-                                <input type="radio" id="femeninoRadio" name="genero" formControlName="genero" value="femenino" class="custom-control-input">
+                                <input type="radio" id="femeninoRadio" name="genero" formControlName="genero" value="F" class="custom-control-input">
                                 <label class="custom-control-label" for="femeninoRadio">Femenino</label>
                             </div>
                             <div *ngIf="campoGenero.errors && campoGenero.touched">
@@ -89,10 +89,10 @@
                     <label class="lblForm col-form-label col-md-auto" for="tipoUsuario">Tipo de usuario</label>
                     <div class="col-md-3">
                         <select class="custom-select" id="tipoUsuario" formControlName="tipoUsuario">
-                            <option selected>Todos</option>
-                            <option value="1">Activo</option>
-                            <option value="2">Inactivo</option>
-                            <option value="3">Todos</option>
+                            <option *ngFor="let tipo of tiposUsuario" 
+                                    [selected]="inicializarSelTipo(tipo.ID_tipoUsuario)" >
+                                {{ tipo.Descripcion_tipoUsuario }}
+                            </option>
                         </select>
                         <div *ngIf="campoTipoUsuario.errors && campoTipoUsuario.touched">
                             <p class="error" *ngIf="campoTipoUsuario.hasError('required')">Campo requerido</p>

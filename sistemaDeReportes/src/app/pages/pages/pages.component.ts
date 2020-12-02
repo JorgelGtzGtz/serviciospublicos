@@ -3,6 +3,8 @@ import {Location} from '@angular/common';
 import { NavigationStart, Router, RouterEvent } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { tap, filter } from 'rxjs/operators';
+import { UsuarioService } from '../../services/usuario.service';
+import { Usuario } from 'src/app/Interfaces/IUsuario';
 
 @Component({
   selector: 'app-pages',
@@ -12,7 +14,8 @@ import { tap, filter } from 'rxjs/operators';
 export class PagesComponent implements OnInit {
   seccion: string;
 
-  constructor(private location: Location, private router: Router, private matDialog: MatDialog ) {
+  constructor(private location: Location, private router: Router, private matDialog: MatDialog,
+              private usuarioService: UsuarioService ) {
     this.obtenerNombreSeccion();
     // this.cerrarDialogsAbiertos();
   }
@@ -64,7 +67,7 @@ export class PagesComponent implements OnInit {
         this.seccion = 'Cierre de reportes';
         break;
       default:
-        this.seccion = ' ';
+        this.seccion = '';
         break;
     }
   }

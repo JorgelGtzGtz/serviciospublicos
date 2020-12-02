@@ -8,8 +8,10 @@ import { LoginComponent } from './login/login.component';
 
 // SERVICES
 // import { ScriptService } from './services/script.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { UsuarioService } from './services/usuario.service';
+import { InterceptorService } from './interceptors/interceptor.service';
+
 
 // ROUTES
 import { AppRoutingModule } from './app.routes';
@@ -37,7 +39,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
    ],
   providers: [
     RouteCloseDialogGuard,
-    UsuarioService
+    UsuarioService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: InterceptorService,
+      multi: true
+    }
     // ScriptService
   ],
   bootstrap: [AppComponent]

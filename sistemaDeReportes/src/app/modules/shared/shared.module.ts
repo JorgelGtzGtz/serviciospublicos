@@ -10,6 +10,9 @@ import { TablaComponent } from '../../shared/tabla/tabla.component';
 
 // PIPES
 import { CapitalizadoPipe } from '../../pipes/capitalizado.pipe';
+import { CustomDate } from '../../pipes/customDate.pipe';
+import { EstadoReporte } from '../../pipes/estadoReporte.pipe';
+
 
 // MODULES
 import { MatIconModule } from '@angular/material/icon';
@@ -26,7 +29,9 @@ import { DialogService } from '../../services/dialog-service.service';
     NavbarComponent,
     SidebarComponent,
     TablaComponent,
-    CapitalizadoPipe
+    CapitalizadoPipe,
+    CustomDate,
+    EstadoReporte
   ],
   imports: [
     CommonModule,
@@ -40,7 +45,9 @@ import { DialogService } from '../../services/dialog-service.service';
     NavbarComponent,
     SidebarComponent,
     TablaComponent,
-    CapitalizadoPipe
+    CapitalizadoPipe,
+    CustomDate,
+    EstadoReporte
   ],
   providers: [
     DialogService

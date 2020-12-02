@@ -24,15 +24,15 @@ export class AsignacionDeTicketsComponent implements OnInit {
   datosTabla: object [];
   form: FormGroup;
   datos: Reporte[] = [
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 1, fechaInicio: '12-09-2020', numTickets: 12, estado: 'Abierto', sector: 'Sur', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 3, fechaInicio: '12-09-2020', numTickets: 12, estado: 'Abierto', sector: 'Norte', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 5, fechaInicio: '12-09-2020', numTickets: 12, estado: 'Abierto', sector: 'Noroeste', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 6, fechaInicio: '12-09-2020', numTickets: 12, estado: 'Abierto', sector: 'Sureste', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 7, fechaInicio: '12-09-2020', numTickets: 12, estado: 'Abierto', sector: 'Este', direccion: 'Tamaulipas y guerrero #126'},
+    {num: 8, fechaInicio: '12-09-2020', numTickets: 12, estado: 'Abierto', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
   ];
 
-  constructor( public dialog: MatDialog, private formBuilder: FormBuilder) { 
+  constructor( public dialog: MatDialog, private formBuilder: FormBuilder) {
     this.buildForm();
   }
 
@@ -43,9 +43,9 @@ export class AsignacionDeTicketsComponent implements OnInit {
    // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
    private buildForm(){
     this.form = this.formBuilder.group({
-      sector: [''],
-      estado: [''],
-      tipoReporte: [''],
+      sector: ['Todos'],
+      estado: ['Todos'],
+      tipoReporte: ['Todos'],
       fechaInicio: [''],
       fechaFinal: ['']
     });

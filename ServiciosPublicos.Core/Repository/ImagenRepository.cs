@@ -12,7 +12,7 @@ namespace ServiciosPublicos.Core.Repository
     public interface IImagenRepository : IRepositoryBase<Imagen>
     {
         List<Imagen> GetImagen(int idReporte);
-        void insertarImagen(int idTicket, int idReporte, Imagen imagen);
+        void InsertarImagen(int idTicket, int idReporte, Imagen imagen);
         void InsertarImagenCierre(int idReporte, Imagen imagen);
     }
     public class ImagenRepository : RepositoryBase<Imagen>, IImagenRepository
@@ -30,7 +30,7 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<Imagen>(query);
         }
 
-        public void insertarImagen(int idTicket, int idReporte, Imagen imagen)
+        public void InsertarImagen(int idTicket, int idReporte, Imagen imagen)
         {
             imagen.ID_reporte = idReporte;
             imagen.ID_ticket = idTicket;

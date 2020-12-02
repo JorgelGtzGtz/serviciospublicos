@@ -30,7 +30,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   ngOnInit(): void {
     this.accion = this.data.accion;
     this.imagenesApertura = [];
-    this.imagenesCierre = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
+    this.imagenesCierre = ['callejon.jpg', 'bache.jpg', 'alumbrado.jpg'];
     this. inicializarVariablesImagenes();
     this.tipoFormularioAccion();
     console.log('RECIBE:', this.data.registro);
@@ -40,16 +40,16 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   private buildForm(){
     this.form = this.formBuilder.group({
       id: ['1'],
-      tipoReporte: ['', [Validators.required]],
-      sector: ['', [Validators.required]],
-      fechaInicio: ['', [Validators.required]],
-      fechaCierre: [''],
-      calleP: ['', [Validators.required]],
-      referencia: ['', [Validators.required]],
-      calleS1: ['', [Validators.required]],
-      calleS2: ['', [Validators.required]],
-      colonia: ['', [Validators.required]],
-      descripcionR: ['', [Validators.required, Validators.maxLength(120)]]
+      tipoReporte: ['Bacheo', [Validators.required]],
+      sector: ['Norte', [Validators.required]],
+      fechaInicio: ['20-11-2020', [Validators.required]],
+      fechaCierre: ['25-11-2020'],
+      calleP: ['Coahuila 150', [Validators.required]],
+      referencia: ['Tortilleria naranja', [Validators.required]],
+      calleS1: ['Guerrero', [Validators.required]],
+      calleS2: ['Allende', [Validators.required]],
+      colonia: ['Centro', [Validators.required]],
+      descripcionR: ['Bache de gran tamaño', [Validators.required, Validators.maxLength(120)]]
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){

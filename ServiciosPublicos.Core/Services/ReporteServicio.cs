@@ -10,7 +10,6 @@ namespace ServiciosPublicos.Core.Services
 {
     public interface IReporteServicio
     {
-        //bool InsertarReporte(Reporte reporte, out string Message);
         bool AltaReporte(Ticket ticket, List<Imagen> imagenes, out string Message);
         bool ActualizarReporte(Reporte reporte, out string Message);
         List<dynamic> GetAllReportes(string textoBusqueda = null);        
@@ -74,7 +73,7 @@ namespace ServiciosPublicos.Core.Services
                 {
                     foreach (var imagen in imagenes)
                     {
-                        _imagenRepository.insertarImagen(ticket.ID_ticket, idReporte, imagen);
+                        _imagenRepository.InsertarImagen(ticket.ID_ticket, idReporte, imagen);
                     }
                 }
                 result = true;
@@ -100,7 +99,7 @@ namespace ServiciosPublicos.Core.Services
                 foreach (var reporteTicket in listaReporTicket)
                 {
                     Ticket ticket = _ticketRepository.GetTicket(reporteTicket.ID_ticket);
-                    ticket = this.modificacionesTicket(ticket, reporte);
+                    ticket = this.ModificacionesTicket(ticket, reporte);
                     _ticketRepository.Modify(ticket);
                 } 
                 Message = "Reporte actualizado con exito";
@@ -114,12 +113,11 @@ namespace ServiciosPublicos.Core.Services
         }
 
         //Se actualizan los datos del reporte en el ticket
-        public Ticket modificacionesTicket(Ticket ticket, Reporte reporte)
+        public Ticket ModificacionesTicket(Ticket ticket, Reporte reporte)
         {
             ticket.ID_tipoReporte = reporte.ID_tipoReporte;
             ticket.Latitud_ticket = reporte.Latitud_reporte;
             ticket.Longitud_ticket = reporte.Longitud_reporte;
-            ticket.FechaRegistro_ticket = reporte.FechaRegistro_reporte;
             ticket.FechaCierre_ticket = reporte.FechaCierre_reporte;
             ticket.Estatus_ticket = reporte.Estatus_reporte;
             ticket.ID_sector = reporte.ID_sector;

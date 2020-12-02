@@ -1,4 +1,5 @@
 ﻿using dbServiciosPublicos;
+using PetaPoco;
 using ServiciosPublicos.Core.Factories;
 using System;
 using System.Collections.Generic;
@@ -17,5 +18,6 @@ namespace ServiciosPublicos.Core.Repository
         public TipoReporteRepository(IDbFactory dbFactory) : base(dbFactory)
         {
         }
+
     }
 }

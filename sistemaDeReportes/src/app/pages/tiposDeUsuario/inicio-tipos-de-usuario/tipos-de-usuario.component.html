@@ -19,9 +19,9 @@
                             <label id="lblEstado" class="lblForm col-auto" for="estadoTipoUsuario">Estado</label>
                             <div class="col-xl-4 col-md-6 col-sm-4 col-12">
                                 <select class="custom-select" id="estadoTipoUsuario" [formControl]="estadoForm">
-                                    <option selected>Todos</option>
-                                    <option value="1">Activo</option>
-                                    <option value="2">Inactivo</option>
+                                    <option>Todos</option>
+                                    <option value="true">Activo</option>
+                                    <option value="false">Inactivo</option>
                                  </select>
                             </div>
                         </div>
@@ -52,13 +52,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let registro of datosTabla">
-                            <td *ngFor="let campo of registro">{{campo}}</td>
+                        <tr *ngFor="let tipoU of tiposUsuario">
+                            <td>{{ tipoU.ID_tipoUsuario }}</td>
+                            <td>{{ tipoU.Descripcion_tipoUsuario }}</td>
                             <td>
                                 <div class="botones-wrapper">
-                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verTipoUsuario(registro)"> <i class="fas fa-eye"></i> Ver</button>
-                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarTipoUsuario(registro)"><i class="fas fa-pen"></i> Editar</button>
-                                    <button type="button" id="btn-eliminar" class="btn-proceso" mat-raised-button (click)="eliminarTipoUsuario(registro)"><i class="fas fa-trash-alt"></i> Eliminar</button>
+                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verTipoUsuario(tipoU)"> <i class="fas fa-eye"></i> Ver</button>
+                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarTipoUsuario(tipoU)"><i class="fas fa-pen"></i> Editar</button>
+                                    <button type="button" id="btn-eliminar" class="btn-proceso" mat-raised-button (click)="eliminarTipoUsuario(tipoU)"><i class="fas fa-trash-alt"></i> Eliminar</button>
                                 </div>
                             </td>
                         </tr>

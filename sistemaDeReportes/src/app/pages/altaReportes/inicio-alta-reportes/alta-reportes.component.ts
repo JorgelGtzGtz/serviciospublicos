@@ -2,15 +2,11 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { FormGroup, FormBuilder} from '@angular/forms';
 import { DialogVerEditarNuevoAltaReportesComponent } from '../dialog-ver-editar-nuevo-alta-reportes/dialog-ver-editar-nuevo-alta-reportes.component';
-
-interface Reporte{
-  num: number;
-  fechaInicio: string;
-  numTickets: number;
-  estado: string;
-  sector: string;
-  direccion: string;
-}
+import { ReporteService } from '../../../services/reporte.service';
+import { CuadrillaService } from '../../../services/cuadrilla.service';
+import { TipoReporteService } from '../../../services/tipo-reporte.service';
+import { SectorService } from '../../../services/sector.service';
+import { Reporte } from '../../../Interfaces/IReporte';
 
 @Component({
   selector: 'app-inicio-alta-reportes',
@@ -18,37 +14,43 @@ interface Reporte{
   styleUrls: ['./alta-reportes.component.css']
 })
 export class AltaReportesComponent implements OnInit {
- @Output() seccion = new EventEmitter<string> ();
  form: FormGroup;
   nombreSeccion = 'Alta de reportes';
   headersTabla: string [];
-  datosTabla: object [];
-  datos: Reporte[] = [
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-    {num: 0, fechaInicio: '12/09/2020', numTickets: 12, estado: 'Activo', sector: 'principal', direccion: 'Tamaulipas y guerrero #126'},
-  ];
+  listaReportes: any = [];
+  listaSectores: any = [];
+  listaCuadrillas: any = [];
+  listaTiposR: any = [];
 
-  constructor(public dialog: MatDialog, private formBuilder: FormBuilder) {
+  constructor(public dialog: MatDialog, private formBuilder: FormBuilder,
+              private reporteService: ReporteService,
+              private cuadrillaService: CuadrillaService,
+              private tipoRService: TipoReporteService,
+              private sectorService: SectorService) {
     this.buildForm();
+    this. inicializarListas();
    }
 
   ngOnInit(): void {
-    this.seccion.emit('Alta de reportes');
-    this.inicializarTabla();
+    this.actualizarTabla();
+    this.headersTabla = [
+      'No. Reporte',
+      'Fecha inicio',
+      'Fecha cierre',
+      'Estado',
+      'Sector',
+      'Dirección',
+      'Proceso'];
   }
 
   // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
   private buildForm(){
     this.form = this.formBuilder.group({
-      tipoReporte: [''],
-      cuadrilla: [''],
-      estado: [''],
-      sector: [''],
-      origen: [''],
+      tipoReporte: ['Todos'],
+      cuadrilla: ['Todos'],
+      estado: ['Todos'],
+      sector: ['Todos'],
+      origen: ['Todos'],
       fechaInicio: [''],
       fechaFinal: ['']
     });
@@ -59,14 +61,29 @@ export class AltaReportesComponent implements OnInit {
 
   // Método para inicializar las variables que contienen los datos que se
   //  mostrarán en la tabla
-  inicializarTabla(){
-    this.datosTabla = [];
-    this.datos.forEach(element => {
-      this.datosTabla.push(Object.values(element));
+  actualizarTabla(){
+    this.reporteService.buscarReportes().subscribe(reportes => {
+      this.listaReportes = reportes;
+      console.log(this.listaReportes);
     });
-    this.headersTabla = ['No. Reporte', 'Fecha inicio', 'Fecha cierre', 'Estado', 'Sector', 'Dirección', 'Proceso'];
-    console.log('datos tabla:', this.datosTabla);
-    console.log('datos:', this.datos);
+  }
+
+  inicializarListas(){
+    this.tipoRService.obtenerTiposReporte().subscribe( tipos => {
+      this.listaTiposR = tipos;
+    }, error => {
+        console.log('Error al acceder a datos de tipos de reporte. ' + error );
+    });
+    this.sectorService.obtenerSectores().subscribe(sectores => {
+      this.listaSectores = sectores;
+    }, error => {
+      console.log('Error al acceder a datos de sectores. ' + error );
+    });
+    this.cuadrillaService.obtenerCuadrillas().subscribe( cuadrillas => {
+      this.listaCuadrillas = cuadrillas;
+    }, error => {
+      console.log('Error al acceder a datos de cuadrillas. ' + error );
+    });
   }
 
   // Métodos get para obtener acceso a los campos del formulario

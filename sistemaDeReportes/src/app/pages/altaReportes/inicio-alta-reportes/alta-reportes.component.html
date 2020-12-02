@@ -8,10 +8,8 @@
                             <label class="lblForm col-lg-auto col-md-12" for="tipoReporteSelector">Tipo de reporte</label>
                             <div class="col-lg-6 col-md-12">
                                 <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
-                                    <option selected>Todos</option>
-                                    <option value="1">Tipo1</option>
-                                    <option value="2">Tipo2</option>
-                                    <option value="3">Tipo3</option>
+                                    <option>Todos</option>
+                                    <option *ngFor="let tipo of listaTiposR"> {{tipo.Descripcion_tipoReporte}} </option>
                                 </select>
                             </div>
                         </div>
@@ -22,10 +20,8 @@
                             <label class="lblForm col-lg-auto col-md-12" for="cuadrillaSelector">Cuadrilla</label>
                             <div class="col-lg-5 col-md-12">
                                 <select class="custom-select" id="cuadrillaSelector" formControlName="cuadrilla">
-                                    <option selected>Todos</option>
-                                    <option value="1">Tipo1</option>
-                                    <option value="2">Tipo2</option>
-                                    <option value="3">Tipo3</option>
+                                    <option> Todos</option>
+                                    <option *ngFor="let cuadrilla of listaCuadrillas"> {{ cuadrilla.Nombre_cuadrilla }} </option>
                                 </select>
                             </div>
                         </div>
@@ -38,10 +34,11 @@
                             <label class="lblForm col-lg-auto col-md-12" for="estadoSelector">Estado</label>
                             <div class="col-lg-7 col-md-12">
                                 <select class="custom-select" id="estadoSelectorAR" formControlName="estado">
-                                    <option selected>Todos</option>
-                                    <option value="1">Cancelados</option>
-                                    <option value="2">Abiertos</option>
-                                    <option value="3">Cerrados</option>
+                                    <option >Todos</option>
+                                    <option value="1">Abierto</option>
+                                    <option value="2">Cerrado</option>
+                                    <option value="3">Inconcluso</option>
+                                    <option value="4">Cancelado</option>
                                 </select>
                             </div>
                         </div>
@@ -52,10 +49,8 @@
                             <label class="lblForm col-lg-auto col-md-12" for="sectorSelector">Sector</label>
                             <div class="col-lg-8 col-md-12">
                                 <select class="custom-select" id="sectorSelector" formControlName="sector">
-                                    <option selected>Todos</option>
-                                    <option value="1">Tipo1</option>
-                                    <option value="2">Tipo2</option>
-                                    <option value="3">Tipo3</option>
+                                    <option>Todos</option>
+                                    <option *ngFor="let sector of listaSectores">{{ sector.Descripcion_sector }}</option>
                                 </select>
                             </div>
                         </div>
@@ -68,7 +63,7 @@
                                 <select class="custom-select" id="origenSelector" formControlName="origen">
                                     <option selected>Todos</option>
                                     <option value="1">App</option>
-                                    <option value="1">Web</option>
+                                    <option value="2">Web</option>
                                 </select>
                             </div>
                         </div>
@@ -119,12 +114,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let registro of datosTabla">
-                            <td *ngFor="let campo of registro">{{campo}}</td>
+                        <tr *ngFor="let reporte of listaReportes">
+                            <td>{{ reporte.ID_reporte }}</td>
+                            <td>{{ reporte.FechaRegistro_reporte | customDate }}</td>
+                            <td>{{ reporte.FechaCierre_reporte | customDate }}</td>
+                            <td>{{ reporte.Estatus_reporte | estadoReporte }}</td>
+                            <td>{{ reporte.sector }}</td>
+                            <td>{{reporte.Direccion_reporte}}</td>
                             <td>
                                 <div class="botones-wrapper">
-                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verReporte(registro)"> <i class="fas fa-eye"></i> Ver</button>
-                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarReporte(registro)"><i class="fas fa-pen"></i> Editar</button>
+                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verReporte(reporte)"> <i class="fas fa-eye"></i> Ver</button>
+                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarReporte(reporte)"><i class="fas fa-pen"></i> Editar</button>
                                 </div>
 
                             </td>

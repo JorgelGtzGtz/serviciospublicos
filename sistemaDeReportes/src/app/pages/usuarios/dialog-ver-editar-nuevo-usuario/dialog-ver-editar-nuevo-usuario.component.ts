@@ -1,8 +1,12 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogService } from '../../../services/dialog-service.service';
+import { UsuarioService } from '../../../services/usuario.service';
 import { debounceTime } from 'rxjs/operators';
+import { Usuario } from '../../../Interfaces/IUsuario';
+import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
+import { UsuarioM } from '../../../Models/UsuarioM';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-usuario',
@@ -11,27 +15,39 @@ import { debounceTime } from 'rxjs/operators';
 })
 export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
   accion: string;
+  datosUsuario: Usuario;
+  tiposUsuario: any = [];
   modificado: boolean;
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoUsuarioComponent> ,
               @Inject (MAT_DIALOG_DATA) private data,
               private dialogService: DialogService,
-              private formBuilder: FormBuilder) {
+              private formBuilder: FormBuilder,
+              private usuarioService: UsuarioService,
+              private tipoService: TipoUsuarioService) {
               dialogRef.disableClose = true;
               this.buildForm();
 }
 
   ngOnInit(): void {
     this.accion = this.data.accion;
-    this.tipoFormularioAccion();
+    this.tipoService.obtenerListaTipoU().subscribe(tipos => {
+      this.tiposUsuario = tipos;
+    });
   }
+
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.inicializarFormulario();
+    }, 30);
+}
 
   // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
   private buildForm(){
     this.form = this.formBuilder.group({
-      id: [],
-      estado: [],
+      id: [''],
+      estado: [''],
       nombre: ['', [Validators.required]],
       correo: ['', [Validators.required, Validators.email]],
       telefono: ['', [Validators.required]],
@@ -82,6 +98,32 @@ get campoPassword(){
   return this.form.get('password');
 }
 
+// Llena los inputs con los datos del usuario cuando 
+//  se abre la ventana ver o editar
+inicializarCampos(){
+  this.datosUsuario = this.usuarioService.convertirDesdeJSON(this.data.usuario);
+  this.campoId.setValue( this.datosUsuario.ID_usuario);
+  this.campoNombre.setValue(this.datosUsuario.Nombre_usuario);
+  this.campoCorreo.setValue(this.datosUsuario.Correo_usuario);
+  this.campoTelefono.setValue(this.datosUsuario.Telefono_usuario);
+  this.campoUsuario.setValue(this.datosUsuario.Login_usuario);
+  this.campoPassword.setValue(this.datosUsuario.Password_usuario);
+  this.campoEstado.setValue(this.datosUsuario.Estatus_usuario);
+  this.campoGenero.setValue(this.datosUsuario.Genero_usuario);
+}
+
+// funcion para indicar al selector tipoUsuario si debe mostrar
+// el tipo de usuario de un usuario, cuando se está editando
+inicializarSelTipo(idTipo: number){
+  let valor = false;
+  if (this.datosUsuario !== undefined){
+       if (idTipo === this.datosUsuario.ID_tipoUsuario){
+         valor =  true;
+       }
+    }
+  return valor;
+}
+
 // Devuelve true si el usuario interactuó con el formulario o false si no.
 obtenerEstadoFormulario(): boolean{
   return this.modificado;
@@ -90,10 +132,11 @@ obtenerEstadoFormulario(): boolean{
 //  ya sea ver información, crear nuevo registro o editar.
 //  En "ver" todos los campos aparecen deshabilitados y en "nuevo" el único deshabilitado
 //  es "activar"
-  tipoFormularioAccion(): void{
+  inicializarFormulario(): void{
     switch (this.accion){
       case 'ver':
         this.form.disable();
+        this.inicializarCampos();
         break;
       case 'nuevo':
         this.campoEstado.disable();
@@ -102,6 +145,7 @@ obtenerEstadoFormulario(): boolean{
       default:
         this.form.enable();
         this.campoId.disable();
+        this.inicializarCampos();
     }
   }
 
@@ -110,12 +154,56 @@ obtenerEstadoFormulario(): boolean{
 guardar(): void {
   // event.preventDefault();
   if (this.form.valid){
-    const value = this.form.value;
-    this.mensajeDeGuardado();
+    const usuario = this.generarUsuario();
+    this.accionGuardar(usuario);
     this.dialogRef.close(this.data);
-    console.log(value);
+    console.log(usuario);
   } else{
     this.form.markAllAsTouched();
+  }
+}
+
+//Generar usuario con datos de formulario
+generarUsuario(){
+  return new UsuarioM(
+    this.campoId.value,
+    this.campoNombre.value,
+    this.campoCorreo.value,
+    this.campoTelefono.value,
+    this.campoGenero.value,
+    this.buscarTipo(this.campoTipoUsuario.value),
+    this.campoUsuario.value,
+    this.campoPassword.value,
+    this.campoEstado.value,
+    false
+  );
+}
+
+// Recibe la descripcion de un tipo de usuario
+// Y regresa el id que pertenece a este.
+buscarTipo(descripcion: string){
+  let desc: number;
+  this.tiposUsuario.forEach(tipo => {
+    if (tipo.Descripcion_tipoUsuario === descripcion) {
+        desc = tipo.ID_tipoUsuario;
+     }
+  });
+  return desc;
+}
+
+
+// Método para saber si se actualizará o registrará un nuevo usuario
+accionGuardar(usuario: Usuario){
+  if (this.accion === 'nuevo'){
+      this.usuarioService.registrarUsuario(usuario).subscribe( res => {
+        console.log('Registro respuesta: ', res);
+      });
+  }else if (this.accion === 'editar'){
+    usuario.ID_usuario = this.datosUsuario.ID_usuario;
+    this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
+        console.log('Actualizar respuesta: ', res);
+      });
+
   }
 }
 

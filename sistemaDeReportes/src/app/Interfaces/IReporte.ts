@@ -13,7 +13,7 @@ export interface Reporte{
     Direccion_reporte: string;
     EntreCalles_reporte: string;
     Referencia_reporte: string;
-    Colonoa_reporte: string;
+    Colonia_reporte: string;
     Poblado_reporte: string;
     Observaciones_reporte: string;
 }

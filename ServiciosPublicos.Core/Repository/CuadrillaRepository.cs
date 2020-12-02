@@ -32,7 +32,7 @@ namespace ServiciosPublicos.Core.Repository
         //Obtener todas las cuadrillas registradas y se muestra el nombre del jefe de cuadrilla
         public List<dynamic> GetCuadrillaList()
         {
-            Sql query = new Sql(@"select cuadrilla.*, usuario.Nombre_usuario
+            Sql query = new Sql(@"select cuadrilla.*, usuario.Nombre_usuario as jefe
                                 from  [hiram74_residencias].[Cuadrilla] cuadrilla
                                 inner join [hiram74_residencias].[Usuario] usuario 
                                 on cuadrilla.ID_JefeCuadrilla = usuario.ID_usuario");

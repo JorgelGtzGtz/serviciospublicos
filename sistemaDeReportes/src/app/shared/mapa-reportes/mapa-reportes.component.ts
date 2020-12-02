@@ -19,7 +19,6 @@ export class MapaReportesComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    console.log('datos posicion', this.datos.posicion);
     this.datosReporte = this.datos.reporte;
     Mapboxgl.accessToken = environment.mapboxKey;
     this.mapa = new Mapboxgl.Map({
