@@ -17,6 +17,7 @@ export class TiposDeUsuarioComponent implements OnInit {
   estadoForm: FormControl;
   headersTabla: string [];
   tiposUsuario: TipoUsuario[] = [];
+  datos: boolean = false;
 
 
   constructor(public dialog: MatDialog,
@@ -51,6 +52,7 @@ export class TiposDeUsuarioComponent implements OnInit {
     this.tipoService.obtenerListaTipoU(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
       this.tiposUsuario = tipos;
       console.log( this.tiposUsuario);
+      this.datos = true;
     });
   }
 
@@ -130,12 +132,9 @@ get campoEstado(){
   buscar(): void{
     this.tipoService.obtenerListaTipoU(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
       this.tiposUsuario = tipos;
-      console.log('Se recibe:', tipos);
     }, (error: HttpErrorResponse) => {
-      alert('Error:' + error.message);
+      alert('Error al hacer búsqueda:' + error.message);
     });
-    console.log('Se dio click en buscar tipos de usuario', this.busquedaForm.value, this.estadoForm.value);
-    console.log('Valores a buscar', this.campoBusqueda.value, this.campoEstado.value);
   }
 
 }

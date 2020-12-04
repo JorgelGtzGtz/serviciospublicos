@@ -54,6 +54,7 @@ export class ProcesoPermisoService {
 
   // Busca el proceso por el nombre
   obtenerProceso(texto: string, procesos: ProcesoPermiso[]): ProcesoPermiso{
+    console.log('SE RECIBE EN OBTENER_PROCESO:', texto, procesos);
     let proc: ProcesoPermiso ;
     procesos.forEach(proceso => {
       if (proceso.Descripcion_procesoPermiso === texto){

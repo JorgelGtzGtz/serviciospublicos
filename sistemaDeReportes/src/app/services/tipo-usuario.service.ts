@@ -44,6 +44,10 @@ export class TipoUsuarioService {
         ));
   }
 
+  obtenerIDRegistro(){
+    return this.http.get(this.url + '/ObtenerID');
+  }
+
   insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]){
     return this.http.post(this.url + '/Insertar', {
       'tipo': tipoUsuario,

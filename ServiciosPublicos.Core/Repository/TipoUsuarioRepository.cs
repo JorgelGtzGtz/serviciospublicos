@@ -10,6 +10,7 @@ namespace ServiciosPublicos.Core.Repository
     {
         Tipo_usuario GetTipo(string nombre);
         List<dynamic> GetUsuariosFiltroGeneral(string textoBusqueda = null, string estado = null);
+        int ObtenerUltimoID();
     }
 
     public class TipoUsuarioRepository : RepositoryBase<Tipo_usuario>, ITipoUsuarioRepository
@@ -47,6 +48,12 @@ namespace ServiciosPublicos.Core.Repository
 
             Sql query = new Sql(@"SELECT * FROM Tipo_usuario " + (operacion ? filter : ""));
             return this.Context.Fetch<dynamic>(query);
+        }
+
+        public int ObtenerUltimoID()
+        {
+            Sql query = new Sql(@"SELECT IDENT_CURRENT('Tipo_usuario')");
+            return this.Context.SingleOrDefault<int>(query);
         }
 
     }
