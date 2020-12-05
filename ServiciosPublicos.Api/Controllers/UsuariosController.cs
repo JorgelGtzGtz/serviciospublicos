@@ -60,8 +60,8 @@ namespace ServiciosPublicos.Api.Controllers
         }
 
         [HttpGet]
-        [Route("Lista/{usuario?}/")]
-        public async Task<HttpResponseMessage> GetUsuarios(HttpRequestMessage request, string usuario = null)
+        [Route("ListaBusqueda")]
+        public async Task<HttpResponseMessage> GetUsuarios(HttpRequestMessage request, string textoB = null, string estado = null, string tipoU = null, string repActivos = null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -69,15 +69,15 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _usuarioservice.GetUsuariosFiltro(usuario);
-                    response = request.CreateResponse(HttpStatusCode.OK, item);
+                    var listaUsuarios = _usuarioservice.GetUsuariosFiltro(textoB, estado, tipoU, repActivos);
+                    response = request.CreateResponse(HttpStatusCode.OK, listaUsuarios);
                 }
                 catch (Exception ex)
                 {
                     response = request.CreateResponse(HttpStatusCode.BadRequest,
                     new
                     {
-                        error = "ERROR",
+                        error = "Error al hacer búsqueda de usuarios",
                         message = ex.Message
                     });
                 }
@@ -242,6 +242,33 @@ namespace ServiciosPublicos.Api.Controllers
                             message = message
                         });
                     }
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Obtener ID para registro nuevo
+        [HttpGet]
+        [Route("ObtenerID")]
+        public async Task<HttpResponseMessage> GetIDRegistro(HttpRequestMessage request)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    int resultadoID = _usuarioservice.ObtenerIDRegistro(out message);
+                    response = request.CreateResponse(HttpStatusCode.OK, resultadoID);
                 }
                 catch (Exception ex)
                 {

@@ -2,15 +2,13 @@
 <h2 mat-dialog-title>{{ accion | capitalizado }} tipo de usuario</h2>
 <hr>
 <div mat-dialog-content>
-    <div *ngIf="!procesosYpermisos && !idListo" class="container-fluid">
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border m-5" role="status">
+    <div class="container-fluid">
+        <div *ngIf="!procesosYpermisos && !idListo" class="d-flex justify-content-center">
+            <div class="spinner-border m-5 align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-    </div>
-    <div *ngIf="(procesosYpermisos && idListo) && accion==='nuevo' || procesosYpermisos && accion !== 'nuevo'" class="container-fluid">
-        <form [formGroup]="form">
+        <form [formGroup]="form" *ngIf="(procesosYpermisos && idListo) && accion==='nuevo' || procesosYpermisos && accion !== 'nuevo'">
             <div class="row form-sections">
 
                 <div class="col-6" id="id-col">

@@ -26,7 +26,7 @@ namespace ServiciosPublicos.Api.Controllers
 
         //Regresa lista de todos los tipos de usuario existentes sin sus permisos
         [HttpGet]
-        [Route("ListaGeneral")]
+        [Route("ListaBusqueda")]
         public async Task<HttpResponseMessage> GetTipoUsuarioFiltro(HttpRequestMessage request, string textoB = null, string estado = null)
         {
             return await CreateHttpResponseAsync(request, async () =>

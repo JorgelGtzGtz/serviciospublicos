@@ -9,7 +9,7 @@ namespace ServiciosPublicos.Core.Repository
     public interface ITipoUsuarioRepository : IRepositoryBase<Tipo_usuario>
     {
         Tipo_usuario GetTipo(string nombre);
-        List<dynamic> GetUsuariosFiltroGeneral(string textoBusqueda = null, string estado = null);
+        List<dynamic> GetTipoUsuariosFiltroDinamico(string textoBusqueda = null, string estado = null);
         int ObtenerUltimoID();
     }
 
@@ -28,7 +28,7 @@ namespace ServiciosPublicos.Core.Repository
         }
 
 
-        public List<dynamic> GetUsuariosFiltroGeneral(string textoBusqueda = null, string estado = null)
+        public List<dynamic> GetTipoUsuariosFiltroDinamico(string textoBusqueda = null, string estado = null)
         {
             string filter = " Where ";
             bool operacion = false;

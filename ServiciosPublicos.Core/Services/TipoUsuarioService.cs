@@ -58,7 +58,7 @@ namespace ServiciosPublicos.Core.Services
             var result = new List<dynamic>();
             try
             {
-                result = _tipoUsuarioRepository.GetUsuariosFiltroGeneral(textoBusqueda, estado);
+                result = _tipoUsuarioRepository.GetTipoUsuariosFiltroDinamico(textoBusqueda, estado);
             }catch(Exception ex)
             {
                 Message = "Error al hacer busqueda. Error "+ex.Message;

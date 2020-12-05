@@ -9,14 +9,14 @@ import { UsuarioM } from '../Models/UsuarioM';
   providedIn: 'root'
 })
 export class InterceptorService implements HttpInterceptor {
-  usuario: UsuarioM;
+  datosLogin: string [];
   constructor(private usuarioService: UsuarioService) {
-    this.usuario = this.usuarioService.obtenerUsuarioLogueado();
+    this.datosLogin = this.usuarioService.obtenerDatosLogin();
    }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const headers = new HttpHeaders({
-      Authorization : 'Basic ' + btoa(this.usuario.Login_usuario + ':' + this.usuario.Password_usuario),
+      Authorization : 'Basic ' + btoa(this.datosLogin[0] + ':' + this.datosLogin[1]),
       'Content-Type': 'application/json'
     });
     console.log('INTERCEPTOR');

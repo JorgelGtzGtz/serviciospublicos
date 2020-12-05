@@ -7,6 +7,8 @@ import { debounceTime } from 'rxjs/operators';
 import { Usuario } from '../../../Interfaces/IUsuario';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { UsuarioM } from '../../../Models/UsuarioM';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-usuario',
@@ -18,6 +20,8 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
   datosUsuario: Usuario;
   tiposUsuario: any = [];
   modificado: boolean;
+  idListo: boolean;
+  tiposUListos: boolean;
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoUsuarioComponent> ,
@@ -34,7 +38,9 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
     this.accion = this.data.accion;
     this.tipoService.obtenerListaTipoU().subscribe(tipos => {
       this.tiposUsuario = tipos;
+      this.tiposUListos = true;
     });
+    this.inicializarCampos();
   }
 
   ngAfterViewInit() {
@@ -101,23 +107,29 @@ get campoPassword(){
 // Llena los inputs con los datos del usuario cuando 
 //  se abre la ventana ver o editar
 inicializarCampos(){
-  this.datosUsuario = this.usuarioService.convertirDesdeJSON(this.data.usuario);
-  this.campoId.setValue( this.datosUsuario.ID_usuario);
-  this.campoNombre.setValue(this.datosUsuario.Nombre_usuario);
-  this.campoCorreo.setValue(this.datosUsuario.Correo_usuario);
-  this.campoTelefono.setValue(this.datosUsuario.Telefono_usuario);
-  this.campoUsuario.setValue(this.datosUsuario.Login_usuario);
-  this.campoPassword.setValue(this.datosUsuario.Password_usuario);
-  this.campoEstado.setValue(this.datosUsuario.Estatus_usuario);
-  this.campoGenero.setValue(this.datosUsuario.Genero_usuario);
+  if (this.accion !== 'nuevo'){
+    this.datosUsuario = this.usuarioService.convertirDesdeJSON(this.data.usuario);
+    this.campoId.setValue( this.datosUsuario.ID_usuario);
+    this.campoNombre.setValue(this.datosUsuario.Nombre_usuario);
+    this.campoCorreo.setValue(this.datosUsuario.Correo_usuario);
+    this.campoTelefono.setValue(this.datosUsuario.Telefono_usuario);
+    this.campoUsuario.setValue(this.datosUsuario.Login_usuario);
+    this.campoPassword.setValue(this.datosUsuario.Password_usuario);
+    this.campoEstado.setValue(!this.datosUsuario.Estatus_usuario);
+    this.campoGenero.setValue(this.datosUsuario.Genero_usuario);
+  }else{
+    this.campoEstado.setValue(false);
+    this.obtenerIDNuevo();
+  }
 }
 
 // funcion para indicar al selector tipoUsuario si debe mostrar
 // el tipo de usuario de un usuario, cuando se está editando
-inicializarSelTipo(idTipo: number){
+inicializarSelTipo(tipo: TipoUsuario){
   let valor = false;
   if (this.datosUsuario !== undefined){
-       if (idTipo === this.datosUsuario.ID_tipoUsuario){
+       if (tipo.ID_tipoUsuario === this.datosUsuario.ID_tipoUsuario){
+         this.campoTipoUsuario.setValue(tipo.Descripcion_tipoUsuario);
          valor =  true;
        }
     }
@@ -136,7 +148,6 @@ obtenerEstadoFormulario(): boolean{
     switch (this.accion){
       case 'ver':
         this.form.disable();
-        this.inicializarCampos();
         break;
       case 'nuevo':
         this.campoEstado.disable();
@@ -145,10 +156,16 @@ obtenerEstadoFormulario(): boolean{
       default:
         this.form.enable();
         this.campoId.disable();
-        this.inicializarCampos();
     }
   }
 
+  obtenerIDNuevo(): void{
+    this.usuarioService.obtenerIDRegistro().subscribe( (id: number) => {
+      this.campoId.setValue(id);
+      this.idListo = true;
+      console.log('ID a asignar:', id);
+    });
+  }
 
 // Método que se llama cuando se le da click en guardar en el formulario.
 guardar(): void {
@@ -157,7 +174,6 @@ guardar(): void {
     const usuario = this.generarUsuario();
     this.accionGuardar(usuario);
     this.dialogRef.close(this.data);
-    console.log(usuario);
   } else{
     this.form.markAllAsTouched();
   }
@@ -174,7 +190,7 @@ generarUsuario(){
     this.buscarTipo(this.campoTipoUsuario.value),
     this.campoUsuario.value,
     this.campoPassword.value,
-    this.campoEstado.value,
+    !this.campoEstado.value,
     false
   );
 }
@@ -196,15 +212,18 @@ buscarTipo(descripcion: string){
 accionGuardar(usuario: Usuario){
   if (this.accion === 'nuevo'){
       this.usuarioService.registrarUsuario(usuario).subscribe( res => {
-        console.log('Registro respuesta: ', res);
+        alert(res);
+      }, (error: HttpErrorResponse) => {
+        alert('El registro no pudo ser completado. Error:' + error.message);
       });
   }else if (this.accion === 'editar'){
     usuario.ID_usuario = this.datosUsuario.ID_usuario;
     this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
-        console.log('Actualizar respuesta: ', res);
+        alert(res);
+      }, (error: HttpErrorResponse) => {
+        alert('Usuario no pudo ser actualizado. Error:' + error.message);
       });
-
-  }
+    }
 }
 
 // Método que muestra un mensaje, al dar click en guardar.

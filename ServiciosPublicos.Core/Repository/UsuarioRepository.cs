@@ -16,6 +16,8 @@ namespace ServiciosPublicos.Core.Repository
         Usuario GetUsuario(string usr, string password);
         Usuario GetUsuario(string usr);
         List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe);
+        List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
+        int ObtenerUltimoID();
     }
 
     public class UsuarioRepository : RepositoryBase<Usuario>, IUsuarioRepository
@@ -25,12 +27,7 @@ namespace ServiciosPublicos.Core.Repository
         }
 
        
-        public int getUltimoID()
-        {            
-            var query = new Sql(@"SELECT IDENT_CURRENT('Usuario')");
-            return this.Context.Execute(query);
-        }
-
+       
         public Usuario GetUsuario(string usr, string password)
         {
             var query = new Sql()
@@ -68,25 +65,53 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<Usuario>(query);
         }
 
-        public List<dynamic> GetUsuariosFiltroGeneral(string textoBusqueda = null)
+       public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
         {
             string filter = " Where ";
+            bool operacion = false;
 
             if (!string.IsNullOrEmpty(textoBusqueda))
             {
-                filter += string.Format("usuario.Nombre_usuario like '%{0}%' or " +
+                filter += string.Format("(usuario.Nombre_usuario like '%{0}%' or " +
                                         "usuario.Login_usuario like '%{0}%' or " +
                                         "usuario.ID_usuario like '%{0}%' or " +
-                                        "tipoUsuario.Descripcion_tipoUsuario like '%{0}%'", textoBusqueda);
+                                        "tipoUsuario.Descripcion_tipoUsuario like '%{0}%')", textoBusqueda);
+                operacion = true;
             }
 
-            Sql query = new Sql(@"select usuario.*, tipoUsuario.Descripcion_tipoUsuario as NombreTipo
-                                from  [hiram74_residencias].[Usuario] usuario
-                                inner join [hiram74_residencias].[Tipo_usuario] tipoUsuario 
-                                on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
-            return this.Context.Fetch<dynamic>(query);            
+            if (!string.IsNullOrEmpty(estado))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("Estatus_usuario LIKE '%{0}%'", estado);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(tipoU))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("usuario.ID_tipoUsuario LIKE '%{0}%'", tipoU);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(repActivos))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
+                                                                     "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
+                                                                     "AND ticket.Estatus_ticket LIKE '%{0}%')", repActivos);
+                operacion = true;
+            }
+
+            Sql query = new Sql(@"SELECT usuario.*, tipoUsuario.Descripcion_tipoUsuario AS NombreTipo
+                                FROM [hiram74_residencias].[Usuario] usuario
+                                INNER JOIN [hiram74_residencias].[Tipo_usuario] tipoUsuario 
+                                ON tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario " + (operacion ? filter : ""));
+            return this.Context.Fetch<dynamic>(query);
         }
 
-        
+        public int ObtenerUltimoID()
+        {
+            Sql query = new Sql(@"SELECT IDENT_CURRENT('Usuario')");
+            return this.Context.SingleOrDefault<int>(query);
+        }
+
+
     }
 }
