@@ -16,6 +16,7 @@ namespace ServiciosPublicos.Core.Repository
         void ModificarNoTickets(Reporte reporte);
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
         List<dynamic> GetAllReportes(string textoBusqueda = null);
+        List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
 
     }
     public class ReporteRepository : RepositoryBase<Reporte>, IReporteRepository
@@ -99,6 +100,15 @@ namespace ServiciosPublicos.Core.Repository
                                 INNER JOIN Cuadrilla AS cuadrilla ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
              return this.Context.Fetch<dynamic>(query);
          }
+
+        public List<Reporte> ReportesPorCuadrilla(int idCuadrilla)
+        {
+            Sql query = new Sql()
+                    .Select("*").From("Reporte")
+                    .Where("ID_cuadrilla = @0", idCuadrilla);
+            return this.Context.Fetch<Reporte>(query);
+
+        }
         
     }
 }

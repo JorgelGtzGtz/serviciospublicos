@@ -61,7 +61,7 @@ namespace ServiciosPublicos.Api.Controllers
 
         [HttpGet]
         [Route("ListaBusqueda")]
-        public async Task<HttpResponseMessage> GetUsuarios(HttpRequestMessage request, string textoB = null, string estado = null, string tipoU = null, string repActivos = null)
+        public async Task<HttpResponseMessage> GetUsuariosFiltro(HttpRequestMessage request, string textoB = null, string estado = null, string tipoU = null, string repActivos = null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {

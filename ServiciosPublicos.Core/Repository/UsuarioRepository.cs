@@ -67,7 +67,7 @@ namespace ServiciosPublicos.Core.Repository
 
        public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
         {
-            string filter = " Where ";
+            string filter = " WHERE ";
             bool operacion = false;
 
             if (!string.IsNullOrEmpty(textoBusqueda))

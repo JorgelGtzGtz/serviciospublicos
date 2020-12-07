@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Cuadrilla } from '../Interfaces/ICuadrilla';
+import { CuadrillaM } from '../Models/CuadrillaM';
 
 @Injectable({
   providedIn: 'root'
@@ -27,7 +28,32 @@ export class CuadrillaService {
     return this.http.get(this.url + '/GetCuadrillaList');
   }
 
+  obtenerCuadrillasFiltro(textoB?: string, estado?: string){
+    console.log('Se recibió en servicio:', textoB, estado);
+    if (textoB === undefined){
+      textoB = '';
+    }
+    if (estado === undefined || estado === 'Todos'){
+      estado = '';
+    }
+    let params = new HttpParams();
+    params = params.append('textoB', textoB);
+    params = params.append('estado', estado);
+
+    return this.http.get(this.url + '/filtrarCuadrillas', {
+      params
+    });
+  }
+
+  obtenerIDRegistro(){
+    return this.http.get(this.url + '/ObtenerID');
+  }
+
   eliminarCuadrilla(idCuadrilla: number){
     return this.http.delete(this.url + '/Eliminar/' + idCuadrilla);
+  }
+
+  convertirDesdeJSON(obj: Object){
+    return CuadrillaM.cuadrillaDesdeJson(obj);
   }
 }

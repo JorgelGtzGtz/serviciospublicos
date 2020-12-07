@@ -40,12 +40,12 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
       this.tiposUsuario = tipos;
       this.tiposUListos = true;
     });
-    this.inicializarCampos();
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
       this.inicializarFormulario();
+      this.inicializarCampos();
     }, 30);
 }
 
@@ -107,6 +107,7 @@ get campoPassword(){
 // Llena los inputs con los datos del usuario cuando 
 //  se abre la ventana ver o editar
 inicializarCampos(){
+  console.log('se carga el usuario', this.data.usuario);
   if (this.accion !== 'nuevo'){
     this.datosUsuario = this.usuarioService.convertirDesdeJSON(this.data.usuario);
     this.campoId.setValue( this.datosUsuario.ID_usuario);
@@ -128,9 +129,8 @@ inicializarCampos(){
 inicializarSelTipo(tipo: TipoUsuario){
   let valor = false;
   if (this.datosUsuario !== undefined){
-       if (tipo.ID_tipoUsuario === this.datosUsuario.ID_tipoUsuario){
-         this.campoTipoUsuario.setValue(tipo.Descripcion_tipoUsuario);
-         valor =  true;
+        if (tipo.ID_tipoUsuario === this.datosUsuario.ID_tipoUsuario){
+          valor =  true;
        }
     }
   return valor;
@@ -179,7 +179,7 @@ guardar(): void {
   }
 }
 
-//Generar usuario con datos de formulario
+// Generar usuario con datos de formulario
 generarUsuario(){
   return new UsuarioM(
     this.campoId.value,
@@ -198,15 +198,14 @@ generarUsuario(){
 // Recibe la descripcion de un tipo de usuario
 // Y regresa el id que pertenece a este.
 buscarTipo(descripcion: string){
-  let desc: number;
+  let idTipoUsuario: number;
   this.tiposUsuario.forEach(tipo => {
     if (tipo.Descripcion_tipoUsuario === descripcion) {
-        desc = tipo.ID_tipoUsuario;
+        idTipoUsuario = tipo.ID_tipoUsuario;
      }
   });
-  return desc;
+  return idTipoUsuario;
 }
-
 
 // Método para saber si se actualizará o registrará un nuevo usuario
 accionGuardar(usuario: Usuario){
@@ -217,7 +216,10 @@ accionGuardar(usuario: Usuario){
         alert('El registro no pudo ser completado. Error:' + error.message);
       });
   }else if (this.accion === 'editar'){
+    console.log('ID Tipo usuario:', this.campoTipoUsuario.value);
     usuario.ID_usuario = this.datosUsuario.ID_usuario;
+    usuario.ID_tipoUsuario = this.buscarTipo(this.campoTipoUsuario.value);
+    console.log('USUARIO:', usuario);
     this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
         alert(res);
       }, (error: HttpErrorResponse) => {
@@ -241,5 +243,9 @@ mensajeDeGuardado(): void{
 // Si la interacción sucedió se despliega un mensaje de confirmación.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+compararxd(user1: TipoUsuario, user2: TipoUsuario) {
+  return user1 && user2 && user1.ID_tipoUsuario === user2.ID_tipoUsuario;
 }
 }

@@ -146,6 +146,59 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        [HttpGet]
+        [Route("filtrarSectores")]
+        public async Task<HttpResponseMessage> GetSectoresFiltro(HttpRequestMessage request, string textoB = null, string estado = null)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = string.Empty;
+
+                try
+                {
+                    var sectoresFiltrados = _sectorService.FiltroSectores(textoB, estado);
+                    response = request.CreateResponse(HttpStatusCode.OK, sectoresFiltrados);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                        new
+                        {
+                            error = "ERROR",
+                            exception = ex.Message
+                        });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+        [HttpGet]
+        [Route("ObtenerID")]
+        public async Task<HttpResponseMessage> GetIDRegistro(HttpRequestMessage request)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = string.Empty;
+
+                try
+                {
+                    int idSectorNuevo = _sectorService.ObtenerIDRegistro();
+                    response = request.CreateResponse(HttpStatusCode.OK, idSectorNuevo);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest, 
+                        new { 
+                            error = "ERROR",
+                            exception = ex.Message
+                        });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
         [HttpDelete]
         [Route("Eliminar/{id}")]
         public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)

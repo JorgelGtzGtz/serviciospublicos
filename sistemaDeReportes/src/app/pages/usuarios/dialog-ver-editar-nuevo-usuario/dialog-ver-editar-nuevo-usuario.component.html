@@ -95,8 +95,10 @@
                     <label class="lblForm col-form-label col-md-auto" for="tipoUsuario">Tipo de usuario</label>
                     <div class="col-md-3">
                         <select class="custom-select" id="tipoUsuario" formControlName="tipoUsuario">
-                            <option *ngFor="let tipo of tiposUsuario" 
-                                    [selected]="inicializarSelTipo(tipo)" >
+                            <option>Todos</option>
+                            <option *ngFor="let tipo of tiposUsuario"                                    
+                                    [selected] = "inicializarSelTipo(tipo)"
+                                    >
                                 {{ tipo.Descripcion_tipoUsuario }}
                             </option>
                         </select>

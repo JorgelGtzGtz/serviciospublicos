@@ -18,10 +18,11 @@ export class CuadrillasComponent implements OnInit {
   estadoForm: FormControl;
   headersTabla: string [];
   listaCuadrillas: any = [];
+  cuadrillasListas: boolean;
 
   constructor(public dialog: MatDialog, private cuadrillaService: CuadrillaService) {
     this.formBuilder();
-    this.obtenerListaCuadrilla();
+    this.actualizarListaCuadrillas();
   }
 
   ngOnInit(): void {
@@ -46,10 +47,13 @@ export class CuadrillasComponent implements OnInit {
     this.headersTabla = ['Clave', 'Cuadrilla', 'Responsable', 'Procesos'];
   }
 
-  obtenerListaCuadrilla(){
-    return this.cuadrillaService.obtenerCuadrillas().subscribe( cuadrillas => {
+  actualizarListaCuadrillas(){
+    return this.cuadrillaService.obtenerCuadrillasFiltro(this.campoBusqueda.value, this.campoEstado.value).subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
+      this.cuadrillasListas = true;
       console.log('Cuadrillas lista:', cuadrillas);
+    }, (error: HttpErrorResponse) => {
+      alert('Error al obtener lista de cuadrillas disponibles. Error:' + error.message);
     });
   }
 
@@ -83,7 +87,7 @@ export class CuadrillasComponent implements OnInit {
       data: {accion, cuadrilla}
     });
     DIALOG_REF.afterClosed().subscribe(result => {
-      this.obtenerListaCuadrilla();
+      this.actualizarListaCuadrillas();
     });
   }
 
@@ -111,7 +115,7 @@ export class CuadrillasComponent implements OnInit {
     if (result) {
       this.cuadrillaService.eliminarCuadrilla(cuadrilla.ID_cuadrilla).subscribe( res => {
         alert('La cuadrilla se ha eliminado.');
-        this.obtenerListaCuadrilla();
+        this.actualizarListaCuadrillas();
       }, (error: HttpErrorResponse) => {
         alert('Existió un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla +
               '.Error:' + error.message);
@@ -125,6 +129,7 @@ export class CuadrillasComponent implements OnInit {
   // Método para buscar en la base de datos los registros que coincidan con los
   // valores que se establescan en los campos
  buscar(): void{
+   this.actualizarListaCuadrillas();
    console.log('Click en buscar desde cuadrillas', this.campoBusqueda.value, this.campoEstado.value);
  }
 

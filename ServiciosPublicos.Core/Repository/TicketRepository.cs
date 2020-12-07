@@ -13,6 +13,7 @@ namespace ServiciosPublicos.Core.Repository
     {
          Ticket GetTicket(int id);
          List<Ticket> GetSectoresTicket(int idSector);
+        List<Ticket> ticketsPorCuadrilla(int idCuadrilla);
     }
     public class TicketRepository : RepositoryBase<Ticket>, ITicketRepository
     {
@@ -41,6 +42,14 @@ namespace ServiciosPublicos.Core.Repository
                 .Where("ID_sector = @0", idSector);
             return this.GetByFilter(query);
 
+        }
+
+        public List<Ticket> ticketsPorCuadrilla(int idCuadrilla)
+        {
+            Sql queryTicket = new Sql()
+                .Select("*").From("Ticket")
+                .Where("ID_cuadrilla = @0", idCuadrilla);
+            return this.Context.Fetch<Ticket>(queryTicket);
         }
 
     }
