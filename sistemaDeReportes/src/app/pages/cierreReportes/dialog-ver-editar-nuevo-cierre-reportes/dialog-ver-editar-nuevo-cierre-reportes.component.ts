@@ -48,7 +48,7 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
       zoom: 16,
       reporte: this.reporte,
     };
-    this.imagenesApertura = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
+    this.imagenesApertura = ['alumbrado.jpg', 'bache.jpg', 'callejon.jpg'];
     this.imagenesCierre = [];
     this.inicializarVariablesImagenes();
   }

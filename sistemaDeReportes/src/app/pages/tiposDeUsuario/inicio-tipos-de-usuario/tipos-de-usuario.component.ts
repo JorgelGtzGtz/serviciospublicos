@@ -117,11 +117,11 @@ get campoEstado(){
       console.log('A eliminar', tipoU);
       this.tipoService.eliminarTipoUsuario(tipoU.ID_tipoUsuario).subscribe( res => {
         console.log('El usuario se eliminó');
+        this.actualizarTabla();
+        alert('El tipo de usuario se ha eliminado.');
       }, (error: HttpErrorResponse) => {
         console.log('Se generó errror: ' + error.message);
       });
-      this.actualizarTabla();
-      alert('El tipo de usuario se ha eliminado.');
     }else{
       console.log('no se elimina');
     }

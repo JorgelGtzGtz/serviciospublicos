@@ -195,7 +195,8 @@ obtenerEstadoFormulario(): boolean{
       this.campoNombreCuadrilla.value,
       this.campoEstado.value,
       this.campoTipoCuadrilla.value,
-      this.jefeSeleccionado(this.campoEncargado.value)
+      this.jefeSeleccionado(this.campoEncargado.value),
+      true
     );
   }
 
@@ -217,13 +218,13 @@ accionGuardar(): void{
     this.cuadrillaService.insertarCuadrilla(cuadrilla).subscribe( res => {
       alert('¡Registro de cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' exitoso!');
     }, (error: HttpErrorResponse) => {
-          alert('El registro no pudo ser completado. Error:' );
+          alert('El registro no pudo ser completado. Error:' + error.message );
     });
   } else{
     this.cuadrillaService.actualizarCuadrilla(cuadrilla).subscribe( res => {
       alert('¡Cuadrilla ' + cuadrilla.Nombre_cuadrilla  + ' se han actualizado exitosamente!');
     }, (error: HttpErrorResponse) => {
-          alert('Cuadrilla no pudo ser actualizado. Error:' );
+          alert('Cuadrilla no pudo ser actualizado. Error:' + error.message );
     });
   }
 }

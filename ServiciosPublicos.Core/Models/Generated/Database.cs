@@ -116,6 +116,7 @@ namespace dbServiciosPublicos
 		[Column] public bool Estatus_cuadrilla { get; set; }
 		[Column] public int Tipo_cuadrilla { get; set; }
 		[Column] public int ID_JefeCuadrilla { get; set; }
+		[Column] public bool Disponible { get; set; }
 	}
     
 	[TableName("hiram74_residencias.Imagen")]
@@ -193,6 +194,7 @@ namespace dbServiciosPublicos
 		[Column] public int ID_sector { get; set; }
 		[Column] public string Descripcion_sector { get; set; }
 		[Column] public bool Estatus_sector { get; set; }
+		[Column] public bool Disponible { get; set; }
 	}
     
 	[TableName("hiram74_residencias.Ticket")]
@@ -239,6 +241,7 @@ namespace dbServiciosPublicos
 		[Column] public int ID_tipoUsuario { get; set; }
 		[Column] public string Descripcion_tipoUsuario { get; set; }
 		[Column] public bool Estatus_tipoUsuario { get; set; }
+		[Column] public bool Disponible { get; set; }
 	}
     
 	[TableName("hiram74_residencias.Usuario")]
@@ -256,5 +259,6 @@ namespace dbServiciosPublicos
 		[Column] public string Password_usuario { get; set; }
 		[Column] public bool Estatus_usuario { get; set; }
 		[Column] public bool Jefe_asignado { get; set; }
+		[Column] public bool Disponible { get; set; }
 	}
 }

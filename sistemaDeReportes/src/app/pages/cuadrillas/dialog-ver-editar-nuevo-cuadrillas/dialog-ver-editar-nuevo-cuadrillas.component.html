@@ -46,7 +46,7 @@
                 <label class="lblForm col-form-label col-md-auto" for="encargadoSelector">Encargado</label>
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="encargadoSelector" formControlName="encargado">
-                        <option>Todos</option>
+                        <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
                         <option *ngFor="let jefe of jefesCuadrillaDisp"
                         [selected]="inicializarSelJefe(jefe)" >
                              {{ jefe.Nombre_usuario }}
@@ -64,7 +64,7 @@
                 <label class="lblForm col-form-label col-md-auto" for="tipoCuadrillaSelector">Tipo de cuadrilla</label>
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="tipoCuadrillaSelector" formControlName="tipoCuadrilla">
-                        <option>Todos</option>
+                        <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
                         <option *ngFor = "let tipo of tipoCuadrilla" [selected]="inicializarSelTipo(tipo)">
                              {{ tipo }} 
                             </option>

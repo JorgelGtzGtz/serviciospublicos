@@ -16,10 +16,10 @@
                         <label class="lblForm col-auto col-form-label" for="tipoReporteSelector">Tipo de reporte</label>
                         <div class="col-lg-8 col-md col-12">
                             <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
-                                <option selected>Todos</option>
-                                <option value="1">Tipo1</option>
-                                <option value="2">Tipo2</option>
-                                <option value="3">Tipo3</option>
+                                <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
+                                <option  *ngFor = "let tipo of listaTiposR" [selected]="inicializarSelTipo(tipo)">
+                                    {{ tipo.Descripcion_tipoReporte }}
+                                </option>
                             </select>
                             <div *ngIf="campoTipoReporte.errors && campoTipoReporte.touched">
                                 <p class="error" *ngIf="campoTipoReporte.hasError('required')">Campo requerido</p>
@@ -31,10 +31,10 @@
                         <label class="lblForm col-md-auto col-form-label" for="sectorSelector">Sector</label>
                         <div class="col-md-8 col-12">
                             <select class="custom-select" id="sectorSelector" formControlName="sector">
-                                <option selected>Todos</option>
-                                <option value="1">Tipo1</option>
-                                <option value="2">Tipo2</option>
-                                <option value="3">Tipo3</option>
+                                <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
+                                <option *ngFor = "let sector of listaSectores" [selected]="inicializarSelSector(sector)">
+                                    {{ sector.Descripcion_sector }}
+                                </option>
                             </select>
                             <div *ngIf="campoSector.errors && campoSector.touched">
                                 <p class="error" *ngIf="campoSector.hasError('required')">Campo requerido</p>
@@ -71,7 +71,7 @@
                 <div class="row form-group form-sections row-input-group">
                     <label id="lblCallePrincipal" class="col-form-label col-md-auto" for="callePrincipal">Calle </label>
                     <div class="col p-0">
-                        <input type="text" class="form-control" id="callePrincipal" formControlName="calleP">
+                        <input type="text" class="form-control" id="callePrincipal" placeholder="Ej.Calle Hidalgo #150" formControlName="calleP">
                         <div *ngIf="campoCallePrincipal.errors && campoCallePrincipal.touched">
                             <p class="error" *ngIf="campoCallePrincipal.hasError('required')">Campo requerido</p>
                         </div>
@@ -140,7 +140,7 @@
                 <div class="row form-group form-sections row-input-group">
                     <label id="lblDescripcion" class="col-form-label col-md-12" for="descripcion">Descripción del reporte</label>
                     <div class="col-md-12 p-0">
-                        <textarea type="text" class="form-control" id="descripcion" maxlength="130" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/130
+                        <textarea type="text" class="form-control" id="descripcion" maxlength="130" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/40
                         <div *ngIf="campoDescripcionReporte.errors && campoDescripcionReporte.touched">
                             <p class="error" *ngIf="campoDescripcionReporte.hasError('required')">Campo requerido</p>
                             <p class="error" *ngIf="campoDescripcionReporte.hasError('maxlength')"> Sobrepasado. La cantidad máxima de caracteres de 120</p>
@@ -153,8 +153,14 @@
                 <h3>Imágenes del reporte</h3>
                 <hr>
                 <div class="form-group form-sections row" *ngIf="accion === 'nuevo'">
-                    <button mat-raised-button>Subir imágenes</button>
-                    <!-- <input type="file" multiple class="form-control-file" id="inputImgIniciales" placeholder="Seleccionar"> -->
+                    <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
+                    <button id="btn-subirImg" mat-raised-button (click)="abrirVentanaImagenes()">Subir imágenes</button>
+                    <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales" placeholder="Seleccionar">
+                    <div>
+                        <div class="img-container" *ngIf="uploadedImg.length > 0">
+                            <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
+                        </div>
+                    </div>
                 </div>
 
                 <div *ngIf="accion === 'ver'" class="row form-sections">
@@ -166,7 +172,7 @@
                             <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
                             <ng-template #bloqueImgApertura>
                                 <div class="img-container">
-                                    <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                                    <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="">
                                 </div>
                             </ng-template>
                         </div>
@@ -181,7 +187,7 @@
                             <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
                             <ng-template #bloqueImgCierre>
                                 <div class="img-container">
-                                    <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                                    <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="">
                                 </div>
                             </ng-template>
                         </div>

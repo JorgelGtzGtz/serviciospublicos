@@ -16,6 +16,7 @@ namespace ServiciosPublicos.Core.Services
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
         List<Imagen> GetImagenesReporte(int id, out string Message);        
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
+        int ObtenerIDRegistro();
     }
     public class ReporteServicio : IReporteServicio
     {
@@ -42,6 +43,12 @@ namespace ServiciosPublicos.Core.Services
         {
             return _reporteRepository.GetReporteCuadrilla(idCuadrilla);
         }
+
+        public int ObtenerIDRegistro()
+        {
+            return _reporteRepository.ObtenerUltimoID() + 1;
+        }
+
 
         //Recibe el ticket y las imagenes
         // Primero verifica si el reporte existe. Si existe, solo actualiza el campo para conteo de tickets.

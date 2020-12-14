@@ -42,7 +42,7 @@ export class DialogAsignacionTicketsComponent implements OnInit {
 
   //  Al iniciar se mandarán los datos al componente de mapa
   ngOnInit(): void {
-    this.imagenesApertura = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
+    this.imagenesApertura = ['alumbrado.jpg', 'bache.jpg', 'callejon.jpg'];
     this.datosReporte = {
       posicion: [-109.9285487, 27.5129998],
       zoom: 16,

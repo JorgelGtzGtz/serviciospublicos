@@ -3,7 +3,6 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpHeaders, Http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { UsuarioService } from '../services/usuario.service';
-import { UsuarioM } from '../Models/UsuarioM';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +15,7 @@ export class InterceptorService implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const headers = new HttpHeaders({
-      Authorization : 'Basic ' + btoa(this.datosLogin[0] + ':' + this.datosLogin[1]),
-      'Content-Type': 'application/json'
+      Authorization : 'Basic ' + btoa(this.datosLogin[0] + ':' + this.datosLogin[1])
     });
     console.log('INTERCEPTOR');
     const reqClone = req.clone({

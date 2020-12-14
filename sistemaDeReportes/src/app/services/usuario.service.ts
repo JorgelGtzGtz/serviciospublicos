@@ -103,8 +103,8 @@ export class UsuarioService {
   }
 
   // Método para obtener los datos del usuario que  inicio de sesión.
-  obtenerUsuarioLogueado(){
-    let usuario = JSON.parse(localStorage.getItem('usuario'));
+  obtenerUsuarioLogueado(): UsuarioM{
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
     return usuario;
   }
 

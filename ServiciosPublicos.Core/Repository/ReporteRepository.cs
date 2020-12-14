@@ -17,6 +17,7 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
         List<dynamic> GetAllReportes(string textoBusqueda = null);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
+        int ObtenerUltimoID();
 
     }
     public class ReporteRepository : RepositoryBase<Reporte>, IReporteRepository
@@ -109,6 +110,12 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<Reporte>(query);
 
         }
-        
+
+        public int ObtenerUltimoID()
+        {
+            Sql query = new Sql(@"SELECT IDENT_CURRENT('Reporte')");
+            return this.Context.SingleOrDefault<int>(query);
+        }
+
     }
 }
