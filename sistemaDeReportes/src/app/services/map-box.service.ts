@@ -12,7 +12,7 @@ import * as Mapboxgl from 'mapbox-gl';
 })
 export class MapBoxService {
   URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places/';
-  ciudad = 'Obregón';
+  ciudad = 'Ciudad Obregón';
   estado = 'Sonora';
 
   constructor(private http: HttpClient) { }
@@ -36,7 +36,7 @@ export class MapBoxService {
 
   obtenerCoordenadasDireccion(query: string){
     console.log('query recibido:', query);
-    return this.http.get(this.URL + query + '.json?types=address&access_token=' + environment.mapboxKey)
+    return this.http.get(this.URL + query + '.json?types=address&country=mx&access_token=' + environment.mapboxKey)
     .pipe(map((res: MapBoxOutput) => {
       return res.features;
     }));
@@ -61,9 +61,11 @@ export class MapBoxService {
     const numeroDireccion = auxNumero.match(expRegNumeros) !== null ? auxNumero.match(expRegNumeros)[0] : '';
     const nombreCalle = calleNumero.match(expRegNombreCalle) !== null ? calleNumero.match(expRegNombreCalle)[0] : '' ;
      // Estructura query =  {Calle} {numero de casa} {Colonia} {Ciudad}
-    const query = nombreCalle + '' +
+    const query = nombreCalle + ' ' +
                   numeroDireccion + ' ' +
-                  colonia;
+                  colonia + ' ' +
+                  this.ciudad + ' ' +
+                  this.estado;
     console.log('query', query);
     return query;
   }

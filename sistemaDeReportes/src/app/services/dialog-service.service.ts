@@ -61,7 +61,6 @@ verificarDialogs(): boolean{
     let navegar: boolean;
     let d;
     d = dialogAbierto.componentInstance; // Con esto se accede al componente del dialog
-    console.log('component Instance:', d);
     if (d.obtenerEstadoFormulario()){
         navegar = this.mostrarMensajeConfirmacion(dialogAbierto);
       }else{
@@ -79,11 +78,9 @@ verificarDialogs(): boolean{
   mostrarMensajeConfirmacion(d: any): boolean{
     let respuesta = confirm('¿Está seguro que desea salir?');
     if (respuesta){
-      console.log('se mandó a cerrar el dialog', d);
       d.close();
       return true;
     }else{
-      console.log('se queda el dialog abierto');
       return false;
     }
 

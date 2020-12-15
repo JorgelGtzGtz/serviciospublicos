@@ -22,13 +22,9 @@ export class NavbarComponent implements OnInit {
   toggle(): void {
     const portalBody = $('#portalBody');
     if ( portalBody.hasClass( 'sidebar-collapse')) {
-      console.log('Se abre');
-      console.log('lista clases en abierto:', portalBody[0].classList);
       portalBody.removeClass('sidebar-collapse');
       portalBody.addClass('sidebar-open');
     } else {
-      console.log('Se colapsa');
-      console.log('lista clases en colapsado:', portalBody[0].classList);
       portalBody.addClass('sidebar-collapse'); 
     } 
   }

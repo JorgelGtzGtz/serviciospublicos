@@ -34,6 +34,7 @@ export class AltaReportesComponent implements OnInit {
               private mapBoxService: MapBoxService) {
     this.buildForm();
     this. inicializarListas();
+    // this.actualizarTabla();
    }
 
   ngOnInit(): void {

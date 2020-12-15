@@ -95,10 +95,9 @@ namespace ServiciosPublicos.Core.Repository
              }
             
 
-             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sector, cuadrilla.Nombre_cuadrilla AS cuadrilla 
+             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion 
                                 FROM hiram74_residencias.Reporte AS reporte
-                                INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector
-                                INNER JOIN Cuadrilla AS cuadrilla ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+                                INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
              return this.Context.Fetch<dynamic>(query);
          }
 

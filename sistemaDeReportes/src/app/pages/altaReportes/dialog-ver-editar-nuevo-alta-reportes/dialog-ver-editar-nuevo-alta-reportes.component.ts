@@ -13,7 +13,6 @@ import { Reporte } from '../../../Interfaces/IReporte';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TicketM } from '../../../Models/TicketM';
 import { UsuarioM } from '../../../Models/UsuarioM';
-import { Usuario } from '../../../Interfaces/IUsuario';
 import { Imagen } from '../../../Interfaces/IImagen';
 import { ImagenService } from '../../../services/imagen.service';
 import { Features } from '../../../Interfaces/Features';
@@ -31,16 +30,13 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   mostrarImgApertura: boolean;
   mostrarImgCierre: boolean;
   modificado: boolean;
-  cancelado: boolean;
-  estado: number;
+  estadoReporte: number;
   accion: string;
   imagenesApertura: Imagen [] = [];
   imagenesCierre: Imagen [] = [];
   listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
   coordenadas: number[] = [];
-  imagenesAperturaPrueba: string [];
-  imagenesCierrePrueba: string [];
   uploadedImg: any [] = [];
   form: FormGroup;
 
@@ -61,15 +57,15 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.obtenerSectoresYTiposRep();
     this.inicializarCampos();
     this.tipoFormularioAccion();
-    this.obtenerSectoresYTiposRep();
-    this.imagenesAperturaPrueba = ['callejon.jpg', 'bache.jpg', 'alumbrado.jpg'];
-    this.imagenesCierrePrueba= ['', '', '']; 
-    console.log('RECIBE:', this.data.reporte);
   }
 
-  // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método que inicializa el objeto de tipo FormGroup para 
+  // obtener y establecer información en el formulario.
   private buildForm(): void{
     this.form = this.formBuilder.group({
       id: ['0'],
@@ -78,9 +74,9 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
       fechaInicio: ['', [Validators.required]],
       fechaCierre: [''],
       calleP: ['', [Validators.required]],
-      referencia: ['', [Validators.required]],
-      calleS1: ['', [Validators.required]],
-      calleS2: ['', [Validators.required]],
+      referencia: [''],
+      calleS1: [''],
+      calleS2: [''],
       colonia: ['', [Validators.required]],
       descripcionR: ['', [Validators.required, Validators.maxLength(40)]]
     });
@@ -94,15 +90,20 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     });
   }
 
-    // Método para inicializar los valores de los campos
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para establecer los valores iniciales de los campos del formulario.
+  // según sea un nuevo registro o modificación/ visualización de registro.
     inicializarCampos(): void{
       if (this.accion !== 'nuevo'){
         this.obtenerObjetoReporte();
         const calles: string [] = this.reporteSevice.separarEntreCalles(this.reporte.EntreCalles_reporte);
         const fechaApertura: string = this.reporteSevice.formatoFechaMostrar(this.reporte.FechaRegistro_reporte);
         const fechaCierre: string = this.reporteSevice.formatoFechaMostrar(this.reporte.FechaCierre_reporte);
-        this.estado = this.reporte.Estatus_reporte;
+        this.estadoReporte = this.reporte.Estatus_reporte;
         this.campoId.setValue(this.reporte.ID_reporte);
+        this.campoSector.setValue(this.reporte.ID_sector);
+        this.campoTipoReporte.setValue(this.reporte.ID_tipoReporte);
         this.campoFechaInicio.setValue(fechaApertura);
         this.campoFechaCierre.setValue(fechaCierre);
         this.campoCallePrincipal.setValue(this.reporte.Direccion_reporte);
@@ -111,74 +112,77 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
         this.campoCalleSecundaria2.setValue(calles[1]);
         this.campoColonia.setValue(this.reporte.Colonia_reporte);
         this.campoDescripcionReporte.setValue(this.reporte.Observaciones_reporte);
-        this.mostrarImgApertura = true;
-        this.mostrarImgCierre = false;
-        //this. inicializarVariablesImagenes();
+        this. inicializarVariablesImagenes();
       }else{
         this.obtenerIDNuevo();
         this.imagenesApertura = [];
-        this.estado = 1;
+        this.estadoReporte = 1;
       }
     }
 
-    // Función para obtener el ID del nuevo registro
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para obtener el último ID registrado en la base de datos para 
+  // posteriormente ser mostrado en formulario.
     obtenerIDNuevo(): void{
       this.reporteSevice.obtenerIDRegistro().subscribe( (id: number) => {
         this.campoId.setValue(id);
         this.idListo = true;
-        console.log('ID:', id);
       });
     }
 
-  // Se obtiene el objeto reporte con los datos recibidos en el dialog
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para convertir los datos del registro seleccionado en la tabla de inicio
+  // a un objeto de tipo ReporteM.
   obtenerObjetoReporte(): void{
     if (this.accion !== 'nuevo'){
       this.reporte = this.reporteSevice.convertirDesdeJSON(this.data.reporte);
     }
   }
 
-  // Función para obtener la lista de sectores y tipos de reporte
-  // que se mostrarán en los select
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para obtener el listado de sectores y tipos de reporte
+  // que se encuentran en la base de datos.
 obtenerSectoresYTiposRep(): void{
   this.sectorService.obtenerSectores().subscribe( sectores => {
     sectores.forEach(sector => {
       this.listaSectores.push(sector);
     });
   });
-  console.log('Sectores', this.listaSectores);
 
   this.tipoReporteService.obtenerTiposReporte().subscribe( tipos => {
     tipos.forEach(tipo => {
       this.listaTiposR.push(tipo);
     });
   });
-  console.log('Tipos de Reportes', this.listaTiposR);
 }
 
-inicializarSelTipo(tipo: TipoReporte): boolean{
-  let valor = false;
-  if (this.reporte !== undefined){
-       if (tipo.ID_tipoReporte === this.reporte.ID_tipoReporte){
-         valor =  true;
-       }
-    }
-  return valor;
-}
+// inicializarSelTipo(tipo: TipoReporte): boolean{
+//   let valor = false;
+//   if (this.reporte !== undefined){
+//        if (tipo.ID_tipoReporte === this.reporte.ID_tipoReporte){
+//          valor =  true;
+//        }
+//     }
+//   return valor;
+// }
 
-inicializarSelSector(sector: Sector): boolean{
-  let valor = false;
-  if (this.reporte !== undefined){
-       if (sector.ID_sector === this.reporte.ID_sector){
-         valor =  true;
-       }
-    }
-  return valor;
-}
+// inicializarSelSector(sector: Sector): boolean{
+//   let valor = false;
+//   if (this.reporte !== undefined){
+//        if (sector.ID_sector === this.reporte.ID_sector){
+//          valor =  true;
+//        }
+//     }
+//   return valor;
+// }
 
-  // Este método, va a establecer las variables "mostrarImgApertura" y "mostrarImgCierre"
-  // como falso o verdadero, dependiendo si las listas "imagenesApertura" y "imagenesCierre"
-  // tienen contenido, con el fin de que en el HTML se muestre un mensaje o se
-  // muestren las imágenes
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para indicar, mediante las variables "mostrarImgApertura" y "mostrarImgCierre"
+  // si existen imágenes del reporte que mostrar.
   inicializarVariablesImagenes(): void{
     if (this.imagenesApertura.length !== 0){
       this.mostrarImgApertura = true;
@@ -192,7 +196,10 @@ inicializarSelSector(sector: Sector): boolean{
     }
   }
 
-  // Metodos get para obtener datos del formulario
+  // Entrada: Ninguna
+  // Salida: control de tipo AbstractControl, .
+  // Descripción: Método para obtener acceso a los controles del formulario
+  // que pertenecen al FormGroup
   get campoId(): AbstractControl{
     return this.form.get('id');
   }
@@ -238,19 +245,18 @@ inicializarSelSector(sector: Sector): boolean{
   }
 
   // Devuelve true si el usuario interactuó con el formulario o false si no.
+  // Entrada: Ninguna
+  // Salida: valor booleano.
+  // Descripción: Método que devuelve la variable "modificado" que indica si se
+  // interactuó con el formulario.
 obtenerEstadoFormulario(): boolean{
   return this.modificado;
 }
 
-// Devuelve el valor de la variable cancelado
-reporteCancelado(): boolean{
-  return this.cancelado;
-}
-
-// Este método habilita o deshabilita el formulario según lo que se quiera hacer en el
-//  ya sea ver información, crear nuevo registro o editar.
-//  En "ver" todos los campos aparecen deshabilitados y en "nuevo" el único deshabilitado
-//  es "activar"
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para habilitar o deshabilitar el formulario según la acción (crear, ver, editar)
+  // o estado del registro.
   tipoFormularioAccion(): void{
     switch (this.accion){
       case 'ver':
@@ -259,68 +265,93 @@ reporteCancelado(): boolean{
       case 'nuevo':
         this.campoFechaCierre.disable();
         this.campoId.disable();
-        break;
+        break;      
       default:
         this.form.enable();
         this.campoId.disable();
     }
+
+    if(this.estadoReporte === 4){
+      this.form.disable();
+    }
   }
 
-  // Al dar click en botón cancelar, se llama este método que cambiará
-  //  el estado del reporte actual a "cancelado"
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método que se llama al presionar el botón cancelar. 
+  // Esta cambiará el estado del reporte a "Cancelado" y actualizará este cambio en la base de datos.
   cancelarReporte(): void{
-    const result = confirm('¿Seguro que desea cancelar el reporte?');
+    const result = confirm('¿Seguro que desea cancelar el reporte? Esta operación es irreversible');
+    const auxEstado = this.reporte.Estatus_reporte;
+    this.reporte.Estatus_reporte = 4;
     if (result) {
-      console.log('Se cancela');
-      this.form.disable();
-      this.estado = 4;
-      this.cancelado = true;
-    }else{
-      this.cancelado = false;
-      console.log('no se cancela');
+      this.reporteSevice.actualizarReporte(this.reporte).subscribe( res => {
+        alert('¡El reporte fue cancelado!');
+        this.form.disable();
+        this.dialogRef.close(this.data);
+      }, (error: HttpErrorResponse) => {
+        alert('¡Lo sentimos! El reporte no pudo ser cancelado debido a problemas internos.' + 
+        'Comunique el problema al personal pertinente.');
+        console.warn('Error:' + error.message);
+        this.reporte.Estatus_reporte = auxEstado;
+      });        
     }
   }
 
    // Método para obtener el ID del tipo de reporte
   // que se seleccionó
-  tipoRepSeleccionado(nombre: string): number{
-    let idTipoR: number;
-    this.listaTiposR.forEach(tipo => {
-      if (nombre === tipo.Descripcion_tipoReporte){
-        idTipoR = tipo.ID_tipoReporte;
-      }
-    });
-    return idTipoR;
-  }
+  // tipoRepSeleccionado(nombre: string): number{
+  //   let idTipoR: number;
+  //   this.listaTiposR.forEach(tipo => {
+  //     if (nombre === tipo.Descripcion_tipoReporte){
+  //       idTipoR = tipo.ID_tipoReporte;
+  //     }
+  //   });
+  //   return idTipoR;
+  // }
    // Método para obtener el ID del sector
   // que se seleccionó
-  sectorSeleccionado(nombre: string): number{
-    let idSector: number;
-    this.listaSectores.forEach(sector => {
-      if (nombre === sector.Descripcion_sector){
-        idSector = sector.ID_sector;
-      }
-    });
-    return idSector;
-  }
+  // sectorSeleccionado(nombre: string): number{
+  //   let idSector: number;
+  //   this.listaSectores.forEach(sector => {
+  //     if (nombre === sector.Descripcion_sector){
+  //       idSector = sector.ID_sector;
+  //     }
+  //   });
+  //   return idSector;
+  // }
 
+  // Entrada: Ninguna
+  // Salida: Objeto tipo UsuarioM.
+  // Descripción: Método para obtener el objeto usuario del usuario actual, el que inició sesión 
+  // en el sistema.
   obtenerUsuarioActual(): UsuarioM{
     return this.usuarioService.obtenerUsuarioLogueado();
   }
 
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método que se llama al presionar el botón "Subir imágenes"
+  // con el fin de abrir la ventana para selección de archivos del input tipo = file
   abrirVentanaImagenes(): void{
     this.renderer.selectRootElement(this.inputFile.nativeElement).click();
   }
 
-  // Recibe el evento que se genera al seleccionar imagenes en input
+  // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
+  // Salida: vacío.
+  // Descripción: Método que recibe el evento que se genera al seleccionar imagenes en input
   // obtiene la lista de files o imagenes y las almacena en el servicio de imagen
   // Muestra en pantalla las imagenes seleccionadas.
-   obtenerImagenesSubidas(event){
+   obtenerImagenesSubidas(event): void{
     const photosList = event.target.files;
     this.imagenSevice.setListaImagenesSel(photosList);
     this.uploadedImg = this.imagenSevice.readThis(photosList);
   }
 
+  // Entrada: Ninguna
+  // Salida: Promesa con el tipo lista de numeros.
+  // Descripción: Método para generar las coordenadas de la dirección ingresada en formulario
+  // mediante un llamado al servicio de reporte.
   generarCoordenadas(): Promise<number[]> {
     const calleNumero = this.campoCallePrincipal.value;
     const colonia = this.campoColonia.value;
@@ -328,22 +359,24 @@ reporteCancelado(): boolean{
     return new Promise((resolved, reject) => {
       this.mapBoxService.obtenerCoordenadasDireccion(query).toPromise()
       .then((features: Features[]) => {
-        const coordenadas = features[0].geometry.coordinates
-        console.log('coordenadas');        
-        resolved(coordenadas);
+        // const coordenadas = features[0].geometry.coordinates
+        console.log('coordenadas metodo: ', features[0]);        
+        resolved(features[0].geometry.coordinates);
       })
       .catch(error => {
-        console.log('Error al obtener coordenadas. ' + error);
+        console.log('Error al obtener coordenadas.' + error);
         reject([]);        
       });
-      // resolved(this.mapBoxService.obtenerCoordenadasDireccion(query).toPromise());
     });
   }
 
-   // Metodo para modificar datos pertinentes de reporte
-   modificarDatosReporte(tipoReporte: number, coordenadas: number[], idSector: number, entreCalles: string): void{
-     this.reporte.ID_sector = idSector;
-     this.reporte.ID_tipoReporte = tipoReporte;
+  // Entrada: lista de tipo number
+  // Salida: vacío.
+  // Descripción: Método para modificar datos pertinentes de reporte
+   modificarDatosReporte(coordenadas: number[]): void{
+     const entreCalles = this.campoCalleSecundaria1.value + ' y ' + this.campoCalleSecundaria2.value;
+     this.reporte.ID_sector = this.campoSector.value;
+     this.reporte.ID_tipoReporte = this.campoTipoReporte.value;
      this.reporte.Latitud_reporte = coordenadas[1];
      this.reporte.Longitud_reporte = coordenadas[0];
      this.reporte.FechaRegistro_reporte = this.campoFechaInicio.value;
@@ -354,23 +387,28 @@ reporteCancelado(): boolean{
      this.reporte.Colonia_reporte = this.campoColonia.value;
      this.reporte.Poblado_reporte = this.campoColonia.value;
      this.reporte.Observaciones_reporte = this.campoDescripcionReporte.value;
-     this.reporte.Estatus_reporte = this.estado;
-      console.log('Reporte:', this.reporte);
+     this.reporte.Estatus_reporte = this.estadoReporte;
+      console.log('REPORTE:', this.reporte);
   }
- // Método para generar nuevo ticket para el reporte
-  generarNuevoTicket(usuarioActual: Usuario, tipoReporte: number, coordenadas: number[], idSector: number, entreCalles: string){
+
+  // Entrada: lista de tipo number
+  // Salida: Objeto de tipo TicketM.
+  // Descripción: Método para generar nuevo ticket para el reporte
+  generarNuevoTicket(coordenadas: number[]): TicketM{
+    const usuarioActual = this.obtenerUsuarioActual();
+    const entreCalles = this.campoCalleSecundaria1.value + ' y ' + this.campoCalleSecundaria2.value;
     const ticket: TicketM = new TicketM(
       this.campoId.value,
-      tipoReporte,
+      this.campoTipoReporte.value,
       usuarioActual.ID_usuario,
-      this.estado,
+      this.estadoReporte,
       this.campoFechaInicio.value,
       null,
       coordenadas[1], // Latitud
       coordenadas[0], // Longitud
-      idSector,
+      this.campoSector.value,
       null,
-      0,
+      null,
       this.campoCallePrincipal.value,
       entreCalles,
       this.campoReferencia.value,
@@ -384,39 +422,41 @@ reporteCancelado(): boolean{
 
     return ticket;
   }
-
-  async accionGuardar(){
-    const usuarioActual = this.obtenerUsuarioActual();
-    const tipoReporte = this.tipoRepSeleccionado(this.campoTipoReporte.value);
-    const idSector = this.sectorSeleccionado(this.campoSector.value);
-    const entreCalles = this.campoCalleSecundaria1.value + ' y ' + this.campoCalleSecundaria2.value;
+  
+  // Entrada: ninguna
+  // Salida: Promesa<void> que indica que las operaciones asíncronas se completaron.
+  // Descripción: Método para actualizar o registrar un nuevo reporte.
+  async accionGuardar(): Promise<void>{    
     const coordenadas = await this.generarCoordenadas();
     if(this.uploadedImg.length > 0){
       this.imagenesApertura = await this.imagenSevice.llenarListaImagenApertura();
-    }
+    }    
 
     if (this.accion !== 'nuevo'){
-        this.modificarDatosReporte(tipoReporte, coordenadas, idSector, entreCalles);
-        console.log('REPORTE:', this.reporte);
+        this.modificarDatosReporte(coordenadas);
         this.reporteSevice.actualizarReporte(this.reporte).subscribe( res => {
-          alert('Los datos del reporte se actualizaron correctamente.');
+          alert('¡Los datos del reporte se actualizaron correctamente!');
           this.dialogRef.close(this.data);
         }, (error: HttpErrorResponse) => {
-          alert('El reporte no pudo ser modificado. Error:' + error.message);
+          alert('¡Lo sentimos! El reporte no pudo ser modificado. Verifique que los datos sean correctos');
+          console.warn( 'Error al actualizar reporte:' + error.message);
         });
       } else{
-        const ticket = this.generarNuevoTicket(usuarioActual, tipoReporte, coordenadas, idSector, entreCalles);
-        console.log('Ticket a generar:', ticket);
+        const ticket = this.generarNuevoTicket(coordenadas);
         this.reporteSevice.registrarReporte(ticket, this.imagenesApertura).subscribe( res => {
-            alert('Reporte creado con éxito.');
+            alert('¡Reporte creado con éxito!');
             this.dialogRef.close(this.data);
           }, (error: HttpErrorResponse) => {
-            alert('No se pudo realizar el registro. Error:' + error.message);
+            alert('¡Lo sentimos! El registro no pudo ser completado. Verifique que los datos sean correctos');
+            console.warn('Error al registrar nuevo reporte:' + error.message);
+            
           });
       }
   }
 
-// Método que se llama cuando se le da click en guardar en el formulario.
+  // Entrada: ninguna.
+  // Salida: ninguna.
+  // Descripción: Método que se llama cuando se le da click en guardar en el formulario.
 guardar(): void {
   // event.preventDefault();
   if (this.form.valid){ 
@@ -428,7 +468,9 @@ guardar(): void {
 
 
 
-// Método que a través del método "verificarCambios" del servicio de DialogService
+// Entrada: lista de tipo number
+// Salida: Objeto de tipo TicketM.
+// Descripción: Método que a través del método "verificarCambios" del servicio de DialogService
 // verifica si el usuario interactuó con el formulario.
 // Si la interacción sucedió se despliega un mensaje de confirmación.
   cerrarDialog(): void{

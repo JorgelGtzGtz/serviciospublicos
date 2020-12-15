@@ -17,7 +17,7 @@
                         <div class="col-lg-8 col-md col-12">
                             <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
                                 <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
-                                <option  *ngFor = "let tipo of listaTiposR" [selected]="inicializarSelTipo(tipo)">
+                                <option  *ngFor = "let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte">
                                     {{ tipo.Descripcion_tipoReporte }}
                                 </option>
                             </select>
@@ -32,7 +32,7 @@
                         <div class="col-md-8 col-12">
                             <select class="custom-select" id="sectorSelector" formControlName="sector">
                                 <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
-                                <option *ngFor = "let sector of listaSectores" [selected]="inicializarSelSector(sector)">
+                                <option *ngFor = "let sector of listaSectores" [ngValue] = "sector.ID_sector">
                                     {{ sector.Descripcion_sector }}
                                 </option>
                             </select>
@@ -155,7 +155,7 @@
                 <div class="form-group form-sections row" *ngIf="accion === 'nuevo'">
                     <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
                     <button id="btn-subirImg" mat-raised-button (click)="abrirVentanaImagenes()">Subir imágenes</button>
-                    <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales" placeholder="Seleccionar">
+                    <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
                     <div>
                         <div class="img-container" *ngIf="uploadedImg.length > 0">
                             <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
@@ -200,7 +200,7 @@
                 <hr>
                 <div class="row form-sections">
                     <div class="col-12">
-                        <button type="button" id="btn-cancelar" [disabled]="reporteCancelado()" mat-raised-button (click)="cancelarReporte()">
+                        <button type="button" id="btn-cancelar" [disabled]="estadoReporte !== 1" mat-raised-button (click)="cancelarReporte()">
                             <i class="fas fa-window-close"></i> 
                             Cancelar reporte
                         </button>
@@ -220,6 +220,6 @@
 </div>
 
 <div matDialogActions align="end">
-    <button type="button" [disabled]="accion === 'ver' || reporteCancelado()" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button type="button" [disabled]="accion === 'ver' || estadoReporte !== 1" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>
