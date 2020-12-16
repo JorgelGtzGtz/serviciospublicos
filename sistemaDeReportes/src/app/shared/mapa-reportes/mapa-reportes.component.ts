@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { MapBoxService } from '../../services/map-box.service';
+import { MapService } from '../../services/map.service';
 import * as Mapboxgl from 'mapbox-gl';
 
 @Component({
@@ -11,22 +11,20 @@ import * as Mapboxgl from 'mapbox-gl';
 export class MapaReportesComponent implements OnInit {
   @Input() datos: any;
   datosReporte: any;
+  lat: number;
+  lng: number;
+  zoom: number;
   // mapa: Mapboxgl.Map;
 
 
-  constructor( private mapboxService: MapBoxService) { }
+  constructor( private mapboxService: MapService) { }
 
   ngOnInit(): void {
     this.datosReporte = this.datos.reporte;
-    this.mapboxService.iniciarMapa(this.datos.posicion);
-    // Mapboxgl.accessToken = environment.mapboxKey;
-    // const mapa = new Mapboxgl.Map({
-    // container: 'mapa-mapBox', // container id
-    // style: 'mapbox://styles/mapbox/streets-v11',
-    // center: this.datos.posicion, // starting position LNG  LAT
-    // zoom: this.datos.zoom, // starting zoom
-    //   });
-    // this.crearMarcador(this.datos.posicion, mapa);
+    // this.mapboxService.iniciarMapa(this.datos.posicion);
+    this.lat = 40;
+    this.lng = -3;
+    this.zoom = 16;
   }
 
   // crearMarcador(posicion: number[], mapa: Mapboxgl.Map): void{

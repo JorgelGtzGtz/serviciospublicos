@@ -7,7 +7,7 @@ import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
 import { Reporte } from '../../../Interfaces/IReporte';
-import { MapBoxService } from '../../../services/map-box.service';
+import { MapService } from '../../../services/map.service';
 import { Features } from '../../../Interfaces/Features';
 import { TipoReporte } from '../../../Interfaces/ITipoReporte';
 import { Sector } from '../../../Interfaces/ISector';
@@ -31,7 +31,7 @@ export class AltaReportesComponent implements OnInit {
               private cuadrillaService: CuadrillaService,
               private tipoRService: TipoReporteService,
               private sectorService: SectorService,
-              private mapBoxService: MapBoxService) {
+              private mapService: MapService) {
     this.buildForm();
     this. inicializarListas();
     // this.actualizarTabla();
@@ -141,6 +141,7 @@ export class AltaReportesComponent implements OnInit {
       width: '900px',
       height: '600px',
       disableClose: true,
+      autoFocus: false,
       data: {accion, reporte}
     });
 
@@ -174,17 +175,17 @@ export class AltaReportesComponent implements OnInit {
   // el usuario para después utilizarlos en una búsqueda 
   // en la base de datos.
   buscar(): void{
-    let coordenadas: number [];
-    const calleNumero = 'Golfo de Tehuantepec #1749';
-    const colonia = 'Prados del Tepeyac';
+    // let coordenadas: number [];
+    // const calleNumero = 'Golfo de Tehuantepec #1749';
+    // const colonia = 'Prados del Tepeyac';
      // {Calle} {numero de casa} {Colonia} {Ciudad}
-    const query = this.mapBoxService.generarQueryCoordenadas(calleNumero, colonia);
-    this.mapBoxService.obtenerCoordenadasDireccion(query).subscribe( res => {
-       coordenadas = res[0].geometry.coordinates;
-       console.log('Coordenadas:', coordenadas);
-     }, error => {
-       alert('No fue posible obtener coordenadas de la dirección, para ser usadas en mapa. Error:' + error.message);
-     });
+    // const query = this.mapService.generarDireccionCompleta(calleNumero, colonia);
+    // this.mapService.obtenerCoordenadasDireccion(query).subscribe( res => {
+    //    coordenadas = res[0].geometry.coordinates;
+    //    console.log('Coordenadas:', coordenadas);
+    //  }, error => {
+    //    alert('No fue posible obtener coordenadas de la dirección, para ser usadas en mapa. Error:' + error.message);
+    //  });
   }
 
 }

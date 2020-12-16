@@ -109,8 +109,8 @@ namespace ServiciosPublicos.Api.Controllers
 
         //Obtener imagenes del reporte
         [HttpGet]
-        [Route("GetImagenesReporte/{id}/")]
-        public async Task<HttpResponseMessage> GetImagenesReporte(HttpRequestMessage request, int id)
+        [Route("GetImagenesReporte")]
+        public async Task<HttpResponseMessage> GetImagenesReporte(HttpRequestMessage request, string idReporte, string tipoImagen)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -118,7 +118,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var imagenesReporte = _reporteServicio.GetImagenesReporte(id,out message);
+                    var imagenesReporte = _reporteServicio.GetImagenesReporte(idReporte, tipoImagen, out message);
                     response = request.CreateResponse(HttpStatusCode.OK, imagenesReporte);
                 }
                 catch (Exception ex)

@@ -1,11 +1,12 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { DialogService } from '../../../services/dialog-service.service';
 import { SectorService } from '../../../services/sector.service';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { ReporteService } from '../../../services/reporte.service';
-import { MapBoxService } from 'src/app/services/map-box.service';
+import { MapService } from 'src/app/services/map.service';
 import { UsuarioService } from '../../../services/usuario.service';
 import { Sector } from '../../../Interfaces/ISector';
 import { TipoReporte } from '../../../Interfaces/ITipoReporte';
@@ -15,7 +16,6 @@ import { TicketM } from '../../../Models/TicketM';
 import { UsuarioM } from '../../../Models/UsuarioM';
 import { Imagen } from '../../../Interfaces/IImagen';
 import { ImagenService } from '../../../services/imagen.service';
-import { Features } from '../../../Interfaces/Features';
 
 
 @Component({
@@ -32,8 +32,8 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   modificado: boolean;
   estadoReporte: number;
   accion: string;
-  imagenesApertura: Imagen [] = [];
-  imagenesCierre: Imagen [] = [];
+  imagenesApertura: string [] = [];
+  imagenesCierre: string [] = [];
   listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
   coordenadas: number[] = [];
@@ -41,13 +41,14 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef <DialogVerEditarNuevoAltaReportesComponent>,
+              private sanitizer: DomSanitizer,
               @Inject (MAT_DIALOG_DATA) private data,
               private dialogService: DialogService,
               private sectorService: SectorService,
               private tipoReporteService: TipoReporteService,
               private reporteSevice: ReporteService,
               private usuarioService: UsuarioService,
-              private mapBoxService: MapBoxService,
+              private mapService: MapService,
               private imagenSevice: ImagenService,
               private formBuilder: FormBuilder,
               private renderer: Renderer2 ) {
@@ -82,7 +83,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
+        console.log('se interactuo:', value);
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -112,11 +113,14 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
         this.campoCalleSecundaria2.setValue(calles[1]);
         this.campoColonia.setValue(this.reporte.Colonia_reporte);
         this.campoDescripcionReporte.setValue(this.reporte.Observaciones_reporte);
-        this. inicializarVariablesImagenes();
+        this.cargarImagenesReporte();
+        // this. inicializarContenedorImagenes();
       }else{
         this.obtenerIDNuevo();
         this.imagenesApertura = [];
         this.estadoReporte = 1;
+        this.campoTipoReporte.setValue(0); // para que aparezca "Seleccionar"
+        this.campoSector.setValue(0); // para que aparezca "Seleccionar"
       }
     }
 
@@ -181,9 +185,42 @@ obtenerSectoresYTiposRep(): void{
 
   // Entrada: Ninguna
   // Salida: vacío.
+  // Descripción: Método para obtener las imágenes de apertura y cierre que
+  // contiene el reporte.
+cargarImagenesReporte(){
+  console.log(this.reporte.ID_reporte);
+  // Imagenes de apertura
+  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte,1)
+  .then( (imgApertura: Imagen[]) => {
+    imgApertura.forEach(imagen => {
+      const path = this.imagenSevice.urlParaFotos + imagen.Path_imagen;
+      this.imagenesApertura.push(path);   
+    });
+    this.inicializarContenedorImagenes();   
+  })
+  .catch( error => {
+    console.log('Error al obtener imágenes. ' + error);
+  });
+  
+  // imágenes de cierre
+  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte,2)
+  .then( (imgCierre: Imagen[]) => {
+    imgCierre.forEach(imagen => {
+      const path = this.imagenSevice.urlParaFotos + imagen.Path_imagen;
+      this.imagenesCierre.push(path);           
+     });
+    this.inicializarContenedorImagenes();   
+  })
+  .catch( error => {
+    console.log('Error al obtener imágenes de cierre. ' + error);
+  });
+}
+
+  // Entrada: Ninguna
+  // Salida: vacío.
   // Descripción: Método para indicar, mediante las variables "mostrarImgApertura" y "mostrarImgCierre"
   // si existen imágenes del reporte que mostrar.
-  inicializarVariablesImagenes(): void{
+  inicializarContenedorImagenes(): void{
     if (this.imagenesApertura.length !== 0){
       this.mostrarImgApertura = true;
     }else{
@@ -349,25 +386,24 @@ obtenerEstadoFormulario(): boolean{
   }
 
   // Entrada: Ninguna
-  // Salida: Promesa con el tipo lista de numeros.
+  // Salida:  lista de numeros.
   // Descripción: Método para generar las coordenadas de la dirección ingresada en formulario
   // mediante un llamado al servicio de reporte.
-  generarCoordenadas(): Promise<number[]> {
+  generarCoordenadas(): number[] {
     const calleNumero = this.campoCallePrincipal.value;
     const colonia = this.campoColonia.value;
-    const query = this.mapBoxService.generarQueryCoordenadas(calleNumero, colonia);
-    return new Promise((resolved, reject) => {
-      this.mapBoxService.obtenerCoordenadasDireccion(query).toPromise()
-      .then((features: Features[]) => {
-        // const coordenadas = features[0].geometry.coordinates
-        console.log('coordenadas metodo: ', features[0]);        
-        resolved(features[0].geometry.coordinates);
-      })
-      .catch(error => {
-        console.log('Error al obtener coordenadas.' + error);
-        reject([]);        
-      });
+    const direccion = this.mapService.generarDireccionCompleta(calleNumero, colonia);
+    let latLng: number[] = []
+    this.mapService.obtenerLatLng(direccion)
+    .then((respuesta: any) => {
+      const direcciones = respuesta.results[0];
+      latLng = [direcciones.geometry.location.lat, direcciones.geometry.location.lng ];
+      console.log(latLng);
+    })
+    .catch(error => {
+      console.log('Error al obtener coordenadas de dirección. ' + error);
     });
+    return latLng;
   }
 
   // Entrada: lista de tipo number
@@ -377,8 +413,8 @@ obtenerEstadoFormulario(): boolean{
      const entreCalles = this.campoCalleSecundaria1.value + ' y ' + this.campoCalleSecundaria2.value;
      this.reporte.ID_sector = this.campoSector.value;
      this.reporte.ID_tipoReporte = this.campoTipoReporte.value;
-     this.reporte.Latitud_reporte = coordenadas[1];
-     this.reporte.Longitud_reporte = coordenadas[0];
+     this.reporte.Latitud_reporte = coordenadas[0]; // lat
+     this.reporte.Longitud_reporte = coordenadas[1]; // lng
      this.reporte.FechaRegistro_reporte = this.campoFechaInicio.value;
      this.reporte.FechaCierre_reporte = this.campoFechaCierre.value;
      this.reporte.Direccion_reporte = this.campoCallePrincipal.value;
@@ -404,8 +440,8 @@ obtenerEstadoFormulario(): boolean{
       this.estadoReporte,
       this.campoFechaInicio.value,
       null,
-      coordenadas[1], // Latitud
-      coordenadas[0], // Longitud
+      coordenadas[0], // Latitud
+      coordenadas[1], // Longitud
       this.campoSector.value,
       null,
       null,
@@ -426,7 +462,7 @@ obtenerEstadoFormulario(): boolean{
   // Entrada: ninguna
   // Salida: Promesa<void> que indica que las operaciones asíncronas se completaron.
   // Descripción: Método para actualizar o registrar un nuevo reporte.
-  async accionGuardar(): Promise<void>{    
+  async accionGuardar(): Promise<void>{   
     const coordenadas = await this.generarCoordenadas();
     if(this.uploadedImg.length > 0){
       this.imagenesApertura = await this.imagenSevice.llenarListaImagenApertura();

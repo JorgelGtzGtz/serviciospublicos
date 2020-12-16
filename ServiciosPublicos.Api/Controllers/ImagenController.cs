@@ -18,6 +18,10 @@ namespace ServiciosPublicos.Api.Controllers
             _imagenService = imagenService;
         }
 
+        // Entrada: Ninguna
+        // Salida: String con el path relativo de la imagen.
+        // Descripción: Recibe en el request el file a guardar, obtiene el relative path 
+        //  
         [HttpPost]
         [Route("SubirImagenApi")]
         public string SaveFile()
@@ -27,11 +31,11 @@ namespace ServiciosPublicos.Api.Controllers
                 var httpRequest = HttpContext.Current.Request;
                 var postedFile = httpRequest.Files[0];
                 string filename = postedFile.FileName;
+                string relativePath = "Photos/" + filename; // Tratando de guardar relative path
                 var physicalPath = HttpContext.Current.Server.MapPath("~/Photos/" + filename);
+                postedFile.SaveAs(physicalPath); // se guarda en carpeta Photos
 
-                postedFile.SaveAs(physicalPath);
-
-                return physicalPath;
+                return relativePath;
             }
             catch (Exception ex)
             {

@@ -14,7 +14,7 @@ namespace ServiciosPublicos.Core.Services
         bool ActualizarReporte(Reporte reporte, out string Message);
         List<dynamic> GetAllReportes(string textoBusqueda = null);        
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
-        List<Imagen> GetImagenesReporte(int id, out string Message);        
+        List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
         int ObtenerIDRegistro();
     }
@@ -142,13 +142,15 @@ namespace ServiciosPublicos.Core.Services
         }
 
         //Obtiene todas las imagenes de los reportes
-        public List<Imagen> GetImagenesReporte(int id, out string Message)
+        public List<Imagen> GetImagenesReporte(string idReporte,string tipoImagen, out string Message)
         {
             Message = string.Empty;
             List<Imagen> listaImagenes = new List<Imagen>();
             try
             {
-                listaImagenes = _imagenRepository.GetImagen(id);
+                var idRep = Int32.Parse(idReporte);
+                var tipo = Int32.Parse(tipoImagen);
+                listaImagenes = _imagenRepository.GetImagen(idRep, tipo);
                 Message = "Imágenes encontradas con exito";                
             }catch(Exception ex)
             {

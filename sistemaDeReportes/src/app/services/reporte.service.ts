@@ -39,8 +39,11 @@ export class ReporteService {
     return this.http.get(this.url + '/GetReportesCuadrillas/' + idReporte);
   }
 
-  obtenerImagenesReporte(idReporte: number){
-    return this.http.get(this.url + '/GetImagenesReporte/' + idReporte);
+  obtenerImagenesReporte(idReporte: number, tipoImagen: number){
+    let params = new HttpParams();
+    params = params.append('idReporte', idReporte.toString());
+    params = params.append('tipoImagen', tipoImagen.toString());
+    return this.http.get(this.url + '/GetImagenesReporte', {params}).toPromise();
   }
 
   insertarImgReporte(reporte: Reporte, imagenes: Imagen[]){

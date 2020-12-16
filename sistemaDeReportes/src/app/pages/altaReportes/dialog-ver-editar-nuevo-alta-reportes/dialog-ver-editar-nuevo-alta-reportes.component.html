@@ -16,7 +16,7 @@
                         <label class="lblForm col-auto col-form-label" for="tipoReporteSelector">Tipo de reporte</label>
                         <div class="col-lg-8 col-md col-12">
                             <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
-                                <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
+                                <option disabled hidden [ngValue] = "0">Seleccionar</option>
                                 <option  *ngFor = "let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte">
                                     {{ tipo.Descripcion_tipoReporte }}
                                 </option>
@@ -31,7 +31,7 @@
                         <label class="lblForm col-md-auto col-form-label" for="sectorSelector">Sector</label>
                         <div class="col-md-8 col-12">
                             <select class="custom-select" id="sectorSelector" formControlName="sector">
-                                <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
+                                <option disabled hidden [ngValue] = "0">Seleccionar</option>
                                 <option *ngFor = "let sector of listaSectores" [ngValue] = "sector.ID_sector">
                                     {{ sector.Descripcion_sector }}
                                 </option>
@@ -172,7 +172,7 @@
                             <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
                             <ng-template #bloqueImgApertura>
                                 <div class="img-container">
-                                    <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="">
+                                    <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="img">
                                 </div>
                             </ng-template>
                         </div>
@@ -187,7 +187,7 @@
                             <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
                             <ng-template #bloqueImgCierre>
                                 <div class="img-container">
-                                    <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="">
+                                    <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="img">
                                 </div>
                             </ng-template>
                         </div>

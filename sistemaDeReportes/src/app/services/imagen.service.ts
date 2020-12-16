@@ -4,12 +4,14 @@ import { Usuario } from '../Interfaces/IUsuario';
 import { ImagenM } from '../Models/ImagenM';
 import { UsuarioService } from './usuario.service';
 import { HttpClient } from '@angular/common/http';
+import { Imagen } from '../Interfaces/IImagen';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ImagenService {
   url = 'http://localhost:50255/api/Imagen';
+  urlParaFotos = 'http://localhost:50255/';
   photosList: File[];
   listaImagenObjeto: ImagenM[];
 
@@ -36,6 +38,10 @@ export class ImagenService {
 
   getListaImagenObjeto(){
     return this.listaImagenObjeto;
+  }
+
+  convertirDesdeJSON(imagen: Imagen){
+    return ImagenM.imagenDesdeJson(imagen);
   }
 
   generarObjImagen(pathPhoto: string, tipo: number, idReporte: number, idTicket: number): ImagenM{
