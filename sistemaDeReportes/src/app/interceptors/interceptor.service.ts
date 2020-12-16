@@ -3,30 +3,33 @@ import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpHeaders, Http
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { UsuarioService } from '../services/usuario.service';
-import { UsuarioM } from '../Models/UsuarioM';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InterceptorService implements HttpInterceptor {
-  usuario: UsuarioM;
+  datosLogin: string [];
   constructor(private usuarioService: UsuarioService) {
-    this.usuario = this.usuarioService.obtenerUsuarioLogueado();
+    this.datosLogin = this.usuarioService.obtenerDatosLogin();
    }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const headers = new HttpHeaders({
-      Authorization : 'Basic ' + btoa(this.usuario.Login_usuario + ':' + this.usuario.Password_usuario),
-      'Content-Type': 'application/json'
-    });
-    console.log('INTERCEPTOR');
-    const reqClone = req.clone({
-      headers
-    });
-
-    return next.handle(reqClone).pipe(
-      catchError(this.manejarError)
-    );
+    if (req.url.indexOf('http://localhost:50255/api') === -1) {
+      return next.handle(req).pipe(
+        catchError(this.manejarError)
+      );
+    }else{
+      const headers = new HttpHeaders({
+        Authorization : 'Basic ' + btoa(this.datosLogin[0] + ':' + this.datosLogin[1])
+      });
+      const reqClone = req.clone({
+        headers
+      });
+  
+      return next.handle(reqClone).pipe(
+        catchError(this.manejarError)
+      );
+    }
   }
 
   manejarError(error: HttpErrorResponse){

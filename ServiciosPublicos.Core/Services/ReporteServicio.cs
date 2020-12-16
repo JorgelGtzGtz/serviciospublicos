@@ -14,8 +14,9 @@ namespace ServiciosPublicos.Core.Services
         bool ActualizarReporte(Reporte reporte, out string Message);
         List<dynamic> GetAllReportes(string textoBusqueda = null);        
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
-        List<Imagen> GetImagenesReporte(int id, out string Message);        
+        List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
+        int ObtenerIDRegistro();
     }
     public class ReporteServicio : IReporteServicio
     {
@@ -42,6 +43,12 @@ namespace ServiciosPublicos.Core.Services
         {
             return _reporteRepository.GetReporteCuadrilla(idCuadrilla);
         }
+
+        public int ObtenerIDRegistro()
+        {
+            return _reporteRepository.ObtenerUltimoID() + 1;
+        }
+
 
         //Recibe el ticket y las imagenes
         // Primero verifica si el reporte existe. Si existe, solo actualiza el campo para conteo de tickets.
@@ -94,11 +101,13 @@ namespace ServiciosPublicos.Core.Services
             bool result = false;
             try
             {
-                _reporteRepository.InsertOrUpdate<int>(reporte, "ID_reporte");
-                var listaReporTicket = _reporteTicketRepository.GetReporteTickets(reporte.ID_reporte);
+                int idReporte = reporte.ID_reporte;
+                _reporteRepository.Modify(reporte);
+                var listaReporTicket = _reporteTicketRepository.GetReporteTickets(idReporte);
                 foreach (var reporteTicket in listaReporTicket)
                 {
-                    Ticket ticket = _ticketRepository.GetTicket(reporteTicket.ID_ticket);
+                    int idTicket = reporteTicket.ID_ticket;
+                    Ticket ticket = _ticketRepository.GetTicket(idTicket);
                     ticket = this.ModificacionesTicket(ticket, reporte);
                     _ticketRepository.Modify(ticket);
                 } 
@@ -115,31 +124,33 @@ namespace ServiciosPublicos.Core.Services
         //Se actualizan los datos del reporte en el ticket
         public Ticket ModificacionesTicket(Ticket ticket, Reporte reporte)
         {
-            ticket.ID_tipoReporte = reporte.ID_tipoReporte;
-            ticket.Latitud_ticket = reporte.Latitud_reporte;
-            ticket.Longitud_ticket = reporte.Longitud_reporte;
             ticket.FechaCierre_ticket = reporte.FechaCierre_reporte;
             ticket.Estatus_ticket = reporte.Estatus_reporte;
-            ticket.ID_sector = reporte.ID_sector;
             ticket.ID_cuadrilla = reporte.ID_cuadrilla;
             ticket.TiempoEstimado_ticket = reporte.TiempoEstimado_reporte;
-            ticket.Direccion_ticket = reporte.Direccion_reporte;
-            ticket.EntreCalles_ticket = reporte.EntreCalles_reporte;
-            ticket.Referencia_ticket = reporte.Referencia_reporte;
-            ticket.Colonia_ticket = reporte.Colonia_reporte;
-            ticket.Poblacion_ticket = reporte.Poblado_reporte;
-            ticket.Observaciones_ticket = reporte.Observaciones_reporte;
+            // ticket.ID_tipoReporte = reporte.ID_tipoReporte;
+            // ticket.Latitud_ticket = reporte.Latitud_reporte;
+            // ticket.Longitud_ticket = reporte.Longitud_reporte;
+            // ticket.ID_sector = reporte.ID_sector;           
+            // ticket.Direccion_ticket = reporte.Direccion_reporte;
+            // ticket.EntreCalles_ticket = reporte.EntreCalles_reporte;
+            // ticket.Referencia_ticket = reporte.Referencia_reporte;
+            // ticket.Colonia_ticket = reporte.Colonia_reporte;
+            // ticket.Poblacion_ticket = reporte.Poblado_reporte;
+            // ticket.Observaciones_ticket = reporte.Observaciones_reporte;
             return ticket;
         }
 
         //Obtiene todas las imagenes de los reportes
-        public List<Imagen> GetImagenesReporte(int id, out string Message)
+        public List<Imagen> GetImagenesReporte(string idReporte,string tipoImagen, out string Message)
         {
             Message = string.Empty;
             List<Imagen> listaImagenes = new List<Imagen>();
             try
             {
-                listaImagenes = _imagenRepository.GetImagen(id);
+                var idRep = Int32.Parse(idReporte);
+                var tipo = Int32.Parse(tipoImagen);
+                listaImagenes = _imagenRepository.GetImagen(idRep, tipo);
                 Message = "Imágenes encontradas con exito";                
             }catch(Exception ex)
             {

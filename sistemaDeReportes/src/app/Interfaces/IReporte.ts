@@ -1,5 +1,6 @@
 export interface Reporte{
     ID_reporte: number;
+    ID_tipoReporte: number;
     Latitud_reporte: number;
     Longitud_reporte: number;
     FechaRegistro_reporte: string;

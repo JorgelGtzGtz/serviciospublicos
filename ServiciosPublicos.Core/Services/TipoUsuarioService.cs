@@ -18,6 +18,7 @@ namespace ServiciosPublicos.Core.Services
         bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message);
         bool InsertTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> permisosAsignados, out string Message);
         bool EliminarTipoUsuario(int id, out string Message);
+        int ObtenerIDRegistro(out string Message);
         List<Procesos_Permiso> GetPermisos();
         List<Permiso> GetPermisosTipoUsuario(int id, out string Message);
     }
@@ -57,7 +58,7 @@ namespace ServiciosPublicos.Core.Services
             var result = new List<dynamic>();
             try
             {
-                result = _tipoUsuarioRepository.GetUsuariosFiltroGeneral(textoBusqueda, estado);
+                result = _tipoUsuarioRepository.GetTipoUsuariosFiltroDinamico(textoBusqueda, estado);
             }catch(Exception ex)
             {
                 Message = "Error al hacer busqueda. Error "+ex.Message;
@@ -66,17 +67,19 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        /*  public List<Tipo_usuario> GetTipoUsuariosFiltro(string nombre = null)
-          {
-              string filter = " Where ";
-
-              if (!string.IsNullOrEmpty(nombre))
-              {
-                  filter += string.Format("Descripcion_tipoUsuario = '{0}' ", nombre);
-              }
-              Sql query = new Sql(@"select * from Tipo_usuario " + (!string.IsNullOrEmpty(nombre) ? filter : ""));
-              return _tipoUsuarioRepository.GetByFilter(query);
-          }*/
+        public int ObtenerIDRegistro(out string Message)
+        {
+            Message = string.Empty;
+            var result = 0;
+            try
+            {
+                result = this._tipoUsuarioRepository.ObtenerUltimoID() + 1;
+            }catch (Exception ex)
+            {
+                Message = "Error al obtener ID de registro actual. Error: "+ ex.Message;
+            }
+            return result;
+        }
 
         //Insertar nuevo tipo de usuario.
         //Recibe un modelo tipo de usuario, lo registra y obtiene el ID

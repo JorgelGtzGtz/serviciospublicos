@@ -1,5 +1,5 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { Component, OnInit, Output } from '@angular/core';
+import { MatDialog} from '@angular/material/dialog';
 import { FormGroup, FormBuilder} from '@angular/forms';
 import { DialogVerEditarNuevoAltaReportesComponent } from '../dialog-ver-editar-nuevo-alta-reportes/dialog-ver-editar-nuevo-alta-reportes.component';
 import { ReporteService } from '../../../services/reporte.service';
@@ -7,6 +7,10 @@ import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
 import { Reporte } from '../../../Interfaces/IReporte';
+import { MapService } from '../../../services/map.service';
+import { Features } from '../../../Interfaces/Features';
+import { TipoReporte } from '../../../Interfaces/ITipoReporte';
+import { Sector } from '../../../Interfaces/ISector';
 
 @Component({
   selector: 'app-inicio-alta-reportes',
@@ -14,11 +18,11 @@ import { Reporte } from '../../../Interfaces/IReporte';
   styleUrls: ['./alta-reportes.component.css']
 })
 export class AltaReportesComponent implements OnInit {
- form: FormGroup;
+  form: FormGroup;
   nombreSeccion = 'Alta de reportes';
   headersTabla: string [];
   listaReportes: any = [];
-  listaSectores: any = [];
+  listaSectores: Sector[] = [];
   listaCuadrillas: any = [];
   listaTiposR: any = [];
 
@@ -26,9 +30,11 @@ export class AltaReportesComponent implements OnInit {
               private reporteService: ReporteService,
               private cuadrillaService: CuadrillaService,
               private tipoRService: TipoReporteService,
-              private sectorService: SectorService) {
+              private sectorService: SectorService,
+              private mapService: MapService) {
     this.buildForm();
     this. inicializarListas();
+    // this.actualizarTabla();
    }
 
   ngOnInit(): void {
@@ -108,7 +114,7 @@ export class AltaReportesComponent implements OnInit {
   }
 
   get campoFechaInicial(){
-    return this.form.get('fechaInicial');
+    return this.form.get('fechaInicio');
   }
 
   get campoFechaFinal(){
@@ -130,16 +136,18 @@ export class AltaReportesComponent implements OnInit {
   // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
   // También contiene el método que se ejecuta cuando el diálogo se cierra.
-  abrirDialogSeleccionar(accion: string, registro: object): void{
+  abrirDialogSeleccionar(accion: string, reporte: object): void{
     const DIALOG_REF = this.dialog.open( DialogVerEditarNuevoAltaReportesComponent, {
       width: '900px',
       height: '600px',
       disableClose: true,
-      data: {accion, registro}
+      autoFocus: false,
+      data: {accion, reporte}
     });
 
     DIALOG_REF.afterClosed().subscribe(result => {
       console.log('The dialog was closed result:', result);
+      this.actualizarTabla();
     });
   }
 
@@ -152,22 +160,32 @@ export class AltaReportesComponent implements OnInit {
   }
 
    // Método para editar un reporte de la tabla
-   editarReporte(registro: object){
-    this.abrirDialogSeleccionar('editar', registro);
+   editarReporte(reporte: object){
+    this.abrirDialogSeleccionar('editar', reporte);
   }
 
   // Método para ver un reporte de la tabla
-  verReporte(registro: object){
-    this.abrirDialogSeleccionar('ver', registro);
+  verReporte(reporte: object): void{
+    this.abrirDialogSeleccionar('ver', reporte);
   }
 
 
   // Método que se llama con el botón buscar 
   // Aquí se recuperan los criterios de búsqueda establecidos por 
   // el usuario para después utilizarlos en una búsqueda 
-  // en la base de datos. 
+  // en la base de datos.
   buscar(): void{
-    console.log('click buscar Alta reportes', this.form.value);
+    // let coordenadas: number [];
+    // const calleNumero = 'Golfo de Tehuantepec #1749';
+    // const colonia = 'Prados del Tepeyac';
+     // {Calle} {numero de casa} {Colonia} {Ciudad}
+    // const query = this.mapService.generarDireccionCompleta(calleNumero, colonia);
+    // this.mapService.obtenerCoordenadasDireccion(query).subscribe( res => {
+    //    coordenadas = res[0].geometry.coordinates;
+    //    console.log('Coordenadas:', coordenadas);
+    //  }, error => {
+    //    alert('No fue posible obtener coordenadas de la dirección, para ser usadas en mapa. Error:' + error.message);
+    //  });
   }
 
 }

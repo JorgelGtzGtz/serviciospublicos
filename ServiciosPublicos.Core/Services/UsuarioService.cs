@@ -16,11 +16,12 @@ namespace ServiciosPublicos.Core.Services
         Usuario GetUsuario(string usr);
         Usuario GetUsuario(string usr, string password);
         List<Usuario> GetUsuarios();
-        List<dynamic> GetUsuariosFiltro(string nombre = null);
+        List<dynamic> GetUsuariosFiltro(string textoB, string estado, string tipoU, string repActivos);
         List<Usuario> GetUsuariosJefeCuadrilla();
         bool UpdateUsuario(Usuario Usuario, out string Message);
         bool InsertarUsuario(Usuario Usuario, out string Message);
         bool EliminarUsuario(int id, out string Message);
+        int ObtenerIDRegistro(out string Message);
     }
 
     public class UsuarioService : IUsuarioService
@@ -60,21 +61,9 @@ namespace ServiciosPublicos.Core.Services
 
         //Regresa una lista de los usuarios y también se muestra el tipo de usuario
         //Esta funcion es para busquedas dinamicas
-        public List<dynamic> GetUsuariosFiltro(string nombre = null)
+        public List<dynamic> GetUsuariosFiltro(string textoB, string estado, string tipoU, string repActivos)
         {
-            string filter = " Where ";
-
-            if (!string.IsNullOrEmpty(nombre))
-            {
-                filter += string.Format("usuario.Nombre_usuario like '%{0}%' or usuario.Login_usuario like" +
-                    " '%{0}%' or usuario.ID_usuario like '%{0}%' or tipoUsuario.Descripcion_tipoUsuario like '%{0}%'", nombre);
-            }
-
-            Sql query = new Sql(@"select usuario.*, tipoUsuario.Descripcion_tipoUsuario as NombreTipo
-                                from  [hiram74_residencias].[Usuario] usuario
-                                inner join [hiram74_residencias].[Tipo_usuario] tipoUsuario
-                                on tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario" + (!string.IsNullOrEmpty(nombre) ? filter : ""));
-            return _usuarioRepository.GetByDynamicFilter(query);
+            return _usuarioRepository.GetUsuariosFiltroDinamico(textoB, estado, tipoU, repActivos);
         }
 
         //Insertar nuevo usuario y regresa true o false
@@ -137,7 +126,22 @@ namespace ServiciosPublicos.Core.Services
             catch (Exception ex)
             {
 
-                Message = "Usuario no pudo ser eliminado, Error: " + ex.Message;
+                Message = "Usuario no pudo ser eliminado porque tiene registros asociados, Error: " + ex.Message;
+            }
+            return result;
+        }
+
+        public int ObtenerIDRegistro(out string Message)
+        {
+            Message = string.Empty;
+            var result = 0;
+            try
+            {
+                result = this._usuarioRepository.ObtenerUltimoID() + 1;
+            }
+            catch (Exception ex)
+            {
+                Message = "Error al obtener ID de registro actual. Error: " + ex.Message;
             }
             return result;
         }

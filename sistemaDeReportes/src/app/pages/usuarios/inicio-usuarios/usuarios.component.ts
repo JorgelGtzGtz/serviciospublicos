@@ -4,6 +4,7 @@ import { DialogVerEditarNuevoUsuarioComponent } from '../dialog-ver-editar-nuevo
 import { FormGroup, FormBuilder} from '@angular/forms';
 import { UsuarioService } from '../../../services/usuario.service';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 
@@ -18,6 +19,9 @@ export class UsuariosComponent implements OnInit {
   headersTabla: string [];
   usuarios: any = [];
   tiposUsuario: any = [];
+  tiposListos: boolean;
+  usuariosListos: boolean;
+
 
   constructor( public dialog: MatDialog, private formBuilder: FormBuilder,
                private usuarioService: UsuarioService,
@@ -29,6 +33,7 @@ export class UsuariosComponent implements OnInit {
     this.actualizarTabla();
     this.tipoService.obtenerListaTipoU().subscribe( tipos => {
         this.tiposUsuario = tipos;
+        this.tiposListos = true;
       });
     this.inicializarTabla();
     
@@ -51,12 +56,14 @@ export class UsuariosComponent implements OnInit {
     this.headersTabla = ['Clave', 'Tipo usuario', 'Nombre', 'Procesos'];
   }
 
-  actualizarTabla(parametro?: string){
-    this.usuarioService.obtenerListaUsuarios(parametro).subscribe( datos => {
+  actualizarTabla(){
+    this.usuarioService.obtenerListaUsuarios(this.campoBusqueda.value,
+      this.campoEstado.value, this.campoTipoUsuario.value, this.campoReportesActivos.value)
+    .subscribe( datos => {
       this.usuarios = datos;
+      this.usuariosListos = true;
     });
   }
-
 
   // Métodos get para obtener acceso a los campos del formulario
   get campoBusqueda(){
@@ -122,22 +129,23 @@ export class UsuariosComponent implements OnInit {
   let result = confirm('¿Seguro que desea eliminar el usuario?');
   if (result) {
     this.usuarioService.eliminarUsuario(usuario.ID_usuario).subscribe(res => {
-      console.log('eliminar Usuario', res);
+      alert(res);
+      this.actualizarTabla();
+    }, (error: HttpErrorResponse) => {
+      alert('No se ha podido eliminar el usuario. Error:' + error.message);
     });
-    this.actualizarTabla();
-    alert('El usuario se ha eliminado.');
   }else{
     console.log('no se elimina');
   }
 }
 
-    // Método que se llama con el botón buscar 
-  // Aquí se recuperan los criterios de búsqueda establecidos por 
-  // el usuario para después utilizarlos en una búsqueda 
-  // en la base de datos. 
+    // Método que se llama con el botón buscar
+  // Aquí se recuperan los criterios de búsqueda establecidos por
+  // el usuario para después utilizarlos en una búsqueda
+  // en la base de datos.
   buscar(): void{
-    this.actualizarTabla(this.campoBusqueda.value);
-    console.log('Click en buscar', this.form.value);
+    this.actualizarTabla();
+    console.log('Click en buscar', this.campoBusqueda.value, this.campoTipoUsuario.value, this.campoEstado.value);
   }
 
 

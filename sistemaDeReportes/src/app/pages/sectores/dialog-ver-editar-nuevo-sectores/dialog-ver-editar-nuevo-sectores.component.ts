@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA  } from '@angular/material/dialog';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
 import { SectorService } from '../../../services/sector.service';
 import { Sector } from '../../../Interfaces/ISector';
@@ -16,6 +16,8 @@ export class DialogVerEditarNuevoSectoresComponent implements OnInit {
 accion: string;
 form: FormGroup;
 modificado: boolean;
+idListo: boolean;
+datosCargados: boolean;
 sector: Sector;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoSectoresComponent>,
@@ -36,7 +38,7 @@ sector: Sector;
 
   // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
   // con sus respectivas validaciones de campos.
-  private buildForm(){
+  private buildForm(): void{
     this.form = this.formBuilder.group({
       id: [''],
       estado: [''],
@@ -54,25 +56,34 @@ sector: Sector;
 
   // Se inicializan los valores de los campos del formulario
   // dependiendo del tipo de actividad a realizar.
-  iniciarFormulario(){
+  iniciarFormulario(): void{
     if (this.accion !== 'nuevo'){
         this.sector = this.data.sector;
         this.campoId.setValue( this.sector.ID_sector);
         this.campoNombreSector.setValue(this.sector.Descripcion_sector);
-        this.campoEstado.setValue(this.sector.Estatus_sector);
+        this.campoEstado.setValue(!this.sector.Estatus_sector);
+        this.datosCargados = true;
     }else{
-      this.campoId.setValue(0);
+      this.obtenerIDNuevo();
       this.campoEstado.setValue(false);
     }
   }
 
-  get campoId(){
+   // Función para obtener el ID del nuevo registro
+   obtenerIDNuevo(): void{
+    this.sectorService.obtenerIDRegistro().subscribe( (id: number) => {
+      this.campoId.setValue(id);
+      this.idListo = true;
+    });
+  }
+
+  get campoId(): AbstractControl{
     return this.form.get('id');
   }
-  get campoEstado(){
+  get campoEstado(): AbstractControl{
     return this.form.get('estado');
   }
-  get campoNombreSector(){
+  get campoNombreSector(): AbstractControl{
     return this.form.get('nombreS');
   }
 
@@ -82,7 +93,6 @@ sector: Sector;
   }
 
 // Este método habilita o deshabilita el formulario según lo que se quiera hacer en el
-//  ya sea ver información, crear nuevo registro o editar.
 //  En "ver" todos los campos aparecen deshabilitados y en "nuevo" el único deshabilitado
 //  es "activar"
 tipoFormularioAccion(): void{
@@ -113,36 +123,29 @@ guardar(): void {
 
 // Acciones a ejecutar para el boton guardar dependiendo
 //  del tipo de proceso que se hizo en el dialog
-accionGuardar(){
+accionGuardar(): void{
+  const sector = this.generarSector();
   if (this.accion !== 'nuevo'){
-   this.actualizarDatosSector();
-   this.sectorService.actualizarSector(this.sector).subscribe( res => {
-      alert ('¡Sector' + this.sector.Descripcion_sector + ' registrado con éxito!');
+   this.sectorService.actualizarSector(sector).subscribe( res => {
+    alert ('¡Sector ' + sector.Descripcion_sector + ' actualizado con éxito!');
     }, (error: HttpErrorResponse) => {
-      alert ('¡Sector' + this.sector.Descripcion_sector + ' no pudo ser guardado! Error: ' + error.message);
+      alert('¡Sector ' + sector.Descripcion_sector + ' no pudo ser actualizado! Error: ' + error.message);
     });
   } else{
-    let sector = this.generarSector();
     this.sectorService.insertarSector(sector).subscribe( res => {
-      alert ('¡Sector' + sector.Descripcion_sector + ' actualizado con éxito!');
+      alert ('¡Sector ' + sector.Descripcion_sector + ' registrado con éxito!');
     }, (error: HttpErrorResponse) => {
-      alert('¡Sector' + sector.Descripcion_sector + ' no pudo ser actualizado! Error: ' + error.message);
+      alert ('¡Sector ' + sector.Descripcion_sector + ' no pudo ser guardado! Error: ' + error.message);
     });
   }
 }
 
-// Actualizar datos sector
-actualizarDatosSector(){
-  this.sector.Estatus_sector = this.campoEstado.value;
-  this.sector.Descripcion_sector = this.campoNombreSector.value;
-}
-
 // Se crea nuevo sector en nuevos registros
-generarSector(){
+generarSector(): SectorM{
   return new SectorM(
     this.campoId.value,
     this.campoNombreSector.value,
-    this.campoEstado.value
+    !this.campoEstado.value
   );
 }
 

@@ -17,9 +17,10 @@ p {
 
 /* ESTILOS MAPA */
 
-#mapa-mapBox {
+#mapa {
     width: 100%;
-    height: calc(100vh * 0.3);
+    height: calc(100vh * 0.5);
+    /* height: calc(100vh * 0.3); */
     text-align: center;
 }
 

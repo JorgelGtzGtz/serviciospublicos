@@ -21,6 +21,10 @@ export class SectorService {
     return this.http.put(this.url + '/Actualizar', sector );
   }
 
+  eliminarSector(idSector: number){
+    return this.http.delete(this.url + '/Eliminar/' + idSector);
+  }
+
   obtenerSector(idSector: number){
     return this.http.get<Sector>(this.url + '/GetSector/' + idSector);
   }
@@ -33,8 +37,24 @@ export class SectorService {
     );
   }
 
-  eliminarSector(idSector: number){
-    return this.http.delete(this.url + '/Eliminar/' + idSector);
+  obtenerSectoresFiltro(textoB?: string, estado?: string){
+    if (textoB === undefined){
+      textoB = '';
+    }
+
+    if (estado === undefined || estado === 'Todos'){
+      estado = '';
+    }
+    let params = new HttpParams();
+    params = params.append('textoB', textoB);
+    params = params .append('estado', estado);
+    return this.http.get<Sector[]>(this.url + '/filtrarSectores', {
+      params
+    });
+  }
+
+  obtenerIDRegistro(){
+    return this.http.get<number>(this.url + '/ObtenerID');
   }
 
 }

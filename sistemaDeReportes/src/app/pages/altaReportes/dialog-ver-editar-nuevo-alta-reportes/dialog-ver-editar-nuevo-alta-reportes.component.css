@@ -8,6 +8,10 @@ button {
     outline: none;
 }
 
+.ocultar {
+    display: none;
+}
+
 .container-fluid {
     height: calc(100vh * 0.55);
 }
@@ -49,6 +53,17 @@ button {
     width: 100%;
     height: auto;
     margin: 10px;
+}
+
+.uploadedImages {
+    width: 30%;
+    height: auto;
+    margin: 10px;
+}
+
+#btn-subirImg {
+    background-color: #ececf0;
+    margin-bottom: 20px;
 }
 
 

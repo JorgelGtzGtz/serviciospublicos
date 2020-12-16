@@ -16,6 +16,8 @@ namespace ServiciosPublicos.Core.Repository
         void ModificarNoTickets(Reporte reporte);
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
         List<dynamic> GetAllReportes(string textoBusqueda = null);
+        List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
+        int ObtenerUltimoID();
 
     }
     public class ReporteRepository : RepositoryBase<Reporte>, IReporteRepository
@@ -93,12 +95,26 @@ namespace ServiciosPublicos.Core.Repository
              }
             
 
-             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sector, cuadrilla.Nombre_cuadrilla AS cuadrilla 
+             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion 
                                 FROM hiram74_residencias.Reporte AS reporte
-                                INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector
-                                INNER JOIN Cuadrilla AS cuadrilla ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+                                INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
              return this.Context.Fetch<dynamic>(query);
          }
-        
+
+        public List<Reporte> ReportesPorCuadrilla(int idCuadrilla)
+        {
+            Sql query = new Sql()
+                    .Select("*").From("Reporte")
+                    .Where("ID_cuadrilla = @0", idCuadrilla);
+            return this.Context.Fetch<Reporte>(query);
+
+        }
+
+        public int ObtenerUltimoID()
+        {
+            Sql query = new Sql(@"SELECT IDENT_CURRENT('Reporte')");
+            return this.Context.SingleOrDefault<int>(query);
+        }
+
     }
 }

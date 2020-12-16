@@ -45,7 +45,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
       useClass: InterceptorService,
       multi: true
     }
-    // ScriptService
+    //ScriptService
   ],
   bootstrap: [AppComponent]
 })

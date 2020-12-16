@@ -15,6 +15,8 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarSector(int id, out string Message);
         Sector GetSector(int id);
         List<Sector> GetSectorList();
+        List<dynamic> FiltroSectores(string textoB, string estado);
+        int ObtenerIDRegistro();
     }
     public class SectorService: ISectorService
     {
@@ -77,6 +79,19 @@ namespace ServiciosPublicos.Core.Services
         public List<Sector> GetSectorList()
         {
             return _SectorRepository.GetAll("Sector").ToList();
+        }
+
+        // Llama a la función que ejecuta el query para hacer búsqueda de sectores por filtros
+        public List<dynamic> FiltroSectores(string textoB, string estado)
+        {
+            return _SectorRepository.filtroDinamicoSector(textoB,estado);
+        }
+
+        // Llama a la función que ejecuta el query para obtener el último ID registrado y devuelve el siguiente
+        // al sumarle 1
+        public int ObtenerIDRegistro()
+        {
+            return _SectorRepository.ObtenerUltimoID() + 1;
         }
 
         //Eliminar un sector

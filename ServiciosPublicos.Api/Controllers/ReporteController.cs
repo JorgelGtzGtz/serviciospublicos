@@ -80,10 +80,10 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Obtener imagenes del reporte
+        //Obtener ID para registro nuevo
         [HttpGet]
-        [Route("GetImagenesReporte/{id}/")]
-        public async Task<HttpResponseMessage> GetImagenesReporte(HttpRequestMessage request, int id)
+        [Route("ObtenerID")]
+        public async Task<HttpResponseMessage> GetIDRegistro(HttpRequestMessage request)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -91,7 +91,34 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var imagenesReporte = _reporteServicio.GetImagenesReporte(id,out message);
+                    int resultadoID = _reporteServicio.ObtenerIDRegistro();
+                    response = request.CreateResponse(HttpStatusCode.OK, resultadoID);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Obtener imagenes del reporte
+        [HttpGet]
+        [Route("GetImagenesReporte")]
+        public async Task<HttpResponseMessage> GetImagenesReporte(HttpRequestMessage request, string idReporte, string tipoImagen)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var imagenesReporte = _reporteServicio.GetImagenesReporte(idReporte, tipoImagen, out message);
                     response = request.CreateResponse(HttpStatusCode.OK, imagenesReporte);
                 }
                 catch (Exception ex)
@@ -143,7 +170,7 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        [HttpPost]
+        /*[HttpPost]
         [Route("SubirImagenApi")]
         public string SaveFile()
         {
@@ -158,12 +185,13 @@ namespace ServiciosPublicos.Api.Controllers
 
                 return physicalPath;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
 
-                return "anonymous.png";
+                return "error" + ex.Message;
             }
         }
+        */
 
         //Registrar un nuevo reporte,
         //recibe un objeto JSON con los datos del reporte y un listado de imagenes
@@ -176,10 +204,12 @@ namespace ServiciosPublicos.Api.Controllers
                 HttpResponseMessage response = null;
                 string message = String.Empty;
                 var imagenes = new List<Imagen>();
+                var datos = data;
                 try
                 {
                     var ticket = data["ticket"].ToObject<Ticket>();
                     var value = data["imagenes"].HasValues;
+                    
                     if (value)
                     {
                         imagenes = data["imagenes"].ToObject<List<Imagen>>();

@@ -7,6 +7,8 @@ import { debounceTime } from 'rxjs/operators';
 import { Usuario } from '../../../Interfaces/IUsuario';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { UsuarioM } from '../../../Models/UsuarioM';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-usuario',
@@ -18,6 +20,8 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
   datosUsuario: Usuario;
   tiposUsuario: any = [];
   modificado: boolean;
+  idListo: boolean;
+  tiposUListos: boolean;
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoUsuarioComponent> ,
@@ -34,12 +38,14 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
     this.accion = this.data.accion;
     this.tipoService.obtenerListaTipoU().subscribe(tipos => {
       this.tiposUsuario = tipos;
+      this.tiposUListos = true;
     });
   }
 
   ngAfterViewInit() {
     setTimeout(() => {
       this.inicializarFormulario();
+      this.inicializarCampos();
     }, 30);
 }
 
@@ -101,24 +107,30 @@ get campoPassword(){
 // Llena los inputs con los datos del usuario cuando 
 //  se abre la ventana ver o editar
 inicializarCampos(){
-  this.datosUsuario = this.usuarioService.convertirDesdeJSON(this.data.usuario);
-  this.campoId.setValue( this.datosUsuario.ID_usuario);
-  this.campoNombre.setValue(this.datosUsuario.Nombre_usuario);
-  this.campoCorreo.setValue(this.datosUsuario.Correo_usuario);
-  this.campoTelefono.setValue(this.datosUsuario.Telefono_usuario);
-  this.campoUsuario.setValue(this.datosUsuario.Login_usuario);
-  this.campoPassword.setValue(this.datosUsuario.Password_usuario);
-  this.campoEstado.setValue(this.datosUsuario.Estatus_usuario);
-  this.campoGenero.setValue(this.datosUsuario.Genero_usuario);
+  console.log('se carga el usuario', this.data.usuario);
+  if (this.accion !== 'nuevo'){
+    this.datosUsuario = this.usuarioService.convertirDesdeJSON(this.data.usuario);
+    this.campoId.setValue( this.datosUsuario.ID_usuario);
+    this.campoNombre.setValue(this.datosUsuario.Nombre_usuario);
+    this.campoCorreo.setValue(this.datosUsuario.Correo_usuario);
+    this.campoTelefono.setValue(this.datosUsuario.Telefono_usuario);
+    this.campoUsuario.setValue(this.datosUsuario.Login_usuario);
+    this.campoPassword.setValue(this.datosUsuario.Password_usuario);
+    this.campoEstado.setValue(!this.datosUsuario.Estatus_usuario);
+    this.campoGenero.setValue(this.datosUsuario.Genero_usuario);
+  }else{
+    this.campoEstado.setValue(false);
+    this.obtenerIDNuevo();
+  }
 }
 
 // funcion para indicar al selector tipoUsuario si debe mostrar
 // el tipo de usuario de un usuario, cuando se está editando
-inicializarSelTipo(idTipo: number){
+inicializarSelTipo(tipo: TipoUsuario){
   let valor = false;
   if (this.datosUsuario !== undefined){
-       if (idTipo === this.datosUsuario.ID_tipoUsuario){
-         valor =  true;
+        if (tipo.ID_tipoUsuario === this.datosUsuario.ID_tipoUsuario){
+          valor =  true;
        }
     }
   return valor;
@@ -136,7 +148,6 @@ obtenerEstadoFormulario(): boolean{
     switch (this.accion){
       case 'ver':
         this.form.disable();
-        this.inicializarCampos();
         break;
       case 'nuevo':
         this.campoEstado.disable();
@@ -145,10 +156,16 @@ obtenerEstadoFormulario(): boolean{
       default:
         this.form.enable();
         this.campoId.disable();
-        this.inicializarCampos();
     }
   }
 
+  obtenerIDNuevo(): void{
+    this.usuarioService.obtenerIDRegistro().subscribe( (id: number) => {
+      this.campoId.setValue(id);
+      this.idListo = true;
+      console.log('ID a asignar:', id);
+    });
+  }
 
 // Método que se llama cuando se le da click en guardar en el formulario.
 guardar(): void {
@@ -157,13 +174,12 @@ guardar(): void {
     const usuario = this.generarUsuario();
     this.accionGuardar(usuario);
     this.dialogRef.close(this.data);
-    console.log(usuario);
   } else{
     this.form.markAllAsTouched();
   }
 }
 
-//Generar usuario con datos de formulario
+// Generar usuario con datos de formulario
 generarUsuario(){
   return new UsuarioM(
     this.campoId.value,
@@ -174,7 +190,7 @@ generarUsuario(){
     this.buscarTipo(this.campoTipoUsuario.value),
     this.campoUsuario.value,
     this.campoPassword.value,
-    this.campoEstado.value,
+    !this.campoEstado.value,
     false
   );
 }
@@ -182,29 +198,34 @@ generarUsuario(){
 // Recibe la descripcion de un tipo de usuario
 // Y regresa el id que pertenece a este.
 buscarTipo(descripcion: string){
-  let desc: number;
+  let idTipoUsuario: number;
   this.tiposUsuario.forEach(tipo => {
     if (tipo.Descripcion_tipoUsuario === descripcion) {
-        desc = tipo.ID_tipoUsuario;
+        idTipoUsuario = tipo.ID_tipoUsuario;
      }
   });
-  return desc;
+  return idTipoUsuario;
 }
-
 
 // Método para saber si se actualizará o registrará un nuevo usuario
 accionGuardar(usuario: Usuario){
   if (this.accion === 'nuevo'){
       this.usuarioService.registrarUsuario(usuario).subscribe( res => {
-        console.log('Registro respuesta: ', res);
+        alert(res);
+      }, (error: HttpErrorResponse) => {
+        alert('El registro no pudo ser completado. Error:' + error.message);
       });
   }else if (this.accion === 'editar'){
+    console.log('ID Tipo usuario:', this.campoTipoUsuario.value);
     usuario.ID_usuario = this.datosUsuario.ID_usuario;
+    usuario.ID_tipoUsuario = this.buscarTipo(this.campoTipoUsuario.value);
+    console.log('USUARIO:', usuario);
     this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
-        console.log('Actualizar respuesta: ', res);
+        alert(res);
+      }, (error: HttpErrorResponse) => {
+        alert('Usuario no pudo ser actualizado. Error:' + error.message);
       });
-
-  }
+    }
 }
 
 // Método que muestra un mensaje, al dar click en guardar.
@@ -222,5 +243,9 @@ mensajeDeGuardado(): void{
 // Si la interacción sucedió se despliega un mensaje de confirmación.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+compararxd(user1: TipoUsuario, user2: TipoUsuario) {
+  return user1 && user2 && user1.ID_tipoUsuario === user2.ID_tipoUsuario;
 }
 }

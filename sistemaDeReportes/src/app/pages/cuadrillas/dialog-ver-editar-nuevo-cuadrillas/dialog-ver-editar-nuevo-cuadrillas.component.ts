@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { CuadrillaService } from '../../../services/cuadrilla.service';
@@ -18,6 +18,7 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
   accion: string;
   form: FormGroup;
   modificado: boolean;
+  idListo: boolean;
   cuadrilla: Cuadrilla;
   jefesCuadrillaDisp: Usuario[] = [];
   tipoCuadrilla: any = [1, 2, 3, 4];
@@ -30,15 +31,18 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
               private usuarioService: UsuarioService) {
                 dialogRef.disableClose = true;
                 this.buildForm();
-                this.obtenerJefesCuadrilla();
                }
 
   ngOnInit(): void {
     this.accion = this.data.accion;
-    this.inicializarPantalla();
+    this.obtenerObjetoCuadrilla();
+    this.obtenerJefesCuadrilla();
+    this.inicializarCampos();
+    this.tipoFormularioAccion();
     }
 
-  private buildForm(){
+  // Método que inicializa el Form Reactive
+  private buildForm(): void{
     this.form = this.formBuilder.group({
       id: [0, [Validators.required]],
       estado: [''],
@@ -53,68 +57,98 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
       }else{
         this.modificado = false;
       }
-      console.log('Value:', value);
     });
   }
 
-  inicializarPantalla(){
+  obtenerObjetoCuadrilla(): void{
     if (this.accion !== 'nuevo'){
-      this.obtenerCuadrilla();
+      this.cuadrilla = this.cuadrillaService.convertirDesdeJSON(this.data.cuadrilla);
     }
-    this.obtenerJefesCuadrilla();
-    this.tipoFormularioAccion();
   }
 
-  obtenerCuadrilla(){
-    let auxC: Cuadrilla = this.data.cuadrilla;
-    this.cuadrillaService.obtenerCuadrilla(auxC.ID_cuadrilla).subscribe( cuadrillaRes => {
-      this.cuadrilla = cuadrillaRes;
-      console.log('Cuadrilla', cuadrillaRes);
+  // Método para inicializar los valores de los campos
+  inicializarCampos(): void{
+    if (this.accion !== 'nuevo'){
+      this.campoNombreCuadrilla.setValue(this.cuadrilla.Nombre_cuadrilla);
+      this.campoId.setValue(this.cuadrilla.ID_cuadrilla);
+      this.campoEstado.setValue(!this.cuadrilla.Estatus_cuadrilla);
+      this.campoTipoCuadrilla.setValue(this.cuadrilla.Tipo_cuadrilla);
+      this.obtenerObjetoJefeActual();
+    }else{
+      this.campoEstado.setValue(false);
+      this.obtenerIDNuevo();
+
+    }
+  }
+
+  // Función para obtener el ID del nuevo registro
+  obtenerIDNuevo(): void{
+    this.cuadrillaService.obtenerIDRegistro().subscribe( (id: number) => {
+      this.campoId.setValue(id);
+      this.idListo = true;
     });
   }
 
-  llenarCampos(){
-    this.campoId.setValue(this.cuadrilla.ID_cuadrilla);
-    this.campoEstado.setValue(this.cuadrilla.Estatus_cuadrilla);
-    this.campoNombreCuadrilla.setValue(this.cuadrilla.Nombre_cuadrilla);
-    this.campoTipoCuadrilla.setValue(this.cuadrilla.Tipo_cuadrilla);
-  }
-
-// funcion para indicar al selector tipoUsuario si debe mostrar
-// el tipo de usuario de un usuario, cuando se está editando
-inicializarSelJefe(idJefe: number){
+// funcion para indicar al selector  si debe mostrar
+// el nombre del usuario asignado como jefe a una cuadrilla
+inicializarSelJefe(jefe: Usuario): boolean{
   let valor = false;
   if (this.cuadrilla !== undefined){
-      if (idJefe === this.cuadrilla.ID_JefeCuadrilla){
-           valor =  true;
+      if (jefe.ID_usuario === this.cuadrilla.ID_JefeCuadrilla){
+          valor =  true;
          }
   }
   return valor;
 }
 
-  obtenerJefesCuadrilla(){
+// funcion para indicar al selector si debe mostrar el tipo
+// de cuadrilla de una cuadrilla que se ve o edita
+inicializarSelTipo(tipo: number): boolean{
+  let valor = false;
+  if (this.cuadrilla !== undefined){
+       if (tipo === this.cuadrilla.Tipo_cuadrilla){
+         valor =  true;
+       }
+    }
+  return valor;
+}
+
+// Función para obtener la lista de los usuarios
+// de tipo Jefe de cuadrilla que pueden ser asignados
+  obtenerJefesCuadrilla(): void{
     this.usuarioService.obtenerJefesCuadrilla().subscribe( jefes => {
-      this.jefesCuadrillaDisp = jefes;
+      jefes.forEach(jefe => {
+        this.jefesCuadrillaDisp.push(jefe);
+      });
+    });
+    console.log('Jefes', this.jefesCuadrillaDisp);
+  }
+
+  // Método que obtiene el objeto Usuario del ID_JefeCuadrilla que la cuadrilla tiene asociado
+  // Y lo agrega a la lista de jefes de cuadrilla disponibles
+  obtenerObjetoJefeActual(): void{
+    this.usuarioService.obtenerUsuario(this.cuadrilla.ID_JefeCuadrilla).subscribe( usuario => {
+      this.jefesCuadrillaDisp.push(usuario);
     });
   }
 
-  get campoId(){
+  get campoId(): AbstractControl{
     return this.form.get('id');
   }
 
-  get campoEstado(){
+  get campoEstado(): AbstractControl{
     return this.form.get('estado');
   }
 
-  get campoNombreCuadrilla(){
+  get campoNombreCuadrilla(): AbstractControl{
     return this.form.get('nombreC');
   }
 
-  get campoNombreEncargado(){
+  get campoEncargado(): AbstractControl{
     return this.form.get('encargado');
   }
 
-  get campoTipoCuadrilla(){
+  get campoTipoCuadrilla(): AbstractControl{
     return this.form.get('tipoCuadrilla');
   }
 
@@ -142,28 +176,32 @@ obtenerEstadoFormulario(): boolean{
     }
   }
 
-  obtenerJefeSeleccionado(){
+  // Método para obtener el ID del usuario jefe de cuadrilla
+  // que se seleccionó
+  jefeSeleccionado(nombre: string): number{
     let idJefe: number;
-    this.jefesCuadrillaDisp.forEach(jefe => {
-      if (jefe.Nombre_usuario === this.campoNombreEncargado.value ){
-        idJefe = jefe.ID_usuario;
+    this.jefesCuadrillaDisp.forEach(usuarioJefe => {
+      if (nombre === usuarioJefe.Nombre_usuario){
+        idJefe = usuarioJefe.ID_usuario;
       }
     });
     return idJefe;
   }
+
   // Metodo para crear un nuevo objeto cuadrilla para ser registrado
-  generarNuevaCuadrilla(){
+  generarNuevaCuadrilla(): CuadrillaM{
     return new CuadrillaM(
       this.campoId.value,
       this.campoNombreCuadrilla.value,
       this.campoEstado.value,
       this.campoTipoCuadrilla.value,
-      this.obtenerJefeSeleccionado()
+      this.jefeSeleccionado(this.campoEncargado.value),
+      true
     );
   }
 
 // Método que se llama cuando se le da click en guardar en el formulario.
-guardar() {
+guardar(): void {
   // event.preventDefault();
   if (this.form.valid){
     this.accionGuardar();
@@ -173,23 +211,20 @@ guardar() {
   }
 }
 
-accionGuardar(){
+// Método que llama al servicio Cuadrilla para peticiones HTTP
+accionGuardar(): void{
   const cuadrilla = this.generarNuevaCuadrilla();
-  console.log('Cuadrilla a guardar:', cuadrilla);
-
   if (this.accion === 'nuevo'){
     this.cuadrillaService.insertarCuadrilla(cuadrilla).subscribe( res => {
       alert('¡Registro de cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' exitoso!');
     }, (error: HttpErrorResponse) => {
-          alert('El registro no pudo ser completado. Error:' );
-          console.log('Error: ' + error.message);
+          alert('El registro no pudo ser completado. Error:' + error.message );
     });
   } else{
     this.cuadrillaService.actualizarCuadrilla(cuadrilla).subscribe( res => {
       alert('¡Cuadrilla ' + cuadrilla.Nombre_cuadrilla  + ' se han actualizado exitosamente!');
-    }, (error:HttpErrorResponse) => {
-          alert('Cuadrilla no pudo ser actualizado. Error:' );
-          console.log('Error: ' + error.message);
+    }, (error: HttpErrorResponse) => {
+          alert('Cuadrilla no pudo ser actualizado. Error:' + error.message );
     });
   }
 }

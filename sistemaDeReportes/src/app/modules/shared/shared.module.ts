@@ -22,6 +22,10 @@ import { RouterModule } from '@angular/router';
 // SERVICES
 import { DialogService } from '../../services/dialog-service.service';
 
+// GOOGLE MAPS
+import { AgmCoreModule } from '@agm/core';
+import { environment } from '../../../environments/environment';
+
 @NgModule({
   declarations: [
     HeaderComponent,
@@ -37,7 +41,10 @@ import { DialogService } from '../../services/dialog-service.service';
     CommonModule,
     MatIconModule,
     MatButtonModule,
-    RouterModule
+    RouterModule,
+    AgmCoreModule.forRoot({
+      apiKey: environment.mapsKey
+    })
   ],
   exports: [
     HeaderComponent,

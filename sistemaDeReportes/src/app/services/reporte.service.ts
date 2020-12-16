@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Reporte } from '../Interfaces/IReporte';
+import { Ticket } from '../Interfaces/ITicket';
 import { Imagen } from '../Interfaces/IImagen';
-import { map } from 'rxjs/operators';
 import { ReporteM } from '../Models/ReporteM';
+import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -13,20 +14,14 @@ export class ReporteService {
 
   constructor(private http: HttpClient) { }
 
-  registrarReporte(reporte: Reporte, imagenes: Imagen[]){
-    const paramReporte = JSON.stringify( reporte);
-    const paramImagenes = JSON.stringify(imagenes);
+  registrarReporte(ticket: Ticket, imagenes: Imagen[]){
     return this.http.post(this.url + '/Registrar', {
-      body: {'ticket': paramReporte, 'imagenes': paramReporte}
+    'ticket': ticket, 'imagenes': imagenes
     });
   }
 
   actualizarReporte(reporte: Reporte){
-    const reporteModelo = JSON.stringify(reporte);
-    const params = new HttpParams().append('reporte', reporteModelo);
-    return this.http.put(this.url + '/Actualizar', {
-      params
-    });
+    return this.http.put(this.url + '/Actualizar', reporte);
   }
 
   buscarReportes(filtro?: string){
@@ -44,16 +39,49 @@ export class ReporteService {
     return this.http.get(this.url + '/GetReportesCuadrillas/' + idReporte);
   }
 
-  obtenerImagenesReporte(idReporte: number){
-    return this.http.get(this.url + '/GetImagenesReporte/' + idReporte);
+  obtenerImagenesReporte(idReporte: number, tipoImagen: number){
+    let params = new HttpParams();
+    params = params.append('idReporte', idReporte.toString());
+    params = params.append('tipoImagen', tipoImagen.toString());
+    return this.http.get(this.url + '/GetImagenesReporte', {params}).toPromise();
   }
 
   insertarImgReporte(reporte: Reporte, imagenes: Imagen[]){
-    const paramReporte = JSON.stringify( reporte);
-    const paramImagenes = JSON.stringify(imagenes);
     return this.http.post(this.url + '/InsertarImagenesReporte', {
-      body: {'reporte': paramReporte, 'imagenes': paramReporte}
+      body: {'reporte': reporte, 'imagenes': imagenes}
     });
+  }
+
+  convertirDesdeJSON(obj: Object): ReporteM{
+    return ReporteM.reporteDesdeJson(obj);
+  }
+
+  obtenerIDRegistro(){
+    return this.http.get(this.url + '/ObtenerID');
+  }
+
+  // obtenerPathImagen(formData: FormData){
+  //   return this.http.post(this.url + '/SubirImagenApi', formData);
+  // }
+
+  separarEntreCalles(entreCalles: string): string[]{
+    let calles: string[] = [];
+    if (entreCalles !== null || entreCalles !== ''){
+      calles = entreCalles.split('y');
+    }else{
+      calles = ['',''];
+    }
+    return calles;
+  }
+
+  formatoFechaMostrar(fechaDateTime: string): string{
+    // 2020-11-21T00:00:00
+    let fechaConFormato: string = '';
+    if (fechaDateTime !== null){
+        const auxArray: string[] = fechaDateTime.split('T');
+        fechaConFormato = auxArray[0];
+    }
+    return fechaConFormato;
   }
 
 }

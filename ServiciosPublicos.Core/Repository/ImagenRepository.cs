@@ -11,7 +11,7 @@ namespace ServiciosPublicos.Core.Repository
 {
     public interface IImagenRepository : IRepositoryBase<Imagen>
     {
-        List<Imagen> GetImagen(int idReporte);
+        List<Imagen> GetImagen(int idReporte, int tipoImagen);
         void InsertarImagen(int idTicket, int idReporte, Imagen imagen);
         void InsertarImagenCierre(int idReporte, Imagen imagen);
     }
@@ -22,11 +22,10 @@ namespace ServiciosPublicos.Core.Repository
         }
 
         //Devuelve la lista de imagenes que estan relacionadas con un reporte
-        public List<Imagen> GetImagen(int idReporte)
+        public List<Imagen> GetImagen(int idReporte, int tipoImagen)
         {
-            Sql query = new Sql()
-                .Select("*").From("Imagen")
-                .Where("ID_reporte = @0", idReporte);
+            Sql query = new Sql(@"SELECT * FROM Imagen 
+                                WHERE ID_reporte = @0 AND Tipo_imagen = @1", idReporte, tipoImagen);
             return this.Context.Fetch<Imagen>(query);
         }
 

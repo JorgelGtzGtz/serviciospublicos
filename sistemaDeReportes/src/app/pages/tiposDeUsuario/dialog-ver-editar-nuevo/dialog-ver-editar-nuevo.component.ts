@@ -6,12 +6,9 @@ import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { ProcesoPermisoService } from '../../../services/proceso-permiso.service';
 import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
 import { ProcesoPermiso } from 'src/app/Interfaces/IProcesoPermiso';
-import { ProcesoPermisoM } from '../../../Models/ProcesoPermisoM';
-import { Permiso } from '../../../Interfaces/IPermiso';
-import { PermisoM } from '../../../Models/PermisoM';
 import { PermisoService } from '../../../services/permiso.service';
 import { TipoUsuarioM } from '../../../Models/TipoUsuarioM';
-import { catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 
 
 @Component({
@@ -25,6 +22,8 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   procesosSistema: ProcesoPermiso[] = [];
   elementoLista: ProcesoPermiso;
   accion: string;
+  idListo: boolean;
+  procesosYpermisos: boolean;
   modificado: boolean;
   errorListas: boolean;
   form: FormGroup;
@@ -49,7 +48,7 @@ export class DialogVerEditarNuevoComponent implements OnInit {
     }
 
   // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
-  private buildForm(){
+  private buildForm(): void{
     this.form = this.formBuilder.group({
       id: [0],
       descripcion: ['', [Validators.required]],
@@ -66,13 +65,14 @@ export class DialogVerEditarNuevoComponent implements OnInit {
     });
   }
 
-  inicializarCampos(){
+  inicializarCampos(): void{
     if (this.accion !== 'nuevo'){
       this.campoId.setValue( this.tipoUsuario.ID_tipoUsuario);
       this.campoEstado.setValue(!this.tipoUsuario.Estatus_tipoUsuario);
       this.campoDescripcion.setValue(this.tipoUsuario.Descripcion_tipoUsuario);
     } else{
       this.campoEstado.setValue(false);
+      this.obtenerIDNuevo();
     }
   }
 
@@ -88,33 +88,47 @@ export class DialogVerEditarNuevoComponent implements OnInit {
     return this.form.get('estado');
   }
 
+  obtenerIDNuevo(): void{
+    this.tipoService.obtenerIDRegistro().subscribe( (id: number) => {
+      this.campoId.setValue(id);
+      this.idListo = true;
+      console.log('ID a asignar:', id);
+    });
+  }
+
   // Obtener procesos del sistema
-  obtenerProcesosSistema(){
+  obtenerProcesosSistema(): void{
     this.procesoServicio.obtenerProcesosLista().subscribe( procesos => {
-      console.log('Procesos:', procesos);
-      this.listaProcesos = procesos;
       this.procesosSistema = procesos;
       if (this.accion !== 'nuevo'){
-        this.obtenerPermisosActuales();
+        this.obtenerPermisosActuales(procesos);
+      }else {
+        this.obtenerProcesosNuevoRegistro(procesos);
+        this.procesosYpermisos = true;
       }
     });
   }
+
+  // Inicializa la lista listaProcesos, cuando se hace un nuevo registro de tipo de usuario
+  // Recibe una lista de todos los procesos del sistema y los agrega a la listaProcesos
+  obtenerProcesosNuevoRegistro(procesos: ProcesoPermiso[]): void{
+      procesos.forEach(proceso => {
+        this.listaProcesos.push(proceso);
+      });
+  }
+
   // Método para inicializar la lista de procesos
   // Según si es una actualización o nuevo registro
-   obtenerProcesosDisponibles(){
-     console.log('se ejecuta procesos disponibles');
-     let aux = this.listaProcesos;
-     this.listaProcesos = this.procesoServicio.procesosDisponibles(aux, this.listaProcTipo );
+   obtenerProcesosDisponibles(procesos: ProcesoPermiso[]): void{
+     this.listaProcesos = this.procesoServicio.procesosDisponibles(procesos, this.listaProcTipo );
+     this.procesosYpermisos = true;
    }
 
    // Método para obtener los permisos actuales del tipo Usuario
-   obtenerPermisosActuales(){
+   obtenerPermisosActuales(procesos: ProcesoPermiso[]): void{
        this.permisoService.obtenerPermisosTipo(this.tipoUsuario.ID_tipoUsuario).subscribe( permisos => {
-         console.log('Permisos', permisos);
-         this.listaProcTipo = this.procesoServicio.descripcionPermiso(this.listaProcesos, permisos);
-         if (this.accion !== 'nuevo'){
-          this.obtenerProcesosDisponibles();
-        }
+         this.listaProcTipo = this.procesoServicio.descripcionPermiso(procesos, permisos);
+         this.obtenerProcesosDisponibles(procesos);
        },
        err => {
          console.error(err);
@@ -148,7 +162,7 @@ tipoFormularioAccion(): void{
   return this.modificado;
 }
 
-listaTienePermisos(){
+listaTienePermisos(): void{
   if (this.listaProcTipo.length === 0){
     this.errorListas = true;
   } else{
@@ -162,14 +176,12 @@ listaTienePermisos(){
     const ELEMENT  = (e.target as Element);
     ELEMENT.classList.add('item-selected');
     this.elementoLista = this.procesoServicio.obtenerProceso(ELEMENT.innerHTML, this.procesosSistema);
-    console.log('SE ASIGNA A ELEMENTO LISTA:', this.elementoLista);
-    //this.elementoLista = ELEMENT.innerHTML;
   }
 
   // Cambia el aspecto de los elementos de la lista. Al seleccionar uno nuevo, quita la clase
   // .item-selected de aquellos elementos que lo tenían
   cambiarAspectoLista(): void{
-    let coincidenciasQuery = this.elementoReferencia.nativeElement.querySelectorAll('li.item-selected');
+    const coincidenciasQuery = this.elementoReferencia.nativeElement.querySelectorAll('li.item-selected');
     if (coincidenciasQuery.lenght !== null){
       for (let li of coincidenciasQuery){
         li.classList.remove('item-selected');
@@ -184,8 +196,6 @@ listaTienePermisos(){
 
   existenciaEnLista(listaOrigen: ProcesoPermiso[], listaDestino: ProcesoPermiso[]): boolean{
     let validacionExistencia: boolean;
-    console.log('ELEMENTO EXISTENCIA:',this.elementoLista );
-    console.log('LISTA A EVALUAR',listaOrigen );
     if (listaOrigen.includes(this.elementoLista)){
       validacionExistencia =  true;
     }else{
@@ -197,7 +207,7 @@ listaTienePermisos(){
 
   // FUNCION QUE SE LLAMA PARA TRANFERIR ELEMENTO DE "LISTA A" A "LISTA B"
   cambiarListAListB(): void{
-    let validacion = this.existenciaEnLista(this.listaProcesos, this.listaProcTipo);
+    const validacion = this.existenciaEnLista(this.listaProcesos, this.listaProcTipo);
     if (validacion){
         this.modificarListas(this.listaProcesos, this.listaProcTipo);
         this.listaTienePermisos();
@@ -207,7 +217,7 @@ listaTienePermisos(){
 
   // FUNCION QUE SE LLAMA PARA TRANFERIR ELEMENTO DE "LISTA B" A "LISTA A"
   cambiarListBListA(): void{
-    let validacion = this.existenciaEnLista(this.listaProcTipo, this.listaProcesos);
+    const validacion = this.existenciaEnLista(this.listaProcTipo, this.listaProcesos);
     if (validacion){
       this.modificarListas(this.listaProcTipo, this.listaProcesos);
       this.listaTienePermisos();
@@ -219,8 +229,6 @@ listaTienePermisos(){
   // lista destino. Se verifica previamente existen de elemento en lista con función
   // existenciaEnLista(listaOrigen,listaDestino)
   modificarListas(listaOrigen: ProcesoPermiso[], listaDestino: ProcesoPermiso[]): void{
-    console.log('lista origen:',listaOrigen, 'lista destino:', listaDestino);
-    console.log('lista origen2:',this.listaProcesos, 'lista destino2:', this.listaProcTipo);
     listaDestino.push(this.elementoLista);
     const index: number = listaOrigen.indexOf(this.elementoLista);
     listaOrigen.splice(index, 1);
@@ -233,10 +241,7 @@ guardar() {
   if (this.form.valid && !this.errorListas){
     const tipo = this.generarTipo();
     this.accionGuardar(tipo);
-    const value = this.form.value;
-    alert('Datos guardados exitosamente');
     this.dialogRef.close();
-    console.log(value);
   }else{
     this.form.markAllAsTouched();
     this.errorListas = true;
@@ -256,11 +261,15 @@ generarTipo(){
 accionGuardar(tipo: TipoUsuario){
   if (this.accion === 'nuevo'){
       this.tipoService.insertarTipoUsuario(tipo, this.listaProcTipo).subscribe( res => {
-        console.log('Registro respuesta: ', res);
+        alert('Tipo de usuario registrado exitosamente');
+      }, (error: HttpErrorResponse) => {
+        alert('El registro no pudo ser completado. Error:' + error.message);
       });
   }else if (this.accion === 'editar'){
       this.tipoService.actualizarTipoUsuario(tipo, this.listaProcTipo).subscribe(res => {
-        console.log('Actualizar respuesta: ', res);
+        alert('Tipo de usuario actualizado exitosamente');
+      }, (error: HttpErrorResponse) => {
+        alert('Tipo de usuario no pudo ser actualizado. Error:' + error.message);
       });
   }
 }

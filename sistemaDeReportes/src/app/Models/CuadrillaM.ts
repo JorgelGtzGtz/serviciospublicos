@@ -8,7 +8,8 @@ export class CuadrillaM implements Cuadrilla{
             obj['Nombre_cuadrilla'],
             obj['Estatus_cuadrilla'],
             obj['Tipo_cuadrilla'],
-            obj['ID_JefeCuadrilla']
+            obj['ID_JefeCuadrilla'],
+            obj ['Disponible']
 
         );
     }
@@ -18,6 +19,7 @@ export class CuadrillaM implements Cuadrilla{
         public Nombre_cuadrilla: string,
         public Estatus_cuadrilla: boolean,
         public Tipo_cuadrilla: number,
-        public ID_JefeCuadrilla: number
+        public ID_JefeCuadrilla: number,
+        public Disponible: boolean
     ){}
 }

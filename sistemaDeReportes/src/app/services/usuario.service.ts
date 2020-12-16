@@ -13,7 +13,7 @@ export class UsuarioService {
   constructor(private http: HttpClient ) { }
 
   // Método login para el inicio de sesión.
-  login(usuario: string, password: string){
+  login(){
     return this.http.post<Usuario>(this.url + '/Login', null, {
      }).pipe(
        map( dato => {
@@ -25,28 +25,35 @@ export class UsuarioService {
     localStorage.removeItem('usuario');
   }
 
-   // Método para obtener los datos del usuario que  inicio de sesión.
-  obtenerUsuarioLogueado(){
-    let usuario = JSON.parse(localStorage.getItem('usuario'));
-    return usuario;
-  }
-
   // Obtener lista de usuarios utilizando parametros
-  obtenerListaUsuarios(parametro?: string){
-    if (parametro === undefined){
-       parametro = '';
-    }
-    const params = new HttpParams().append('usuario', parametro);
-    return this.http.get(this.url + '/Lista/', {
+  obtenerListaUsuarios(textoB?: string, estadoUsuario?: string, tipoU?: string, repActi?: boolean){
+    console.log('Se recibe en servicio:', textoB, estadoUsuario, tipoU, repActi);
+    let reportesActivos: string;
+    if (textoB === undefined){
+      textoB = '';
+   }
+    if (estadoUsuario === undefined || estadoUsuario === 'Todos'){
+      estadoUsuario = '';
+   }
+
+    if (tipoU === undefined || tipoU === 'Todos'){
+     tipoU = '';
+   }
+
+    if (repActi === true){
+     reportesActivos = '1';
+   }else{
+     reportesActivos = '';
+   }
+
+    let params = new HttpParams();
+    params = params.append('textoB', textoB);
+    params = params.append('estado', estadoUsuario);
+    params = params.append('tipoU', tipoU);
+    params = params.append('repActivos', reportesActivos);
+    return this.http.get(this.url + '/ListaBusqueda', {
       params
       });
-    // return this.http.get<Usuario[]>(this.url + 'Lista/', {
-    // params
-    // }).pipe(
-    //   map(usuarios => {
-    //     return usuarios.map(user => this.convertirDesdeJSON(user));
-    //   })
-    // );
   }
 
   obtenerUsuario(idUsuario: number){
@@ -61,6 +68,10 @@ export class UsuarioService {
     );
   }
 
+  obtenerIDRegistro(){
+    return this.http.get(this.url + '/ObtenerID');
+  }
+
   registrarUsuario(usuario: Usuario){
     return this.http.post(this.url + '/Registrar', usuario);
   }
@@ -70,16 +81,42 @@ export class UsuarioService {
   }
 
   eliminarUsuario(idUsuario: number){
+    console.log('Recibe en eliminar usuario:', idUsuario);
     return this.http.delete(this.url + '/Eliminar/' + idUsuario);
   }
 
-  almacenarUsuario(usuario: Usuario){
+  almacenarUsuarioLog(usuario: Usuario): void{
     localStorage.setItem('usuario', JSON.stringify( usuario));
   }
 
+  // Al iniciar sesión, almacena temporalmente el usuario y contraseña para los header en 
+  // el interceptor
+  almacenarDatosLogin(usuarioLogin: string, password: string): void{
+    const datosLogin: string[] = [usuarioLogin, password];
+    localStorage.setItem('datosLogin', JSON.stringify(datosLogin));
+  }
+
+  // Obtener los datos usuario y contraseña ingresados en el login.
+  obtenerDatosLogin(): string []{
+    const datosLogin: string [] = JSON.parse(localStorage.getItem('datosLogin'));
+    return datosLogin;
+  }
+
+  // Método para obtener los datos del usuario que  inicio de sesión.
+  obtenerUsuarioLogueado(): UsuarioM{
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    return usuario;
+  }
+
+  // Eliminar el item en el local storage que tenía los datos usuario
+  //  y contraseña ingresados en el login
+  eliminarDatosLogin(): void{
+    localStorage.removeItem('datosLogin');
+  }
   convertirDesdeJSON(obj: Object){
     return UsuarioM.usuarioDesdeJson(obj);
   }
+
 
 
 }

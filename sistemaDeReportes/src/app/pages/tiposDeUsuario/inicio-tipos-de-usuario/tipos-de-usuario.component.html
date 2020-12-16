@@ -3,7 +3,12 @@
 
 <!-- <div class="content"> -->
 <div class="container-fluid">
-    <div class="card">
+    <div *ngIf="datos === false" class="card justify-content-center">
+        <div class="spinner-border d-flex align-self-center m-5" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="datos" class="card">
         <div class="content-header">
             <form>
                 <div class="row">

@@ -3,7 +3,12 @@
 
     <div class="content"> -->
 <div class="container-fluid">
-    <div class="card">
+    <div *ngIf="!tiposListos && !usuariosListos" class="card justify-content-center">
+        <div class="spinner-border align-self-center m-5" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="tiposListos && usuariosListos" class="card">
         <div class="content-header">
             <form [formGroup]="form">
                 <div class="row grupo-busqueda">
@@ -22,7 +27,7 @@
                             <div class="col-lg-5 col-md-6">
                                 <select class="custom-select" id="tipoUsuarioSelector" formControlName="tipoUsuario">
                                     <option>Todos</option>
-                                    <option *ngFor='let tipo of tiposUsuario'>
+                                    <option *ngFor='let tipo of tiposUsuario' [ngValue] = "tipo.ID_tipoUsuario">
                                         {{ tipo.Descripcion_tipoUsuario }}
                                     </option>
                                 </select>
@@ -40,8 +45,8 @@
                             <div class="col-md-6">
                                 <select class="custom-select" id="estadoTipoUsuario" formControlName="estado">
                                     <option selected>Todos</option>
-                                    <option>Activo</option>
-                                    <option>Inactivo</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
                                 </select>
                             </div>
                         </div>

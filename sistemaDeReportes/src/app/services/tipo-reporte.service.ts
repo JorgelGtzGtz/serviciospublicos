@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { TipoReporte } from '../Interfaces/ITipoReporte';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +11,6 @@ export class TipoReporteService {
   constructor(private http: HttpClient) { }
 
   obtenerTiposReporte(){
-    return this.http.get(this.url + '/GetTipoReporte');
+    return this.http.get<TipoReporte[]>(this.url + '/GetTipoReporte');
   }
 }

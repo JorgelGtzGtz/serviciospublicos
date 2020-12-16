@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoSectoresComponent } from '../dialog-ver-editar-nuevo-sectores/dialog-ver-editar-nuevo-sectores.component';
-import { FormControl } from '@angular/forms';
+import { AbstractControl, FormControl } from '@angular/forms';
 import { SectorService } from '../../../services/sector.service';
 import { Sector } from '../../../Interfaces/ISector';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -17,18 +17,19 @@ export class SectoresComponent implements OnInit {
   nombreSeccion = 'Sectores';
   headersTabla: string [];
   sectores: Sector[] = [];
+  sectoresListos: boolean;
 
   constructor(public dialog: MatDialog, private sectorService: SectorService) {
     this.formBuilder();
-    this.obtenerListaSect();
    }
 
   ngOnInit(): void {
-   this.inicializarTabla();
+    this.obtenerListaSect();
+    this.inicializarTabla();
   }
 
     // Inicializa los controladores del formulario
-    formBuilder(){
+    formBuilder(): void{
       this.busquedaForm = new FormControl('');
       this.estadoForm = new FormControl('Todos');
       this.busquedaForm.valueChanges.subscribe(value => {
@@ -41,22 +42,25 @@ export class SectoresComponent implements OnInit {
 
   // Método para inicializar las variables que contienen los datos que se
   //  mostrarán en la tabla
-  inicializarTabla(){
+  inicializarTabla(): void{
     this.headersTabla = ['Clave', 'Nombre del sector', 'Procesos'];
   }
 
-  obtenerListaSect(){
-    this.sectorService.obtenerSectores().subscribe( sectores => {
+  // Método para obtener la lista de sectores
+  // de acuerdo a determinados parámetros
+  obtenerListaSect(): void{
+    this.sectorService.obtenerSectoresFiltro(this.campoBusqueda.value, this.campoEstado.value).subscribe( sectores => {
       this.sectores = sectores;
+      this.sectoresListos = true;
       console.log(this.sectores);
     });
   }
 
    // Métodos get para obtener acceso a los campos del formulario
-   get campoBusqueda(){
+   get campoBusqueda(): AbstractControl{
      return this.busquedaForm;
    }
-   get campoEstado(){
+   get campoEstado(): AbstractControl{
      return this.estadoForm;
    }
 
@@ -81,6 +85,10 @@ export class SectoresComponent implements OnInit {
       disableClose: true,
       data: {accion, sector}
     });
+
+    DIALOG_REF.afterClosed().subscribe( result => {
+      this.obtenerListaSect();
+    });
   }
 
     // Método que se llama al hacer click en botón nuevo. Este llama al método 
@@ -92,23 +100,23 @@ export class SectoresComponent implements OnInit {
   }
 
   // Método para editar un sector de la tabla
-  editarSector(sector: Sector){
+  editarSector(sector: Sector): void{
     this.abrirDialogVerEditarNuevo('editar', sector);
   }
 
   // Método para ver un sector de la tabla
-  verSector(sector: Sector){
+  verSector(sector: Sector): void{
     this.abrirDialogVerEditarNuevo('ver', sector);
   }
 
   // Método para eliminar sector. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
   eliminarSector(sector: Sector): void{
-    let result = confirm('¿Seguro que desea eliminar el sector?');
+    const result = confirm('¿Seguro que desea eliminar el sector?');
     if (result) {
       this.sectorService.eliminarSector(sector.ID_sector).subscribe( res => {
         this.obtenerListaSect();
-        alert('El sector' + sector.Descripcion_sector + ' se ha eliminado.');
+        alert('El sector ' + sector.Descripcion_sector + ' se ha eliminado.');
       }, (error: HttpErrorResponse) => {
         alert('El sector ' + sector.Descripcion_sector + ' no pudo ser eliminado. Error: ' + error.message);
       });
@@ -120,6 +128,7 @@ export class SectoresComponent implements OnInit {
     // Método para buscar en la base de datos los registros que coincidan con los
   // valores que se establescan en los campos
   buscar(): void{
+    this.obtenerListaSect();
     console.log('Click en buscar desde sectores', this.busquedaForm.value, this.estadoForm.value);
   }
 

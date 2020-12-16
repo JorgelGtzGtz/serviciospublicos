@@ -3,7 +3,13 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
-        <form [formGroup]="form">
+        <div *ngIf="!tiposUListos && !idListo" class=" d-flex justify-content-center">
+            <div class="spinner-border align-self-center m-5" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
+        <form *ngIf="(tiposUListos && idListo) && accion === 'nuevo' || tiposUListos && accion !== 'nuevo' " [formGroup]="form">
             <section id="datosUsuario">
                 <div class="row form-sections">
 
@@ -89,8 +95,10 @@
                     <label class="lblForm col-form-label col-md-auto" for="tipoUsuario">Tipo de usuario</label>
                     <div class="col-md-3">
                         <select class="custom-select" id="tipoUsuario" formControlName="tipoUsuario">
-                            <option *ngFor="let tipo of tiposUsuario" 
-                                    [selected]="inicializarSelTipo(tipo.ID_tipoUsuario)" >
+                            <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
+                            <option *ngFor="let tipo of tiposUsuario"                                    
+                                    [selected] = "inicializarSelTipo(tipo)"
+                                    >
                                 {{ tipo.Descripcion_tipoUsuario }}
                             </option>
                         </select>

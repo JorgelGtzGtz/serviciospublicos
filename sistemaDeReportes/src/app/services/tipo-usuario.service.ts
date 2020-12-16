@@ -28,7 +28,7 @@ export class TipoUsuarioService {
     let params = new HttpParams();
     params = params.append('textoB', textoB);
     params = params.append('estado', estadoValor);
-    return this.http.get<TipoUsuario[]>(this.url + '/ListaGeneral/', {
+    return this.http.get<TipoUsuario[]>(this.url + '/ListaBusqueda', {
       params
     }).pipe(
       map(tipoU => {
@@ -42,6 +42,10 @@ export class TipoUsuarioService {
       map( tipoU =>
         TipoUsuarioM.tipoDesdeJson(tipoU)
         ));
+  }
+
+  obtenerIDRegistro(){
+    return this.http.get(this.url + '/ObtenerID');
   }
 
   insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]){
