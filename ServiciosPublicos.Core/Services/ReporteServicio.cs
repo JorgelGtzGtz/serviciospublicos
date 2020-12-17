@@ -12,7 +12,7 @@ namespace ServiciosPublicos.Core.Services
     {
         bool AltaReporte(Ticket ticket, List<Imagen> imagenes, out string Message);
         bool ActualizarReporte(Reporte reporte, out string Message);
-        List<dynamic> GetAllReportes(string textoBusqueda = null);        
+        List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
         List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
@@ -34,9 +34,9 @@ namespace ServiciosPublicos.Core.Services
             _ticketRepository = ticketRepository;
         }
 
-        public List<dynamic> GetAllReportes(string textoBusqueda = null)
-        {
-            return this._reporteRepository.GetAllReportes(textoBusqueda);
+        public List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
+        {           
+            return this._reporteRepository.GetReportesFiltroDinamico(tipoR,cuadrilla,estado,sector,origen,fechaIni,fechaF);
         }
 
         public List<dynamic> GetReporteCuadrilla(int idCuadrilla)

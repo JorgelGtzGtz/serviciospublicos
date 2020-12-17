@@ -15,7 +15,7 @@ namespace ServiciosPublicos.Core.Repository
         int InsertarReporte(Ticket ticket);
         void ModificarNoTickets(Reporte reporte);
         List<dynamic> GetReporteCuadrilla(int idCuadrilla);
-        List<dynamic> GetAllReportes(string textoBusqueda = null);
+        List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
 
@@ -82,22 +82,73 @@ namespace ServiciosPublicos.Core.Repository
             this.Modify(reporte);
         }
 
-        public List<dynamic> GetAllReportes(string textoBusqueda = null)
+
+        // Entrada: valores string para tipo reporte, estado, sector, origen, fecha inicial y fecha final
+        // Salida: lista de tipo dynamic, con los registros que coincidieron.
+        // Descripción: Ejecuta un query cuya estructura se crea segun los valores que tienen datos
+        // con el fin de buscar registros que cumplan determinados filtros.
+        public List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
          {
-             string filter = " Where ";
+             string filter = " WHERE ";
+            bool operacion = false;
 
-             if (!string.IsNullOrEmpty(textoBusqueda))
+             if (!string.IsNullOrEmpty(tipoR))
              {
-                 filter += string.Format("reporte.ID_cuadrilla like '%{0}%' or " +
-                                         "reporte.ID_sector like '%{0}%' or " +
-                                         "reporte.Origen like '%{0}%' or " +
-                                         "reporte.Estatus_reporte like '%{0}%'", textoBusqueda);
+                 filter += string.Format("reporte.ID_tipoReporte LIKE '%{0}%'", tipoR);
+                operacion = true;
              }
-            
 
-             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion 
-                                FROM hiram74_residencias.Reporte AS reporte
-                                INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+            if (!string.IsNullOrEmpty(cuadrilla))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.ID_cuadrilla LIKE '%{0}%'", cuadrilla);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(estado))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.Estatus_reporte LIKE '%{0}%'", estado);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(sector))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.ID_sector LIKE '%{0}%'", sector);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(origen))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.Origen LIKE '%{0}%'", origen);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(fechaIni))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte >= '{0}' OR reporte.FechaCierre_reporte >= '{0}')", fechaIni);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(fechaF))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte <= '{0}' OR reporte.FechaCierre_reporte <= '{0}')", fechaF);
+                operacion = true;
+            }
+
+           /* if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte BETWEEN '%{0}%' AND '%{1}%' OR " +
+                                                                       "reporte.FechaCierre_reporte BETWEEN '%{0}%' AND '%{1}%')", fechaIni,fechaF);
+                operacion = true;
+            }
+           */
+
+
+
+
+            Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion
+                                  FROM [hiram74_residencias].[Reporte] reporte
+                                  INNER JOIN [hiram74_residencias].[Sector] sector
+                                  ON sector.ID_sector = reporte.ID_sector" + (operacion ? filter : ""));
              return this.Context.Fetch<dynamic>(query);
          }
 

@@ -25,7 +25,7 @@ namespace ServiciosPublicos.Api.Controllers
         }
 
         //Para obtener un listado de todos los reportes
-        [HttpGet]
+      /*  [HttpGet]
         [Route("GetAll")]
         public async Task<HttpResponseMessage> GetAllReportes(HttpRequestMessage request)
         {
@@ -35,7 +35,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var listaReportes = _reporteServicio.GetAllReportes();
+                    var listaReportes = _reporteServicio.GetReportesFiltro();
                         response = request.CreateResponse(HttpStatusCode.OK, listaReportes); 
                 }
                 catch (Exception ex)
@@ -50,7 +50,7 @@ namespace ServiciosPublicos.Api.Controllers
 
                 return await Task.FromResult(response);
             });
-        }
+        }*/
 
         //Para obtener un listado de todos los reportes filtrando por cuadrilla
         [HttpGet]
@@ -170,28 +170,6 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        /*[HttpPost]
-        [Route("SubirImagenApi")]
-        public string SaveFile()
-        {
-            try
-            {
-                var httpRequest = HttpContext.Current.Request;
-                var postedFile = httpRequest.Files[0];
-                string filename = postedFile.FileName;
-                var physicalPath = HttpContext.Current.Server.MapPath("~/Photos/" + filename);
-
-                postedFile.SaveAs(physicalPath);
-
-                return physicalPath;
-            }
-            catch (Exception ex)
-            {
-
-                return "error" + ex.Message;
-            }
-        }
-        */
 
         //Registrar un nuevo reporte,
         //recibe un objeto JSON con los datos del reporte y un listado de imagenes
@@ -279,11 +257,13 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-
-        //Regresa los reportes que coinciden con el parámetros que se manda
+        // Entrada: request tipo HttpRequestMessage y valores string para tipo reporte, estado, sector, origen, fecha inicial y fecha final
+        // Salida: respuesta de tipo HttpResponseMessage con la lista de tipo dynamic, con los registros que coincidieron.
+        // Descripción: Regresa los reportes que coinciden con el parámetros que se manda
         [HttpGet]
-        [Route("lista/{parametro?}/")]
-        public async Task<HttpResponseMessage> GetReportesFiltro(HttpRequestMessage request, string parametro = null)
+        [Route("ListaBusqueda")]
+        public async Task<HttpResponseMessage> GetReportesFiltro(HttpRequestMessage request, string tipoR=null, string cuadrilla=null, 
+            string estado=null, string sector=null, string origen=null, string fechaIni=null, string fechaF=null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -291,7 +271,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _reporteServicio.GetAllReportes(parametro);
+                    var item = _reporteServicio.GetReportesFiltro(tipoR, cuadrilla, estado, sector, origen, fechaIni, fechaF);
                     response = request.CreateResponse(HttpStatusCode.OK, item);
                 }
                 catch (Exception ex)

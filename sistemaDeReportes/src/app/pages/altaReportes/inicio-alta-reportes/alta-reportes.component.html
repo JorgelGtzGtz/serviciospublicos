@@ -1,5 +1,10 @@
 <div class="container-fluid">
-    <div class="card">
+    <div *ngIf="!datosCargados()" class="card justify-content-center">
+        <div class="spinner-border d-flex align-self-center m-5" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="datosCargados()" class="card">
         <div class="content-header">
             <form [formGroup]="form">
                 <div class="row">
@@ -9,7 +14,9 @@
                             <div class="col-lg-6 col-md-12">
                                 <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
                                     <option>Todos</option>
-                                    <option *ngFor="let tipo of listaTiposR"> {{tipo.Descripcion_tipoReporte}} </option>
+                                    <option *ngFor="let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte"> 
+                                        {{tipo.Descripcion_tipoReporte}} 
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -21,7 +28,9 @@
                             <div class="col-lg-5 col-md-12">
                                 <select class="custom-select" id="cuadrillaSelector" formControlName="cuadrilla">
                                     <option> Todos</option>
-                                    <option *ngFor="let cuadrilla of listaCuadrillas"> {{ cuadrilla.Nombre_cuadrilla }} </option>
+                                    <option *ngFor="let cuadrilla of listaCuadrillas" [ngValue] = "cuadrilla.ID_cuadrilla">
+                                         {{ cuadrilla.Nombre_cuadrilla }} 
+                                        </option>
                                 </select>
                             </div>
                         </div>
@@ -50,7 +59,9 @@
                             <div class="col-lg-8 col-md-12">
                                 <select class="custom-select" id="sectorSelector" formControlName="sector">
                                     <option>Todos</option>
-                                    <option *ngFor="let sector of listaSectores">{{ sector.Descripcion_sector }}</option>
+                                    <option *ngFor="let sector of listaSectores" [ngValue] = "sector.ID_sector">
+                                        {{ sector.Descripcion_sector }}
+                                    </option>
                                 </select>
                             </div>
                         </div>

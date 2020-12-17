@@ -1,15 +1,12 @@
 import { Component, OnInit, Output } from '@angular/core';
 import { MatDialog} from '@angular/material/dialog';
-import { FormGroup, FormBuilder} from '@angular/forms';
+import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
 import { DialogVerEditarNuevoAltaReportesComponent } from '../dialog-ver-editar-nuevo-alta-reportes/dialog-ver-editar-nuevo-alta-reportes.component';
 import { ReporteService } from '../../../services/reporte.service';
 import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
 import { Reporte } from '../../../Interfaces/IReporte';
-import { MapService } from '../../../services/map.service';
-import { Features } from '../../../Interfaces/Features';
-import { TipoReporte } from '../../../Interfaces/ITipoReporte';
 import { Sector } from '../../../Interfaces/ISector';
 
 @Component({
@@ -25,32 +22,29 @@ export class AltaReportesComponent implements OnInit {
   listaSectores: Sector[] = [];
   listaCuadrillas: any = [];
   listaTiposR: any = [];
+  ReportesCargados: boolean;
+  sectoresCargados: boolean;
+  cuadrillasCargadas: boolean;
+  tiposCargados: boolean;
 
   constructor(public dialog: MatDialog, private formBuilder: FormBuilder,
               private reporteService: ReporteService,
               private cuadrillaService: CuadrillaService,
               private tipoRService: TipoReporteService,
-              private sectorService: SectorService,
-              private mapService: MapService) {
+              private sectorService: SectorService) {
     this.buildForm();
-    this. inicializarListas();
-    // this.actualizarTabla();
    }
 
   ngOnInit(): void {
-    this.actualizarTabla();
-    this.headersTabla = [
-      'No. Reporte',
-      'Fecha inicio',
-      'Fecha cierre',
-      'Estado',
-      'Sector',
-      'Dirección',
-      'Proceso'];
+    this. inicializarListas();
+    this.inicializarTabla();
   }
 
-  // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
-  private buildForm(){
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Inicializa el formulario y el grupo de controles; cada control
+  // representa cada entrada del formulario.
+  private buildForm(): void{
     this.form = this.formBuilder.group({
       tipoReporte: ['Todos'],
       cuadrilla: ['Todos'],
@@ -65,78 +59,136 @@ export class AltaReportesComponent implements OnInit {
     });
   }
 
-  // Método para inicializar las variables que contienen los datos que se
-  //  mostrarán en la tabla
-  actualizarTabla(){
-    this.reporteService.buscarReportes().subscribe(reportes => {
-      this.listaReportes = reportes;
-      console.log(this.listaReportes);
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Inicializa la tabla. Coloca sus encabezados y llama al método que
+  // obtiene los registros de reportes a mostrar.
+  inicializarTabla(): void{
+    this.actualizarTabla();
+    this.headersTabla = [
+      'No. Reporte',
+      'Fecha inicio',
+      'Fecha cierre',
+      'Estado',
+      'Sector',
+      'Dirección',
+      'Proceso'];
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción:Método para llenar la tabla mediante una petición del servicio de reporte,
+  // con los registros de reportes existentes. Puede ser según
+  // filtros que se especifican con el valor de cada control del formulario.
+  actualizarTabla(): void{
+    const tipoR: number =  this.campoTipoReporte.value;
+    const cuadrilla: number =  this.campoCuadrilla.value;
+    const estado: number =  this.campoEstado.value;
+    const sector: number =  this.campoSector.value;
+    const origen: number =  this.campoOrigen.value;
+    const fecha: string =  this.campoFechaInicial.value;
+    const fechaAl: string =  this.campoFechaFinal.value;
+    this.reporteService.buscarReportes(
+      tipoR.toString(),
+      cuadrilla.toString(),
+      estado.toString(),
+      sector.toString(),
+      origen.toString(),
+      fecha,
+      fechaAl).subscribe(reportes => {
+        this.listaReportes = reportes;
+        this.ReportesCargados = true;
     });
   }
 
-  inicializarListas(){
+  // Entrada: Ninguna
+  // Salida: valor booleano.
+  // Descripción: Método que verifica que los datos se encuentren cargados, con el fin de 
+  // determinar en que momento mostrar el formulario o la animación de cargando.
+  datosCargados(): boolean{
+    let cargado: boolean;
+    if (this.ReportesCargados && this.sectoresCargados &&
+        this.cuadrillasCargadas && this.tiposCargados){
+        cargado = true;
+    }else{
+        cargado = false;
+    }
+    return cargado;
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción:Método para obtener los registros de tipos de reporte, sectores y cuadrillas
+  // para mostrarlos en sus respectivos select.
+  inicializarListas(): void{
     this.tipoRService.obtenerTiposReporte().subscribe( tipos => {
       this.listaTiposR = tipos;
+      this.tiposCargados = true;
     }, error => {
-        console.log('Error al acceder a datos de tipos de reporte. ' + error );
+        console.log('No fue posible obtener los tipos de reportes existentes. ' + error );
     });
     this.sectorService.obtenerSectores().subscribe(sectores => {
       this.listaSectores = sectores;
+      this.sectoresCargados = true;
     }, error => {
-      console.log('Error al acceder a datos de sectores. ' + error );
+      console.log('No fue posible obtener los sectores existentes. ' + error );
     });
     this.cuadrillaService.obtenerCuadrillas().subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
+      this.cuadrillasCargadas = true;
     }, error => {
-      console.log('Error al acceder a datos de cuadrillas. ' + error );
+      console.log('No fue posible obtener las cuadrillas existentes. ' + error );
     });
   }
 
-  // Métodos get para obtener acceso a los campos del formulario
-  get campoTipoReporte(){
+  // Entrada: Ninguna
+  // Salida: control de tipo abstract control.
+  // Descripción: Métodos get para obtener acceso a los campos del formulario
+  get campoTipoReporte(): AbstractControl{
     return this.form.get('tipoReporte');
   }
 
-  get campoCuadrilla(){
+  get campoCuadrilla(): AbstractControl{
     return this.form.get('cuadrilla');
   }
 
-  get campoEstado(){
+  get campoEstado(): AbstractControl{
     return this.form.get('estado');
   }
 
-  get campoSector(){
+  get campoSector(): AbstractControl{
     return this.form.get('sector');
   }
 
-  get campoOrigen(){
+  get campoOrigen(): AbstractControl{
     return this.form.get('origen');
   }
 
-  get campoFechaInicial(){
+  get campoFechaInicial(): AbstractControl{
     return this.form.get('fechaInicio');
   }
 
-  get campoFechaFinal(){
+  get campoFechaFinal(): AbstractControl{
     return this.form.get('fechaFinal');
   }
 
-  
-  // Agregar clases a las columnas 'th' según el contenido
-  // que encabecen, para agregar estilos
-  // También se añade un estilo general.
-  tamanoColumna( encabezado: string): any{
+  // Entrada: Ninguna
+  // Salida: objeto que indica la clase de estilo a aplicar.
+  // Descripción:Método para Agregar clases a las columnas 'th' según el contenido
+  // que encabecen, para agregar estilos. También se añade un estilo general.
+  tamanoColumna( encabezado: string): object{
     return {
       'id-col': encabezado === 'No. Reporte',
       'botones-procesos-col': encabezado === 'Procesos',
       'general-col': encabezado
     };
   }
-
-  // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
-  // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
-  // También contiene el método que se ejecuta cuando el diálogo se cierra.
-  abrirDialogSeleccionar(accion: string, reporte: object): void{
+  // Entrada: un valor string que indica la accion (nuevo, editar o ver) y el registro de
+  //          reporte seleccionado.
+  // Salida: vacío.
+  // Descripción: Método para abrir el dialog para ver, editar o crear un nuevo registro. También
+  // contiene las acciones a ejecutar cuando se cierra el dialog.
+  abrirDialogSeleccionar(accion: string, reporte?: object): void{
     const DIALOG_REF = this.dialog.open( DialogVerEditarNuevoAltaReportesComponent, {
       width: '900px',
       height: '600px',
@@ -145,47 +197,41 @@ export class AltaReportesComponent implements OnInit {
       data: {accion, reporte}
     });
 
-    DIALOG_REF.afterClosed().subscribe(result => {
-      console.log('The dialog was closed result:', result);
+    DIALOG_REF.afterClosed().subscribe(() => {
       this.actualizarTabla();
     });
   }
-
-// Metodo que se llama cuando se da click al botón nuevo
-// Abre el dialogo con las configuraciones para crear un nuevo registro
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Método que se llama cuando se da click al botón nuevo.
+// Llama al método que abre el dialog para crear un nuevo registro.
   nuevoReporte(): void{
-    let elemento: Reporte;
-    this.abrirDialogSeleccionar('nuevo', elemento);
+    this.abrirDialogSeleccionar('nuevo');
 
   }
 
-   // Método para editar un reporte de la tabla
-   editarReporte(reporte: object){
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Método que se llama cuando se da click al botón editar.
+// Llama al método que abre el dialog para editar un reporte de la tabla
+   editarReporte(reporte: object): void{
     this.abrirDialogSeleccionar('editar', reporte);
   }
 
-  // Método para ver un reporte de la tabla
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Método que se llama cuando se da click al botón nuevo.
+// Llama al método que abre el dialog para ver un reporte de la tabla
   verReporte(reporte: object): void{
     this.abrirDialogSeleccionar('ver', reporte);
   }
 
-
-  // Método que se llama con el botón buscar 
-  // Aquí se recuperan los criterios de búsqueda establecidos por 
-  // el usuario para después utilizarlos en una búsqueda 
-  // en la base de datos.
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Método que se llama con el botón buscar para ejecutar una búsqueda
+// de registros mediante el método actualizarTabla()
   buscar(): void{
-    // let coordenadas: number [];
-    // const calleNumero = 'Golfo de Tehuantepec #1749';
-    // const colonia = 'Prados del Tepeyac';
-     // {Calle} {numero de casa} {Colonia} {Ciudad}
-    // const query = this.mapService.generarDireccionCompleta(calleNumero, colonia);
-    // this.mapService.obtenerCoordenadasDireccion(query).subscribe( res => {
-    //    coordenadas = res[0].geometry.coordinates;
-    //    console.log('Coordenadas:', coordenadas);
-    //  }, error => {
-    //    alert('No fue posible obtener coordenadas de la dirección, para ser usadas en mapa. Error:' + error.message);
-    //  });
+    this.actualizarTabla();
   }
 
 }

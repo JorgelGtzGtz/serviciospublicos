@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Reporte } from '../Interfaces/IReporte';
 import { Ticket } from '../Interfaces/ITicket';
 import { Imagen } from '../Interfaces/IImagen';
 import { ReporteM } from '../Models/ReporteM';
 import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,69 +15,123 @@ export class ReporteService {
 
   constructor(private http: HttpClient) { }
 
-  registrarReporte(ticket: Ticket, imagenes: Imagen[]){
+  // Entrada: objeto tipo Ticket y lista de tipo Imagen
+  // Salida: Observable con la respuesta de la petición.
+  // Descripción: petición tipo POST para registrar un nuevo reporte.
+  registrarReporte(ticket: Ticket, imagenes: Imagen[]): Observable<object>{
     return this.http.post(this.url + '/Registrar', {
     'ticket': ticket, 'imagenes': imagenes
     });
   }
 
-  actualizarReporte(reporte: Reporte){
+  // Entrada: objeto tipo Reporte.
+  // Salida: Observable con la respuesta de la petición.
+  // Descripción: petición tipo PUT para actualizar un registro de reporte.
+  actualizarReporte(reporte: Reporte): Observable<object>{
     return this.http.put(this.url + '/Actualizar', reporte);
   }
 
-  buscarReportes(filtro?: string){
-    if (filtro === undefined){
-      filtro = '';
+  // Entrada: datos de tipo string que corresponden a: tipo de reporte, cuadrilla, estado, sector,
+  //          origen, y fechas de rango.
+  // Salida: Observable con la respuesta de la petición.
+  // Descripción: petición tipo GET para obtener registros de reporte que coincidad
+  // con los filtros que se envían como parámetros.
+  buscarReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
+                 origen: string, fecha: string, fechaAl: string): Observable<object>{
+    if (tipoR === undefined || tipoR === 'Todos'){
+      tipoR = '';
    }
-    return this.http.get(this.url + '/lista/' + filtro);
+    if (cuadrilla === undefined || cuadrilla === 'Todos'){
+    cuadrilla = '';
+   }
+    if (estado === undefined || estado === 'Todos'){
+    estado = '';
+   }
+    if (sector === undefined || sector === 'Todos'){
+    sector = '';
+   }
+    if (origen === undefined || origen === 'Todos'){
+    origen = '';
+   }
+    if (fecha === null){
+    fecha = '';
+   }
+    if (fechaAl === null){
+    fechaAl = '';
+   }
+    let params = new HttpParams();
+    params = params.append('tipoR', tipoR);
+    params = params.append('cuadrilla', cuadrilla);
+    params = params.append('estado', estado);
+    params = params.append('sector', sector);
+    params = params.append('origen', origen);
+    params = params.append('fechaIni', fecha);
+    params = params.append('fechaF', fechaAl);
+    return this.http.get(this.url + '/ListaBusqueda', {params});
   }
 
-  obtenerReportes(){
-    return this.http.get(this.url + '/GetAll');
-  }
-
-  obtenerReportesCuadrilla(idReporte: number){
+  // Entrada: ID del reporte de tipo number.
+  // Salida: Observable con la respuesta de la petición.
+  // Descripción: petición de tipo GET para obtener los reportes que pertenecen a una determinada
+  // cuadrilla.
+  obtenerReportesCuadrilla(idReporte: number): Observable<object>{
     return this.http.get(this.url + '/GetReportesCuadrillas/' + idReporte);
   }
 
-  obtenerImagenesReporte(idReporte: number, tipoImagen: number){
+  // Entrada: ID del reporte de tipo number y el tipo de imagen (1: apertura, 2: cierre).
+  // Salida: observable con resultado de tipo lista Imagen.
+  // Descripción: petición de tipo GET para obtener las imágenes que cumplen con los filtros de entrada.00000
+  obtenerImagenesReporte(idReporte: number, tipoImagen: number): Observable<Imagen[]>{
     let params = new HttpParams();
     params = params.append('idReporte', idReporte.toString());
     params = params.append('tipoImagen', tipoImagen.toString());
-    return this.http.get(this.url + '/GetImagenesReporte', {params}).toPromise();
+    return this.http.get<Imagen[]>(this.url + '/GetImagenesReporte', {params});
   }
 
-  insertarImgReporte(reporte: Reporte, imagenes: Imagen[]){
+  // Entrada: ID del reporte de tipo number, y lista de tipo Imagen.
+  // Salida: Observable con la respuesta de la petición.
+  // Descripción: petición de tipo POST para guardar las imágenes que pertenecen a un reporte.
+  insertarImgReporte(reporte: Reporte, imagenes: Imagen[]): Observable<object>{
     return this.http.post(this.url + '/InsertarImagenesReporte', {
       body: {'reporte': reporte, 'imagenes': imagenes}
     });
   }
 
-  convertirDesdeJSON(obj: Object): ReporteM{
+  // Entrada: Objeto de tipo object
+  // Salida: objeto de tipo ReporteM
+  // Descripción: Convierte el objeto en un objeto de tipo ReporteM
+  convertirDesdeJSON(obj: object): ReporteM{
     return ReporteM.reporteDesdeJson(obj);
   }
 
-  obtenerIDRegistro(){
-    return this.http.get(this.url + '/ObtenerID');
+  // Entrada: Ninguna
+  // Salida: Observable de tipo number, con la respuesta de la petición.
+  // Descripción:petición tipo GET para obtener el siguiente valor de ID
+  // de la tabla reportes en la base de datos.
+  obtenerIDRegistro(): Observable<number>{
+    return this.http.get<number>(this.url + '/ObtenerID');
   }
 
-  // obtenerPathImagen(formData: FormData){
-  //   return this.http.post(this.url + '/SubirImagenApi', formData);
-  // }
-
+  // Entrada: valor string con formato calleNombre y calleNombre
+  // Salida: Observable con la respuesta de la petición.
+  // Descripción: Separa las calles para poder ser mostradas en su respectivo lugar
+  // en el formulario del dialog de Alta de reportes.
   separarEntreCalles(entreCalles: string): string[]{
     let calles: string[] = [];
     if (entreCalles !== null || entreCalles !== ''){
       calles = entreCalles.split('y');
     }else{
-      calles = ['',''];
+      calles = ['', ''];
     }
     return calles;
   }
 
+  // Entrada: valor fecha de tipo string con formato 2020-11-21T00:00:00.
+  // Salida: valor tipo string con formato 2020-11-21
+  // Descripción: Separa los datos para obtener solo la parte de la fecha.
   formatoFechaMostrar(fechaDateTime: string): string{
     // 2020-11-21T00:00:00
-    let fechaConFormato: string = '';
+    let fechaConFormato = '';
     if (fechaDateTime !== null){
         const auxArray: string[] = fechaDateTime.split('T');
         fechaConFormato = auxArray[0];

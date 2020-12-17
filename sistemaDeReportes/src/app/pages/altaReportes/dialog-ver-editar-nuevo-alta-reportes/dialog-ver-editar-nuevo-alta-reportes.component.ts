@@ -1,7 +1,6 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
-import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { DialogService } from '../../../services/dialog-service.service';
 import { SectorService } from '../../../services/sector.service';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
@@ -24,16 +23,18 @@ import { ImagenService } from '../../../services/imagen.service';
   styleUrls: ['./dialog-ver-editar-nuevo-alta-reportes.component.css']
 })
 export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
-  @ViewChild("inputFile") inputFile: ElementRef;
+  @ViewChild('inputFile') inputFile: ElementRef;
   reporte: Reporte;
   idListo: boolean;
+  modificado: boolean;
   mostrarImgApertura: boolean;
   mostrarImgCierre: boolean;
-  modificado: boolean;
   estadoReporte: number;
   accion: string;
-  imagenesApertura: string [] = [];
-  imagenesCierre: string [] = [];
+  pathImgApertura: string[] = [];
+  pathImgCierre: string[] = [];
+  imagenesApertura: Imagen [] = [];
+  imagenesCierre: Imagen [] = [];
   listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
   coordenadas: number[] = [];
@@ -41,7 +42,6 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef <DialogVerEditarNuevoAltaReportesComponent>,
-              private sanitizer: DomSanitizer,
               @Inject (MAT_DIALOG_DATA) private data,
               private dialogService: DialogService,
               private sectorService: SectorService,
@@ -83,12 +83,28 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo:', value);
+        // console.log('se interactuo:', value);
         this.modificado = true;
       }else{
         this.modificado = false;
       }
     });
+  }
+
+  // Entrada: Ninguna
+  // Salida: valor booleano.
+  // Descripción: Método que verifica que los datos se encuentren cargados, con el fin de 
+  // determinar en que momento mostrar el formulario o la animación de cargando.
+  datosCargados(): boolean{
+    let cargado: boolean;
+    if (this.accion === 'nuevo' && this.idListo && this.listaTiposR.length > 0 && this.listaSectores.length > 0){
+      cargado = true;
+    }else if (this.accion !== 'nuevo' && this.listaTiposR.length > 0 && this.listaSectores.length > 0){
+      cargado = true;
+    }else{
+      cargado = false;
+    }
+    return cargado;
   }
 
   // Entrada: Ninguna
@@ -98,6 +114,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     inicializarCampos(): void{
       if (this.accion !== 'nuevo'){
         this.obtenerObjetoReporte();
+        this.cargarImagenesReporte();
         const calles: string [] = this.reporteSevice.separarEntreCalles(this.reporte.EntreCalles_reporte);
         const fechaApertura: string = this.reporteSevice.formatoFechaMostrar(this.reporte.FechaRegistro_reporte);
         const fechaCierre: string = this.reporteSevice.formatoFechaMostrar(this.reporte.FechaCierre_reporte);
@@ -113,8 +130,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
         this.campoCalleSecundaria2.setValue(calles[1]);
         this.campoColonia.setValue(this.reporte.Colonia_reporte);
         this.campoDescripcionReporte.setValue(this.reporte.Observaciones_reporte);
-        this.cargarImagenesReporte();
-        // this. inicializarContenedorImagenes();
+        console.log('SE CARGAN 1');
       }else{
         this.obtenerIDNuevo();
         this.imagenesApertura = [];
@@ -163,70 +179,49 @@ obtenerSectoresYTiposRep(): void{
   });
 }
 
-// inicializarSelTipo(tipo: TipoReporte): boolean{
-//   let valor = false;
-//   if (this.reporte !== undefined){
-//        if (tipo.ID_tipoReporte === this.reporte.ID_tipoReporte){
-//          valor =  true;
-//        }
-//     }
-//   return valor;
-// }
-
-// inicializarSelSector(sector: Sector): boolean{
-//   let valor = false;
-//   if (this.reporte !== undefined){
-//        if (sector.ID_sector === this.reporte.ID_sector){
-//          valor =  true;
-//        }
-//     }
-//   return valor;
-// }
-
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para obtener las imágenes de apertura y cierre que
   // contiene el reporte.
-cargarImagenesReporte(){
-  console.log(this.reporte.ID_reporte);
+cargarImagenesReporte(): void{
   // Imagenes de apertura
-  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte,1)
-  .then( (imgApertura: Imagen[]) => {
-    imgApertura.forEach(imagen => {
-      const path = this.imagenSevice.urlParaFotos + imagen.Path_imagen;
-      this.imagenesApertura.push(path);   
-    });
-    this.inicializarContenedorImagenes();   
-  })
-  .catch( error => {
+  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 1)
+  .subscribe( (imgApertura: Imagen[]) => {
+    this.pathImgApertura = this.imagenSevice.llenarListaPathImagenes(imgApertura);
+    this.inicializarContenedorImagenes();
+    console.log('SE CARGAN 2');
+  }, (error: HttpErrorResponse) => {
     console.log('Error al obtener imágenes. ' + error);
   });
-  
+
   // imágenes de cierre
-  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte,2)
-  .then( (imgCierre: Imagen[]) => {
-    imgCierre.forEach(imagen => {
-      const path = this.imagenSevice.urlParaFotos + imagen.Path_imagen;
-      this.imagenesCierre.push(path);           
-     });
-    this.inicializarContenedorImagenes();   
-  })
-  .catch( error => {
+  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 2)
+  .subscribe( (imgCierre: Imagen[]) => {
+    this.pathImgCierre = this.imagenSevice.llenarListaPathImagenes(imgCierre);
+    this.inicializarContenedorImagenes();
+  }, (error: HttpErrorResponse) => {
     console.log('Error al obtener imágenes de cierre. ' + error);
   });
 }
+
+// manejoErroresImg(): string{
+  // 'http://localhost:50255/Photos/no-image.png'
+  // const imgList = this.elementReference.nativeElement.querySelectorAll('img.img-reporte');
+  // console.log('IMAGENES ELEMENT', imgList);
+  // return 'src =' + this.imagenSevice.generarSrcAlterno();
+// }
 
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para indicar, mediante las variables "mostrarImgApertura" y "mostrarImgCierre"
   // si existen imágenes del reporte que mostrar.
   inicializarContenedorImagenes(): void{
-    if (this.imagenesApertura.length !== 0){
+    if (this.pathImgApertura.length !== 0){
       this.mostrarImgApertura = true;
     }else{
       this.mostrarImgApertura = false;
     }
-    if (this.imagenesCierre.length !== 0){
+    if (this.pathImgCierre.length !== 0){
       this.mostrarImgCierre = true;
     }else{
       this.mostrarImgCierre = false;
@@ -302,7 +297,7 @@ obtenerEstadoFormulario(): boolean{
       case 'nuevo':
         this.campoFechaCierre.disable();
         this.campoId.disable();
-        break;      
+        break;
       default:
         this.form.enable();
         this.campoId.disable();
@@ -331,32 +326,9 @@ obtenerEstadoFormulario(): boolean{
         'Comunique el problema al personal pertinente.');
         console.warn('Error:' + error.message);
         this.reporte.Estatus_reporte = auxEstado;
-      });        
+      });
     }
   }
-
-   // Método para obtener el ID del tipo de reporte
-  // que se seleccionó
-  // tipoRepSeleccionado(nombre: string): number{
-  //   let idTipoR: number;
-  //   this.listaTiposR.forEach(tipo => {
-  //     if (nombre === tipo.Descripcion_tipoReporte){
-  //       idTipoR = tipo.ID_tipoReporte;
-  //     }
-  //   });
-  //   return idTipoR;
-  // }
-   // Método para obtener el ID del sector
-  // que se seleccionó
-  // sectorSeleccionado(nombre: string): number{
-  //   let idSector: number;
-  //   this.listaSectores.forEach(sector => {
-  //     if (nombre === sector.Descripcion_sector){
-  //       idSector = sector.ID_sector;
-  //     }
-  //   });
-  //   return idSector;
-  // }
 
   // Entrada: Ninguna
   // Salida: Objeto tipo UsuarioM.
@@ -393,7 +365,7 @@ obtenerEstadoFormulario(): boolean{
     const calleNumero = this.campoCallePrincipal.value;
     const colonia = this.campoColonia.value;
     const direccion = this.mapService.generarDireccionCompleta(calleNumero, colonia);
-    let latLng: number[] = []
+    let latLng: number[] = [];
     this.mapService.obtenerLatLng(direccion)
     .then((respuesta: any) => {
       const direcciones = respuesta.results[0];
@@ -424,7 +396,7 @@ obtenerEstadoFormulario(): boolean{
      this.reporte.Poblado_reporte = this.campoColonia.value;
      this.reporte.Observaciones_reporte = this.campoDescripcionReporte.value;
      this.reporte.Estatus_reporte = this.estadoReporte;
-      console.log('REPORTE:', this.reporte);
+     console.log('REPORTE:', this.reporte);
   }
 
   // Entrada: lista de tipo number
@@ -458,15 +430,15 @@ obtenerEstadoFormulario(): boolean{
 
     return ticket;
   }
-  
+
   // Entrada: ninguna
   // Salida: Promesa<void> que indica que las operaciones asíncronas se completaron.
   // Descripción: Método para actualizar o registrar un nuevo reporte.
-  async accionGuardar(): Promise<void>{   
+  async accionGuardar(): Promise<void>{
     const coordenadas = await this.generarCoordenadas();
-    if(this.uploadedImg.length > 0){
-      this.imagenesApertura = await this.imagenSevice.llenarListaImagenApertura();
-    }    
+    if (this.uploadedImg.length > 0){
+        this.imagenesApertura = await this.imagenSevice.llenarListaImagenApertura();
+    }
 
     if (this.accion !== 'nuevo'){
         this.modificarDatosReporte(coordenadas);
@@ -485,7 +457,7 @@ obtenerEstadoFormulario(): boolean{
           }, (error: HttpErrorResponse) => {
             alert('¡Lo sentimos! El registro no pudo ser completado. Verifique que los datos sean correctos');
             console.warn('Error al registrar nuevo reporte:' + error.message);
-            
+
           });
       }
   }
@@ -495,7 +467,7 @@ obtenerEstadoFormulario(): boolean{
   // Descripción: Método que se llama cuando se le da click en guardar en el formulario.
 guardar(): void {
   // event.preventDefault();
-  if (this.form.valid){ 
+  if (this.form.valid){
     this.accionGuardar();
   } else{
     this.form.markAllAsTouched();
