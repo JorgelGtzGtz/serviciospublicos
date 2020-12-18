@@ -128,7 +128,34 @@ namespace ServiciosPublicos.Api.Controllers
 
         //Obtener una lista de cuadrillas existentes
         [HttpGet]
-        [Route("GetCuadrillaList")]        
+        [Route("GetCuadrillasConJefe")]        
+        public async Task<HttpResponseMessage> GetCuadrillaListConJefe(HttpRequestMessage request)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var cuadrillasLista = _cuadrillServicio.GetCuadrillaList();
+                    response = request.CreateResponse(HttpStatusCode.OK, cuadrillasLista);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Obtener una lista de cuadrillas existentes
+        [HttpGet]
+        [Route("GetCuadrillaList")]
         public async Task<HttpResponseMessage> GetCuadrillaList(HttpRequestMessage request)
         {
             return await CreateHttpResponseAsync(request, async () =>

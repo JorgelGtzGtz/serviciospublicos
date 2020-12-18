@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Cuadrilla } from '../Interfaces/ICuadrilla';
 import { CuadrillaM } from '../Models/CuadrillaM';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +25,11 @@ export class CuadrillaService {
     return this.http.get<Cuadrilla>(this.url + '/GetCuadrilla/' + idCuadrilla);
   }
 
-  obtenerCuadrillas(){
-    return this.http.get(this.url + '/GetCuadrillaList');
+  obtenerCuadrillasConJefe(){
+    return this.http.get(this.url + '/GetCuadrillasConJefe');
+  }
+  obtenerCuadrillasGeneral(): Observable<Cuadrilla[]>{
+    return this.http.get<Cuadrilla[]>(this.url + '/GetCuadrillaList');
   }
 
   obtenerCuadrillasFiltro(textoB?: string, estado?: string){

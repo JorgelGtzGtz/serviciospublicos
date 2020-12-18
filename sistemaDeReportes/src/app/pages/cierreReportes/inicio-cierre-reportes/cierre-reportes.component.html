@@ -1,5 +1,10 @@
 <div class="container-fluid">
-    <div class="card">
+    <div *ngIf="!datosCargados()" class="card justify-content-center">
+        <div class="spinner-border d-flex align-self-center m-5" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="datosCargados()" class="card">
         <div class="content-header">
             <form>
                 <div class="input-group mb-3 row">
@@ -8,10 +13,10 @@
                             <label class="lblCuadrilla col-md-auto col-form-label" for="cuadrillaSelector">Cuadrilla</label>
                             <div class="col-md-6 col-12">
                                 <select class="custom-select" id="cuadrillaSelector" [formControl]="cuadrillaForm">
-                                    <option selected>Todos</option>
-                                    <option value="1">Activo</option>
-                                    <option value="2">Inactivo</option>
-                                    <option value="3">Todos</option>
+                                    <option>Todos</option>
+                                    <option  *ngFor="let cuadrilla of listaCuadrillas" [ngValue]="cuadrilla.ID_cuadrilla">
+                                        {{ cuadrilla.Nombre_cuadrilla }}
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -35,11 +40,13 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let registro of datosTabla">
-                            <td *ngFor="let campo of registro">{{campo}}</td>
+                        <tr *ngFor="let reporte of listaReportes">
+                            <td>{{ reporte.ID_reporte }}</td>
+                            <td>{{ reporte.sectorDescripcion }}</td>
+                            <td>{{ reporte.Direccion_reporte }}</td>
                             <td>
                                 <div class="botones-wrapper">
-                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="seleccionarReporte('seleccionar', registro )">
+                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="seleccionarReporte(reporte )">
                                         Seleccionar
                                     </button>
                                 </div>

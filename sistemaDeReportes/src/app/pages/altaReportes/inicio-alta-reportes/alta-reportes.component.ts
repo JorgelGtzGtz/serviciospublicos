@@ -19,13 +19,13 @@ export class AltaReportesComponent implements OnInit {
   nombreSeccion = 'Alta de reportes';
   headersTabla: string [];
   listaReportes: any = [];
-  listaSectores: Sector[] = [];
   listaCuadrillas: any = [];
   listaTiposR: any = [];
+  listaSectores: Sector[] = [];
   ReportesCargados: boolean;
   sectoresCargados: boolean;
-  cuadrillasCargadas: boolean;
   tiposCargados: boolean;
+  cuadrillasCargadas: boolean;
 
   constructor(public dialog: MatDialog, private formBuilder: FormBuilder,
               private reporteService: ReporteService,
@@ -133,7 +133,7 @@ export class AltaReportesComponent implements OnInit {
     }, error => {
       console.log('No fue posible obtener los sectores existentes. ' + error );
     });
-    this.cuadrillaService.obtenerCuadrillas().subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasConJefe().subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
       this.cuadrillasCargadas = true;
     }, error => {

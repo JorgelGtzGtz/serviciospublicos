@@ -54,8 +54,8 @@ namespace ServiciosPublicos.Api.Controllers
 
         //Para obtener un listado de todos los reportes filtrando por cuadrilla
         [HttpGet]
-        [Route("GetReportesCuadrillas/{id}")]
-        public async Task<HttpResponseMessage> GetReportesCuadrilla(HttpRequestMessage request, int id)
+        [Route("GetReportesCuadrillasFiltro")]
+        public async Task<HttpResponseMessage> GetReportesCuadrilla(HttpRequestMessage request, string idCuadrilla=null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -63,7 +63,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var listaReportes = _reporteServicio.GetReporteCuadrilla(id);
+                    var listaReportes = _reporteServicio.GetReporteFiltroCuadrilla(idCuadrilla);
                     response = request.CreateResponse(HttpStatusCode.OK, listaReportes);
                 }
                 catch (Exception ex)

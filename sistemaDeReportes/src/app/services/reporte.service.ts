@@ -37,7 +37,7 @@ export class ReporteService {
   // Descripción: petición tipo GET para obtener registros de reporte que coincidad
   // con los filtros que se envían como parámetros.
   buscarReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
-                 origen: string, fecha: string, fechaAl: string): Observable<object>{
+                 origen: string, fecha: string, fechaAl: string): Observable<object[]>{
     if (tipoR === undefined || tipoR === 'Todos'){
       tipoR = '';
    }
@@ -67,15 +67,20 @@ export class ReporteService {
     params = params.append('origen', origen);
     params = params.append('fechaIni', fecha);
     params = params.append('fechaF', fechaAl);
-    return this.http.get(this.url + '/ListaBusqueda', {params});
+    return this.http.get<object[]>(this.url + '/ListaBusqueda', {params});
   }
 
-  // Entrada: ID del reporte de tipo number.
+  // Entrada: ID de cuadrilla de tipo string.
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición de tipo GET para obtener los reportes que pertenecen a una determinada
   // cuadrilla.
-  obtenerReportesCuadrilla(idReporte: number): Observable<object>{
-    return this.http.get(this.url + '/GetReportesCuadrillas/' + idReporte);
+  obtenerReportesCuadrilla(idCuadrilla: string): Observable<object[]>{
+    if (idCuadrilla === 'Todos' || idCuadrilla === undefined){
+        idCuadrilla = '';
+    }
+    let params = new HttpParams();
+    params = params.append('idCuadrilla', idCuadrilla);
+    return this.http.get<object[]>(this.url + '/GetReportesCuadrillasFiltro', {params});
   }
 
   // Entrada: ID del reporte de tipo number y el tipo de imagen (1: apertura, 2: cierre).
@@ -93,8 +98,8 @@ export class ReporteService {
   // Descripción: petición de tipo POST para guardar las imágenes que pertenecen a un reporte.
   insertarImgReporte(reporte: Reporte, imagenes: Imagen[]): Observable<object>{
     return this.http.post(this.url + '/InsertarImagenesReporte', {
-      body: {'reporte': reporte, 'imagenes': imagenes}
-    });
+      'reporte': reporte, 'imagenes': imagenes
+      });
   }
 
   // Entrada: Objeto de tipo object
@@ -126,17 +131,24 @@ export class ReporteService {
     return calles;
   }
 
-  // Entrada: valor fecha de tipo string con formato 2020-11-21T00:00:00.
-  // Salida: valor tipo string con formato 2020-11-21
-  // Descripción: Separa los datos para obtener solo la parte de la fecha.
-  formatoFechaMostrar(fechaDateTime: string): string{
+  // Entrada: valor DateTime de tipo string con formato 2020-11-21T00:00:00.
+  // Salida: lista tipo string con fecha (2020-11-21) y hora (00:00:00) separados
+  // Descripción: Separa los datos de fecha y hora
+  separarFechaHora(fechaDateTime: string): string[]{
     // 2020-11-21T00:00:00
-    let fechaConFormato = '';
+    let fechaHora: string[] = [];
     if (fechaDateTime !== null){
-        const auxArray: string[] = fechaDateTime.split('T');
-        fechaConFormato = auxArray[0];
+      fechaHora = fechaDateTime.split('T');
     }
-    return fechaConFormato;
+    return fechaHora;
+  }
+
+  // Entrada: valor fecha tipo string y valor hora tipo string.
+  // Salida: valor tipo string con fecha y hora (2020-11-21 00:00:00).
+  // Descripción: junta los datos de fecha y hora.
+  juntarFechaHora(fecha: string, hora: string): string{
+    const fechaHora: string[] = [fecha, hora];
+    return fechaHora.join(' ');
   }
 
 }

@@ -12,7 +12,7 @@ namespace ServiciosPublicos.Core.Repository
     public interface ICuadrillaRepository : IRepositoryBase<Cuadrilla>
     {
         Cuadrilla GetCuadrilla(int id);
-        List<dynamic> GetCuadrillaList();
+        List<dynamic> GetCuadrillasConJefeQuery();
         List<dynamic> FiltroDinamicoCuadrillas(string textoB, string estado);
         int ObtenerUltimoID();
     }
@@ -31,8 +31,9 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.SingleOrDefault<Cuadrilla>(query); 
         }
 
+
         //Obtener todas las cuadrillas registradas y se muestra el nombre del jefe de cuadrilla
-        public List<dynamic> GetCuadrillaList()
+        public List<dynamic> GetCuadrillasConJefeQuery()
         {
             Sql query = new Sql(@"select cuadrilla.*, usuario.Nombre_usuario as jefe
                                 from  [hiram74_residencias].[Cuadrilla] cuadrilla

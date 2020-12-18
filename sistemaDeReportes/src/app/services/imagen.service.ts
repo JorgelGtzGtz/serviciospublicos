@@ -138,7 +138,7 @@ export class ImagenService {
   // Salida: promesa de tipo lista de tipo ImagenM, con los objetos ImagenM creados
   // Descripción: método para guardar las imágenes en la API y generar su path a 
   // partir de los archivos seleccionados en el input tipo file.
-  async llenarListaImagenApertura(): Promise<ImagenM[]>{
+  async llenarListaImagen(tipo: number): Promise<ImagenM[]>{
     const photosList = this.photosList;
     const listaImagenObjeto: ImagenM [] = [];
 
@@ -146,7 +146,7 @@ export class ImagenService {
           const formData: FormData = this.generarFormData(photosList[i], i.toString());
           const path = await this.generarPathImagen(formData);
           const pathPhoto: string = path.toString();
-          const imagen = this.generarObjImagen(pathPhoto, 1, 0, 0);
+          const imagen = this.generarObjImagen(pathPhoto, tipo, 0, 0);
           listaImagenObjeto.push(imagen);
     }
     return listaImagenObjeto;

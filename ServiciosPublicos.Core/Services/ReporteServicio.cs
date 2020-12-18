@@ -13,7 +13,7 @@ namespace ServiciosPublicos.Core.Services
         bool AltaReporte(Ticket ticket, List<Imagen> imagenes, out string Message);
         bool ActualizarReporte(Reporte reporte, out string Message);
         List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
-        List<dynamic> GetReporteCuadrilla(int idCuadrilla);
+        List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla);
         List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
         int ObtenerIDRegistro();
@@ -34,16 +34,28 @@ namespace ServiciosPublicos.Core.Services
             _ticketRepository = ticketRepository;
         }
 
+        // Entrada: valores de tipo string que funcionan como filtros para la búsqueda de registros.
+        // Salida: lista de tipo dynamic con los registros de reportes.
+        // Descripción: Método para ejecutar el query que realiza una búsqueda dinámica de reportes
+        // de acuerdo a los diversos filtros que se indican.
         public List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
         {           
             return this._reporteRepository.GetReportesFiltroDinamico(tipoR,cuadrilla,estado,sector,origen,fechaIni,fechaF);
         }
 
-        public List<dynamic> GetReporteCuadrilla(int idCuadrilla)
+        // Entrada: id de cuadrilla de tipo string
+        // Salida: lista de tipo dynamic con los registros de reportes.
+        // Descripción: Método para ejecutar el query que realiza una búsqueda dinámica de reportes
+        // tomando como filtro las cuadrillas.
+        public List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla)
         {
-            return _reporteRepository.GetReporteCuadrilla(idCuadrilla);
+            return _reporteRepository.GetReporteFiltroCuadrilla(idCuadrilla);
         }
 
+        // Entrada: Ninguna
+        // Salida: ID de reporte de tipo Int
+        // Descripción: Método que llama a ejecutar el query para obtener el último ID
+        // de reporte registrado, y le suma 1.
         public int ObtenerIDRegistro()
         {
             return _reporteRepository.ObtenerUltimoID() + 1;
@@ -128,16 +140,6 @@ namespace ServiciosPublicos.Core.Services
             ticket.Estatus_ticket = reporte.Estatus_reporte;
             ticket.ID_cuadrilla = reporte.ID_cuadrilla;
             ticket.TiempoEstimado_ticket = reporte.TiempoEstimado_reporte;
-            // ticket.ID_tipoReporte = reporte.ID_tipoReporte;
-            // ticket.Latitud_ticket = reporte.Latitud_reporte;
-            // ticket.Longitud_ticket = reporte.Longitud_reporte;
-            // ticket.ID_sector = reporte.ID_sector;           
-            // ticket.Direccion_ticket = reporte.Direccion_reporte;
-            // ticket.EntreCalles_ticket = reporte.EntreCalles_reporte;
-            // ticket.Referencia_ticket = reporte.Referencia_reporte;
-            // ticket.Colonia_ticket = reporte.Colonia_reporte;
-            // ticket.Poblacion_ticket = reporte.Poblado_reporte;
-            // ticket.Observaciones_ticket = reporte.Observaciones_reporte;
             return ticket;
         }
 

@@ -16,7 +16,8 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarCuadrilla(int id, out string Message);
         int ObtenerIDRegistro();
         Cuadrilla GetCuadrilla(int id);
-        List<dynamic> GetCuadrillaList();
+        List<Cuadrilla> GetCuadrillaList();
+        List<dynamic> GetCuadrillasConJefe();
         List<dynamic> FiltroCuadrillas(string textoB, string estado);
         void ModificarUsuarioJefe(int idUsuario, bool asignacion);
     }
@@ -43,10 +44,17 @@ namespace ServiciosPublicos.Core.Services
             return valor;
         }
 
-        //Obtener lista de cuadrillas
-        public List<dynamic> GetCuadrillaList()
+        // obtener lista de cuadrillas general
+        public List<Cuadrilla> GetCuadrillaList()
         {
-            return _cuadrillaRepository.GetCuadrillaList();
+            return _cuadrillaRepository.GetAll("Cuadrilla").ToList();
+        }
+
+
+        //Obtener lista de cuadrillas con el nombre del jefe de cuadrilla
+        public List<dynamic> GetCuadrillasConJefe()
+        {
+            return _cuadrillaRepository.GetCuadrillasConJefeQuery();
         }
 
         public List<dynamic> FiltroCuadrillas(string textoB, string estado)

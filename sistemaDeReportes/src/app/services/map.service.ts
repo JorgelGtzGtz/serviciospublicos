@@ -47,7 +47,7 @@ export class MapService {
 
   generarDireccionCompleta(direccion: string, colonia: string): string{
     let direccionCompleta: string = '';
-    direccionCompleta += direccion + ' ' + colonia + ' ' + this.ciudad + ' ' + this.estado     
+    direccionCompleta += direccion + ' ' + colonia + ' ' + this.ciudad + ' ' + this.estado;
     return direccionCompleta;
   }
   // getLatLng(direccion: string) {

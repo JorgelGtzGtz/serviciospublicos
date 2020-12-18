@@ -49,7 +49,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
               private reporteSevice: ReporteService,
               private usuarioService: UsuarioService,
               private mapService: MapService,
-              private imagenSevice: ImagenService,
+              private imagenService: ImagenService,
               private formBuilder: FormBuilder,
               private renderer: Renderer2 ) {
       dialogRef.disableClose = true;
@@ -116,8 +116,8 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
         this.obtenerObjetoReporte();
         this.cargarImagenesReporte();
         const calles: string [] = this.reporteSevice.separarEntreCalles(this.reporte.EntreCalles_reporte);
-        const fechaApertura: string = this.reporteSevice.formatoFechaMostrar(this.reporte.FechaRegistro_reporte);
-        const fechaCierre: string = this.reporteSevice.formatoFechaMostrar(this.reporte.FechaCierre_reporte);
+        const fechaApertura: string = this.reporteSevice.separarFechaHora(this.reporte.FechaRegistro_reporte)[0];
+        const fechaCierre: string = this.reporteSevice.separarFechaHora(this.reporte.FechaCierre_reporte)[0];
         this.estadoReporte = this.reporte.Estatus_reporte;
         this.campoId.setValue(this.reporte.ID_reporte);
         this.campoSector.setValue(this.reporte.ID_sector);
@@ -187,7 +187,7 @@ cargarImagenesReporte(): void{
   // Imagenes de apertura
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 1)
   .subscribe( (imgApertura: Imagen[]) => {
-    this.pathImgApertura = this.imagenSevice.llenarListaPathImagenes(imgApertura);
+    this.pathImgApertura = this.imagenService.llenarListaPathImagenes(imgApertura);
     this.inicializarContenedorImagenes();
     console.log('SE CARGAN 2');
   }, (error: HttpErrorResponse) => {
@@ -197,7 +197,7 @@ cargarImagenesReporte(): void{
   // imágenes de cierre
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 2)
   .subscribe( (imgCierre: Imagen[]) => {
-    this.pathImgCierre = this.imagenSevice.llenarListaPathImagenes(imgCierre);
+    this.pathImgCierre = this.imagenService.llenarListaPathImagenes(imgCierre);
     this.inicializarContenedorImagenes();
   }, (error: HttpErrorResponse) => {
     console.log('Error al obtener imágenes de cierre. ' + error);
@@ -303,7 +303,7 @@ obtenerEstadoFormulario(): boolean{
         this.campoId.disable();
     }
 
-    if(this.estadoReporte === 4){
+    if (this.estadoReporte === 4){
       this.form.disable();
     }
   }
@@ -353,8 +353,8 @@ obtenerEstadoFormulario(): boolean{
   // Muestra en pantalla las imagenes seleccionadas.
    obtenerImagenesSubidas(event): void{
     const photosList = event.target.files;
-    this.imagenSevice.setListaImagenesSel(photosList);
-    this.uploadedImg = this.imagenSevice.readThis(photosList);
+    this.imagenService.setListaImagenesSel(photosList);
+    this.uploadedImg = this.imagenService.readThis(photosList);
   }
 
   // Entrada: Ninguna
@@ -437,7 +437,7 @@ obtenerEstadoFormulario(): boolean{
   async accionGuardar(): Promise<void>{
     const coordenadas = await this.generarCoordenadas();
     if (this.uploadedImg.length > 0){
-        this.imagenesApertura = await this.imagenSevice.llenarListaImagenApertura();
+        this.imagenesApertura = await this.imagenService.llenarListaImagen(1);
     }
 
     if (this.accion !== 'nuevo'){

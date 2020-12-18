@@ -1,7 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import { MapService } from '../../services/map.service';
-import * as Mapboxgl from 'mapbox-gl';
+import { ReporteM } from '../../Models/ReporteM';
 
 @Component({
   selector: 'app-mapa-reportes',
@@ -9,28 +7,30 @@ import * as Mapboxgl from 'mapbox-gl';
   styleUrls: ['./mapa-reportes.component.css']
 })
 export class MapaReportesComponent implements OnInit {
-  @Input() datos: any;
-  datosReporte: any;
+  @Input() reporteDatos: ReporteM;
   lat: number;
   lng: number;
   zoom: number;
-  // mapa: Mapboxgl.Map;
+  disponibilidad: boolean;
 
 
-  constructor( private mapboxService: MapService) { }
+  constructor() { }
 
   ngOnInit(): void {
-    this.datosReporte = this.datos.reporte;
-    // this.mapboxService.iniciarMapa(this.datos.posicion);
-    this.lat = 40;
-    this.lng = -3;
-    this.zoom = 16;
+    this.inicializarLatLng();
   }
 
-  // crearMarcador(posicion: number[], mapa: Mapboxgl.Map): void{
-  //   const marker = new Mapboxgl.Marker()
-  //   .setLngLat(posicion)
-  //   .addTo(mapa);
-  // }
+  inicializarLatLng(): void{
+    const latAux = this.reporteDatos.Latitud_reporte;
+    const lngAux = this.reporteDatos.Longitud_reporte;
+    if (latAux !== null && lngAux !== null){
+      this.lat = this.reporteDatos.Latitud_reporte;
+      this.lng = this.reporteDatos.Longitud_reporte;
+      this.zoom = 17;
+      this.disponibilidad = true;
+    }else{
+      this.disponibilidad = false;
+    }
+  }
 
 }

@@ -127,7 +127,7 @@ namespace dbServiciosPublicos
 		[Column] public int ID_imagen { get; set; }
 		[Column] public string Path_imagen { get; set; }
 		[Column] public int ID_reporte { get; set; }
-		[Column] public int ID_ticket { get; set; }
+		[Column] public int? ID_ticket { get; set; }
 		[Column] public int Tipo_imagen { get; set; }
 	}
     
