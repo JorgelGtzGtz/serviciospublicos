@@ -9,4 +9,5 @@ export interface Usuario {
     Password_usuario: string;
     Estatus_usuario: boolean;
     Jefe_asignado: boolean;
+    Disponible: boolean;
 }

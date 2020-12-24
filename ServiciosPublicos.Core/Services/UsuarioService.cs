@@ -74,6 +74,7 @@ namespace ServiciosPublicos.Core.Services
             bool result = false;
             try
             {
+                usuario.Disponible = true;
                 _usuarioRepository.Add<int>(usuario);
 
                 Message = "Usuario " + usuario.Login_usuario + " registrado con exito";
@@ -117,8 +118,9 @@ namespace ServiciosPublicos.Core.Services
             try
             {
                 var usuario = _usuarioRepository.Get(id);
+                usuario.Disponible = false;
 
-                _usuarioRepository.Remove(usuario);
+                _usuarioRepository.Modify(usuario);
 
                 Message = "Usuario " + usuario.Login_usuario + " eliminado con exito";
                 result = true;
@@ -137,7 +139,7 @@ namespace ServiciosPublicos.Core.Services
             var result = 0;
             try
             {
-                result = this._usuarioRepository.ObtenerUltimoID() + 1;
+                result = this._usuarioRepository.GetUltimoID() + 1;
             }
             catch (Exception ex)
             {

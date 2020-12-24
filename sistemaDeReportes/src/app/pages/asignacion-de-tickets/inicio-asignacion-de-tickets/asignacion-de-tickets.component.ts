@@ -194,4 +194,17 @@ export class AsignacionDeTicketsComponent implements OnInit {
     console.log('click buscar asignacion de tickets a cuadrillas', this.form.value);
   }
 
+  // Entrada: ninguna.
+  // Salida: vacío.
+  // Descripción: Método que se llama con el botón limpiar búsqueda.
+  // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
+  limpiarBusqueda(): void{
+    this.campoSector.setValue('Todos');
+    this.campoEstado.setValue('Todos');
+    this.campoTipoReporte.setValue('Todos');
+    this.campoFechaInicio.setValue('');
+    this.campoFechaFinal.setValue('');
+    this.actualizarTabla();
+   }
+
 }

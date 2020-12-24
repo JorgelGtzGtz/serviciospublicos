@@ -25,21 +25,21 @@ namespace ServiciosPublicos.Core.Repository
         {
             string filter = " WHERE ";
             bool operacion = false;
-
+            filter += "Disponible = 1 ";
             if (!string.IsNullOrEmpty(textoB))
             {
-                filter += string.Format("ID_sector LIKE '%{0}%' OR " +
+                filter += string.Format(" AND ID_sector LIKE '%{0}%' OR " +
                                         "Descripcion_sector LIKE '%{0}%'", textoB);
                 operacion = true;
             }
 
             if (!string.IsNullOrEmpty(estado))
             {
-                filter += (operacion ? " AND " : "") + string.Format("Estatus_sector LIKE '%{0}%'", estado);
+                filter += string.Format(" AND Estatus_sector LIKE '%{0}%'", estado);
                 operacion = true;
             }
 
-            Sql query = new Sql(@"SELECT * FROM Sector" + (operacion ? filter : ""));
+            Sql query = new Sql(@"SELECT * FROM Sector" + filter);
             return this.Context.Fetch<dynamic>(query);
         }
 

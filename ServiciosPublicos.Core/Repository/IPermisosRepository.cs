@@ -14,6 +14,7 @@ namespace ServiciosPublicos.Core.Repository
     public interface IPermisosRepository : IRepositoryBase<Permiso>
     {
         List<Permiso> GetPermisosTipoUsuario(int idTipo);
+        Permiso GetPermisoTipoUsuario(int idTipo, int idProcesoPermiso);
     }
 
     public class PermisosRepository : RepositoryBase<Permiso>, IPermisosRepository
@@ -22,9 +23,10 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
-        //Recibe ya sea la descripcion del tipo de usuario o el id
-        //devuelve los permisos de ese tipo de usuario
-
+        // Entrada: Valor int del ID del tipo de usuario
+        // Salida: Lista de tipo Permiso.
+        // Descripción:Recibe ya sea la descripcion del tipo de usuario o el id
+        //y ejecuta el query para buscar los permisos de ese tipo de usuario
         public List<Permiso> GetPermisosTipoUsuario(int idTipo)
         {
             Sql query = new Sql()
@@ -34,31 +36,20 @@ namespace ServiciosPublicos.Core.Repository
             return permisosTipoUsuario;
         }
 
-
-        /*public List<dynamic> GetPermisosTipoUsuario(string tipoUsuario = null)
+        //Entrada: valor int del ID del tipo de usuario y valor int del ID del Permiso
+        //Salida: Valor de tipo Permiso o null
+        //Descripción: Ejecuta query para consultar si el permiso ya se encuentra relacionado con un tipo
+        // de usuario. Regresa el permiso encontrado o null.
+        public Permiso GetPermisoTipoUsuario(int idTipo, int idProcesoPermiso)
         {
-            string filter = " Where ";
-
-            if (!string.IsNullOrEmpty(tipoUsuario))
-            {
-                filter += string.Format("tipoUsuario.ID_tipoUsuario like '%{0}%' " +
-                    "OR tipoUsuario.Descripcion_tipoUsuario like '%{0}%'", tipoUsuario);
-
-            }
-
-            Sql query = new Sql(@"SELECT permisos.ID_permiso,permisos.ID_procesoPermisos, 
-                                proceso.Descripcion_ProcesoPermiso AS procesoPermiso 
-                                FROM [hiram74_residencias].[Permisos] permisos
-                                INNER JOIN [hiram74_residencias].[Procesos_Permisos] proceso
-                                ON proceso.ID_ProcesosPermiso = permisos.ID_procesoPermisos
-                                INNER JOIN [hiram74_residencias].[Tipo_usuario] tipoUsuario 
-                                ON tipoUsuario.ID_tipoUsuario = permisos.ID_tipoUsuario" + 
-                                (!string.IsNullOrEmpty(tipoUsuario) ? filter : ""));
-            
-            var permisosTipoUsuario = this.Context.Fetch<dynamic>(query);
-            return permisosTipoUsuario;
+            Sql query = new Sql()
+                    .Select("*").From("Permisos")
+                    .Where("ID_tipoUsuario = @0 and ID_procesoPermisos = @1", idTipo, idProcesoPermiso);
+            return this.Context.SingleOrDefault<Permiso>(query);
         }
-        */
+
+
+       
 
 
 

@@ -111,7 +111,7 @@ export class ImagenService {
       myReader.readAsDataURL(file[i]);
       myReader.onload = (event: any) => {
         urlImage.push( event.target.result);
-      }
+      };
     }
     return urlImage;
   }

@@ -82,22 +82,27 @@
 
                 </div>
                 <div class="row">
-                    <div class="col-lg-5 col-md-4 col-12">
+                    <div class="col-lg-3 col-md-6 col-12">
                         <div class="row input-group">
                             <label class="lblForm col-lg-auto col-md-12" for="fechaInicio">Fecha </label>
-                            <div class="col-lg-5 col-md-12">
+                            <div class="col-lg-8 col-md-12">
                                 <input type="date" class="form-control" id="fechaInicio" formControlName="fechaInicio">
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-md-4 col-12">
+                    <div class="col-lg-3 col-md-6 col-12">
                         <div class="row input-group">
                             <label class="lblForm col-lg-auto col-md-12" for="fechaFinal">al </label>
                             <div class="col-lg-9 col-md-12">
                                 <input type="date" class="form-control" id="fechaFinal" formControlName="fechaFinal">
                             </div>
                         </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-12">
+                        <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
+                                     Limpiar búsqueda
+                        </button>
                     </div>
                     <div class="col-lg-2 col-md-6 col-12">
                         <button id="btn-buscar" type="button" class="btn btn-primary btn-header" mat-raised-button color="primary" (click)="buscar()">

@@ -95,7 +95,9 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
     }
   }
 
-  // Devuelve true si el usuario interactuó con el formulario o false si no.
+  // Entrada: Ninguna
+  // Salida: valor boolean.
+  // Descripción: Método que devuelve true si el usuario interactuó con el formulario o false si no.
   obtenerEstadoFormulario(): boolean{
     return this.modificado;
   }
@@ -125,10 +127,10 @@ cargarImagenesReporte(): void{
   });
 }
 
-  // Este método, va a establecer las variables "mostrarImgApertura" y "mostrarImgCierre"
-  // como falso o verdadero, dependiendo si las listas "imagenesApertura" y "imagenesCierre"
-  // tienen contenido, con el fin de que en el HTML se muestre un mensaje o se
-  // muestren las imágenes
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método que verifica si las listas de imágenes contienen
+  // elementos para determinar si se muestran las imágenes o un mensaje para indicar que no hay.
   inicializarContenedorImagenes(): void{
     if (this.pathImgApertura.length !== 0){
       this.mostrarImgApertura = true;
@@ -179,9 +181,7 @@ cargarImagenesReporte(): void{
       this.imagenesCierre = await this.imagenService.llenarListaImagen(2);
       this.reporteSevice.insertarImgReporte(this.reporte, this.imagenesCierre).subscribe(res => {
         console.log('Imagenes de cierre:', this.imagenesCierre);
-        
         console.log(res);
-        
       }, (error: HttpErrorResponse) => {
         alert('Surgió un error al subir imágenes de cierre de reporte. Inténtelo más tarde o verifique las imágenes');
         console.log('Imágenes de cierre no pudieron ser procesadas.', error.message);

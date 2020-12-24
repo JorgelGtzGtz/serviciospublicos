@@ -48,9 +48,10 @@ namespace ServiciosPublicos.Core.Repository
             string filter = " WHERE ";
             bool operacion = false;
 
+            filter += "cuadrilla.Disponible = 1 ";
             if (!string.IsNullOrEmpty(textoB))
             {
-                filter += string.Format("cuadrilla.Nombre_cuadrilla LIKE '%{0}%' OR " +
+                filter += string.Format(" AND cuadrilla.Nombre_cuadrilla LIKE '%{0}%' OR " +
                                         "cuadrilla.ID_cuadrilla LIKE '%{0}%' OR " +
                                         "usuario.Nombre_usuario LIKE '%{0}%'", textoB);
                 operacion = true;
@@ -58,14 +59,14 @@ namespace ServiciosPublicos.Core.Repository
 
             if (! string.IsNullOrEmpty(estado))
             {
-                filter += (operacion ? " AND " : "") + string.Format("cuadrilla.Estatus_cuadrilla LIKE '%{0}%'", estado);
+                filter += string.Format(" AND cuadrilla.Estatus_cuadrilla LIKE '%{0}%'", estado);
                 operacion = true;
             }
 
             Sql query = new Sql(@"SELECT cuadrilla.*, usuario.Nombre_usuario AS jefe
                                 FROM [hiram74_residencias].[Cuadrilla] cuadrilla
                                 INNER JOIN [hiram74_residencias].[Usuario] usuario 
-                                ON usuario.ID_usuario = cuadrilla.ID_JefeCuadrilla " + (operacion ? filter: ""));
+                                ON usuario.ID_usuario = cuadrilla.ID_JefeCuadrilla " + filter);
             return this.Context.Fetch<dynamic>(query);
         }
 

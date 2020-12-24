@@ -145,4 +145,13 @@ export class CierreReportesComponent implements OnInit {
     this.actualizarTabla();
   }
 
+  // Entrada: ninguna.
+  // Salida: vacío.
+  // Descripción: Método que se llama con el botón limpiar búsqueda.
+  // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
+  limpiarBusqueda(): void{
+    this.cuadrillaForm.setValue('Todos');
+    this.actualizarTabla();
+   }
+
 }

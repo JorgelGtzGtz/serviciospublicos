@@ -234,4 +234,19 @@ export class AltaReportesComponent implements OnInit {
     this.actualizarTabla();
   }
 
+    // Entrada: ninguna.
+  // Salida: vacío.
+  // Descripción: Método que se llama con el botón limpiar búsqueda.
+  // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
+  limpiarBusqueda(): void{
+    this.campoSector.setValue('Todos');
+    this.campoCuadrilla.setValue('Todos');
+    this.campoOrigen.setValue('Todos');
+    this.campoEstado.setValue('Todos');
+    this.campoTipoReporte.setValue('Todos');
+    this.campoFechaInicial.setValue('');
+    this.campoFechaFinal.setValue('');
+    this.actualizarTabla();
+   }
+
 }

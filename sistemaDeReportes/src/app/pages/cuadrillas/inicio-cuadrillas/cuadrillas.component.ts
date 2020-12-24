@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoCuadrillasComponent } from '../dialog-ver-editar-nuevo-cuadrillas/dialog-ver-editar-nuevo-cuadrillas.component';
-import { FormControl } from '@angular/forms';
+import { FormControl, AbstractControl } from '@angular/forms';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -22,15 +22,17 @@ export class CuadrillasComponent implements OnInit {
 
   constructor(public dialog: MatDialog, private cuadrillaService: CuadrillaService) {
     this.formBuilder();
-    this.actualizarListaCuadrillas();
+    // this.actualizarTabla();
   }
 
   ngOnInit(): void {
     this.inicializarTabla();
   }
 
-  // Inicializa los controladores del formulario
-  formBuilder(){
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Inicializa los controladores del formulario
+  formBuilder(): void{
     this.busquedaForm = new FormControl('');
     this.estadoForm = new FormControl('Todos');
     this.busquedaForm.valueChanges.subscribe(value => {
@@ -41,33 +43,39 @@ export class CuadrillasComponent implements OnInit {
     });
   }
 
-  // Método para inicializar las variables que contienen los datos que se
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para inicializar las variables que contienen los datos que se
   //  mostrarán en la tabla
-  inicializarTabla(){
+  inicializarTabla(): void{
     this.headersTabla = ['Clave', 'Cuadrilla', 'Responsable', 'Procesos'];
+    this.actualizarTabla();
   }
 
-  actualizarListaCuadrillas(){
-    return this.cuadrillaService.obtenerCuadrillasFiltro(this.campoBusqueda.value, this.campoEstado.value).subscribe( cuadrillas => {
+  actualizarTabla(): void{
+    this.cuadrillaService.obtenerCuadrillasFiltro(this.campoBusqueda.value, this.campoEstado.value).subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
       this.cuadrillasListas = true;
       console.log('Cuadrillas lista:', cuadrillas);
     }, (error: HttpErrorResponse) => {
-      alert('Error al obtener lista de cuadrillas disponibles. Error:' + error.message);
+      alert('Surgió un problema al cargar datos de página. Vuelva a cargar o solicite asistencia.');
+      console.log('Error al obtener lista de cuadrillas disponibles. Error:' + error.message);
     });
   }
 
- // Métodos get para obtener acceso a los campos del formulario
- get campoBusqueda(){
+  // Entrada: Ninguna
+  // Salida: control de tipo AbstractControl.
+  // Descripción:Métodos get para obtener acceso a los campos del formulario
+ get campoBusqueda(): AbstractControl{
    return this.busquedaForm;
  }
- get campoEstado(){
+ get campoEstado(): AbstractControl{
    return this.estadoForm;
  }
 
-// Agregar clases a las columnas 'th' según el contenido
-  // que encabecen, para agregar estilos
-  // También se añade un estilo general.
+  // Entrada: Valor de tipo string con encabezado de tabla
+  // Salida: clase de tipo CSS.
+  // Descripción: Método para agregar clases de CSS a headers de la tabla.
   tamanoColumna( encabezado: string): any{
     return {
       'id-col': encabezado === 'ID',
@@ -76,7 +84,10 @@ export class CuadrillasComponent implements OnInit {
     };
   }
 
- // Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
+  // Entrada: Valor de tipo string con acción a ejecutar y cuadrilla sobre la cual
+  //          ejecutar acciones (parámetro opcional)
+  // Salida: vacío.
+  // Descripción: Método que abre el dialog. Recibe la acción (ver, nuevo, editar o seleccionar, según la sección),
   // además recibe el dato de tipo Reporte, con la información que se muestra en el formulario
   // También contiene el método que se ejecuta cuando el diálogo se cierra.
   abrirDialogVerEditarNuevo(accion: string, cuadrilla?: any): void{
@@ -87,50 +98,70 @@ export class CuadrillasComponent implements OnInit {
       data: {accion, cuadrilla}
     });
     DIALOG_REF.afterClosed().subscribe(result => {
-      this.actualizarListaCuadrillas();
+      this.actualizarTabla();
     });
   }
 
-  // Método que se llama al hacer click en botón nuevo. Este llama al método
-  // " openDialogVerEditarNuevo" y le envía un parámetro
-  // para indicar al dialog el tipo de actividad que se realizará
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método que se llama al hacer click en botón nuevo. Este llama al
+  // método "abrirDialogVerEditarNuevo".
   nuevaCuadrilla(): void{
     this.abrirDialogVerEditarNuevo('nuevo');
   }
 
-  // Método para editar una cuadrilla de la tabla
-  editarCuadrilla(cuadrilla: any){
+  // Entrada: Objeto con los datos de la cuadrilla.
+  // Salida: vacío.
+  // Descripción: Método para editar una cuadrilla de la tabla. Este llama al
+  // método "abrirDialogVerEditarNuevo".
+  editarCuadrilla(cuadrilla: any): void{
     this.abrirDialogVerEditarNuevo('editar', cuadrilla);
   }
 
-  // Método para ver una cuadrilla de la tabla
-  verCuadrilla(cuadrilla: any){
+  // Entrada: Objeto con los datos de la cuadrilla.
+  // Salida: vacío.
+  // Descripción: Método para ver una cuadrilla de la tabla. Este llama al
+  // método "abrirDialogVerEditarNuevo".
+  verCuadrilla(cuadrilla: any): void{
     this.abrirDialogVerEditarNuevo('ver', cuadrilla);
   }
- 
-  // Método para eliminar sector. Lanza un mensaje de confirmación, que según
+
+  // Entrada: Objeto con los datos de la cuadrilla.
+  // Salida: vacío.
+  // Descripción: Método para eliminar cuadrilla. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
   eliminarCuadrilla( cuadrilla: Cuadrilla): void{
-    let result = confirm('¿Seguro que desea eliminar la cuadrilla?');
+    const result = confirm('¿Seguro que desea eliminar la cuadrilla?');
     if (result) {
       this.cuadrillaService.eliminarCuadrilla(cuadrilla.ID_cuadrilla).subscribe( res => {
         alert('La cuadrilla se ha eliminado.');
-        this.actualizarListaCuadrillas();
+        this.actualizarTabla();
       }, (error: HttpErrorResponse) => {
-        alert('Existió un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla +
-              '.Error:' + error.message);
+        alert('Existió un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' intente de nuevo o solicite asistencia.');
+        console.log('Error al eliminar cuadrilla:' + error.message);
       });
-      console.log('Se elimina');
     }else{
       console.log('no se elimina');
     }
   }
 
-  // Método para buscar en la base de datos los registros que coincidan con los
+  // Entrada: ninguna.
+  // Salida: vacío.
+  // Descripción: Método para buscar en la base de datos los registros que coincidan con los
   // valores que se establescan en los campos
  buscar(): void{
-   this.actualizarListaCuadrillas();
+   this.actualizarTabla();
    console.log('Click en buscar desde cuadrillas', this.campoBusqueda.value, this.campoEstado.value);
  }
+
+  // Entrada: ninguna.
+  // Salida: vacío.
+  // Descripción: Método que se llama con el botón limpiar búsqueda.
+  // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
+  limpiarBusqueda(): void{
+    this.campoBusqueda.setValue('');
+    this.campoEstado.setValue('Todos');
+    this.actualizarTabla();
+   }
 
 }

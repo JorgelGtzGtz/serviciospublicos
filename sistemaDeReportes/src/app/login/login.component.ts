@@ -54,7 +54,7 @@ export class LoginComponent implements OnInit {
       this.usuarioServicio.almacenarUsuarioLog(usuario);
     },
     (err: HttpErrorResponse) => {
-      alert(err.message);
+      alert('Verifique que el usuario y contraseña sean correctos');
       console.log(err);
     });
   }

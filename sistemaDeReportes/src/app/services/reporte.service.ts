@@ -93,7 +93,7 @@ export class ReporteService {
     return this.http.get<Imagen[]>(this.url + '/GetImagenesReporte', {params});
   }
 
-  // Entrada: ID del reporte de tipo number, y lista de tipo Imagen.
+  // Entrada: objeto Reporte  y lista de tipo Imagen.
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición de tipo POST para guardar las imágenes que pertenecen a un reporte.
   insertarImgReporte(reporte: Reporte, imagenes: Imagen[]): Observable<object>{

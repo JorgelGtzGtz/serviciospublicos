@@ -25,7 +25,6 @@ export class InterceptorService implements HttpInterceptor {
       const reqClone = req.clone({
         headers
       });
-  
       return next.handle(reqClone).pipe(
         catchError(this.manejarError)
       );

@@ -15,9 +15,10 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetByDynamicFilter(Sql sql);
         Usuario GetUsuario(string usr, string password);
         Usuario GetUsuario(string usr);
+        List<Usuario> GetUsuariosPorTipo(int tipoUsuario);
         List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe);
         List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
-        int ObtenerUltimoID();
+        int GetUltimoID();
     }
 
     public class UsuarioRepository : RepositoryBase<Usuario>, IUsuarioRepository
@@ -70,9 +71,11 @@ namespace ServiciosPublicos.Core.Repository
             string filter = " WHERE ";
             bool operacion = false;
 
+
+            filter += "usuario.Disponible = 1 ";
             if (!string.IsNullOrEmpty(textoBusqueda))
             {
-                filter += string.Format("(usuario.Nombre_usuario like '%{0}%' or " +
+                filter += string.Format(" AND (usuario.Nombre_usuario like '%{0}%' or " +
                                         "usuario.Login_usuario like '%{0}%' or " +
                                         "usuario.ID_usuario like '%{0}%' or " +
                                         "tipoUsuario.Descripcion_tipoUsuario like '%{0}%')", textoBusqueda);
@@ -81,37 +84,44 @@ namespace ServiciosPublicos.Core.Repository
 
             if (!string.IsNullOrEmpty(estado))
             {
-                filter += (operacion ? " AND " : "") + string.Format("Estatus_usuario LIKE '%{0}%'", estado);
+                filter += string.Format(" AND Estatus_usuario LIKE '%{0}%'", estado);
                 operacion = true;
             }
 
             if (!string.IsNullOrEmpty(tipoU))
             {
-                filter += (operacion ? " AND " : "") + string.Format("usuario.ID_tipoUsuario LIKE '%{0}%'", tipoU);
+                filter += string.Format(" AND usuario.ID_tipoUsuario LIKE '%{0}%'", tipoU);
                 operacion = true;
             }
 
             if (!string.IsNullOrEmpty(repActivos))
             {
-                filter += (operacion ? " AND " : "") + string.Format("0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
-                                                                     "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
-                                                                     "AND ticket.Estatus_ticket LIKE '%{0}%')", repActivos);
+                filter += string.Format(" AND 0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
+                                         "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
+                                          "AND ticket.Estatus_ticket LIKE '%{0}%')", repActivos);
                 operacion = true;
             }
 
             Sql query = new Sql(@"SELECT usuario.*, tipoUsuario.Descripcion_tipoUsuario AS NombreTipo
                                 FROM [hiram74_residencias].[Usuario] usuario
                                 INNER JOIN [hiram74_residencias].[Tipo_usuario] tipoUsuario 
-                                ON tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario " + (operacion ? filter : ""));
+                                ON tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario " + filter);
             return this.Context.Fetch<dynamic>(query);
         }
 
-        public int ObtenerUltimoID()
+        public int GetUltimoID()
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Usuario')");
             return this.Context.SingleOrDefault<int>(query);
         }
 
 
+        public List<Usuario> GetUsuariosPorTipo(int tipoUsuario)
+        {
+            Sql query2 = new Sql()
+                .Select("*").From("Usuario")
+                .Where("ID_tipoUsuario = @0", tipoUsuario);
+            return this.Context.Fetch<Usuario>(query2);
+        }
     }
 }

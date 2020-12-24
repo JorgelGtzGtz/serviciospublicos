@@ -137,24 +137,12 @@ namespace ServiciosPublicos.Core.Services
             bool result = false;
             try
             {
-                Cuadrilla cuadrilla = _cuadrillaRepository.Get<int>(id);
-                //VERIFICAR QUE NO EXISTAN REGISTROS CON ESTA CUADRILLA EN TICKETS Y REPORTES
-                List<Ticket> tickets = _ticketRepository.ticketsPorCuadrilla(id);
-                List<Reporte> reportes = _reporteRepository.ReportesPorCuadrilla(id);                
-
-                //SI NO ESTA REFERENCIADA EN REPORTES NI TICKETS, SE ELIMINA
-                if (tickets.Count == 0 && reportes.Count == 0)
-                {
-                    ModificarUsuarioJefe(cuadrilla.ID_JefeCuadrilla, false);
-                    _cuadrillaRepository.Remove(cuadrilla);
-                    Message = "Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " eliminado con exito";
-                    result = true;
-                }
-                else
-                {
-                    Message = "Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " no puede ser eliminado porque " +
-                                "está asignada a reportes";
-                }
+                Cuadrilla cuadrilla = _cuadrillaRepository.Get<int>(id); 
+                ModificarUsuarioJefe(cuadrilla.ID_JefeCuadrilla, false);
+                cuadrilla.Disponible = false;
+                _cuadrillaRepository.Modify(cuadrilla);
+                Message = "Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " eliminado con exito";
+                result = true;
             }
             catch (Exception ex)
             {

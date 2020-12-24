@@ -2,12 +2,12 @@
 <hr>
 <div mat-dialog-content id="content-dialog">
     <div class="container-fluid">
-        <div *ngIf="jefesCuadrillaDisp.length === 0 && !idListo" class=" d-flex justify-content-center">
+        <div *ngIf="!datosCargados()" class=" d-flex justify-content-center">
             <div class="spinner-border align-self-center m-5" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <form [formGroup]="form" *ngIf="(jefesCuadrillaDisp.length > 0  && idListo) && accion === 'nuevo' || jefesCuadrillaDisp.length > 0 && accion !== 'nuevo' ">
+        <form [formGroup]="form" *ngIf="datosCargados()">
             <div class="row form-sections">
 
                 <div class="col-6" id="id-col">
@@ -46,9 +46,10 @@
                 <label class="lblForm col-form-label col-md-auto" for="encargadoSelector">Encargado</label>
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="encargadoSelector" formControlName="encargado">
-                        <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
+                        <option disabled hidden [ngValue]="0">Seleccionar</option>
+                        <option *ngIf="jefesCuadrillaDisp.length === 0"> No hay opciones disponibles</option>
                         <option *ngFor="let jefe of jefesCuadrillaDisp"
-                        [selected]="inicializarSelJefe(jefe)" >
+                        [ngValue] = jefe.ID_usuario >
                              {{ jefe.Nombre_usuario }}
                             </option>
                     </select>
@@ -64,8 +65,9 @@
                 <label class="lblForm col-form-label col-md-auto" for="tipoCuadrillaSelector">Tipo de cuadrilla</label>
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="tipoCuadrillaSelector" formControlName="tipoCuadrilla">
-                        <option disabled hidden [selected]="accion === 'nuevo'">Seleccionar</option>
-                        <option *ngFor = "let tipo of tipoCuadrilla" [selected]="inicializarSelTipo(tipo)">
+                        <option disabled hidden [ngValue]="0">Seleccionar</option>
+                        <option *ngIf="tipoCuadrilla.length === 0"> No hay opciones disponibles</option>
+                        <option *ngFor = "let tipo of tipoCuadrilla" [ngValue]="tipo">
                              {{ tipo }} 
                             </option>
                     </select>

@@ -100,27 +100,17 @@ namespace ServiciosPublicos.Core.Services
             Message = string.Empty;
             bool result = false;
             Sector sector = _SectorRepository.Get<int>(id);
-            //Verificar si se hace referencia al sector en un registro
-            // de ticket (por ende, estará en reportes)
-            var ticket = _ticketReporsitory.GetSectoresTicket(id);
-            if (ticket.Count == 0)
-            {
                 try
                 {
-                    _SectorRepository.Remove(sector);
+                    sector.Disponible = false;
+                    _SectorRepository.Modify(sector);
                     Message = "Sector eliminado con exito";
                     result = true;
                 }
                 catch (Exception ex)
                 {
                     Message = "Sector no pudo ser eliminado" + ex.Message;
-                }
-            }
-            else
-            {
-                Message = "Sector no pudo ser eliminado porque se " +
-                            "hace referencia a este en registros";
-            }           
+                }           
             return result;
         }
 
