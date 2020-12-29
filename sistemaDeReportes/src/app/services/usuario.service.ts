@@ -109,9 +109,8 @@ export class UsuarioService {
   // Entrada: valor tipo number con el ID del usuario.
   // Salida: observable con el resultado de la petición http DELETE.
   // Descripción: Método para hacer una petición DELETE a la API, para eliminar el usuario.
-  eliminarUsuario(idUsuario: number): Observable<object>{
-    console.log('Recibe en eliminar usuario:', idUsuario);
-    return this.http.delete(this.url + '/Eliminar/' + idUsuario);
+  eliminarUsuario(usuario: Usuario): Observable<object>{
+    return this.http.put(this.url + '/EliminarUsuario', usuario);
   }
 
   // Entrada: objeto tipo Usuario

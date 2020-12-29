@@ -19,8 +19,11 @@ export class NavbarComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  // Se agregan y quitan las clases del body que son afectadas por la interaccion con el boton 
-  //  para esconder o mostrar el menu. Esto se hace ya que el template viene con un problema
+  // Entrada: Ninguna.
+  // Salida: Vacío.
+  // Descripción: Función en donde se agregan y quitan las clases del body que son afectadas
+  //  por la interaccion con el boton para esconder o mostrar el menu.
+  // Esto se hace ya que el template viene con un problema
   //  al momento de redireccionar desde un login, por ejemplo, al dashboard
   toggle(): void {
     const portalBody = $('#portalBody');

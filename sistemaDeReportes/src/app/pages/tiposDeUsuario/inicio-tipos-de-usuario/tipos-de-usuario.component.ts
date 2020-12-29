@@ -135,7 +135,7 @@ export class TiposDeUsuarioComponent implements OnInit {
     const result = confirm('¿Seguro que desea eliminar el tipo de usuario?');
     if (result) {
       console.log('A eliminar', tipoU);
-      this.tipoService.eliminarTipoUsuario(tipoU.ID_tipoUsuario).subscribe( res => {
+      this.tipoService.eliminarTipoUsuario(tipoU).subscribe( res => {
         console.log('El usuario se eliminó');
         this.actualizarTabla();
         alert('El tipo de usuario se ha eliminado.');

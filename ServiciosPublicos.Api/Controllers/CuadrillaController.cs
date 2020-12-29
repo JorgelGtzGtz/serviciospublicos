@@ -137,7 +137,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var cuadrillasLista = _cuadrillServicio.GetCuadrillaList();
+                    var cuadrillasLista = _cuadrillServicio.GetCuadrillasConJefe();
                     response = request.CreateResponse(HttpStatusCode.OK, cuadrillasLista);
                 }
                 catch (Exception ex)
@@ -232,9 +232,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        [HttpDelete]
-        [Route("Eliminar/{id}")]
-        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)
+        [HttpPut]
+        [Route("EliminarCuadrilla")]
+        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, Cuadrilla model)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -242,7 +242,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var result = _cuadrillServicio.EliminarCuadrilla(id, out message);
+                    var result = _cuadrillServicio.EliminarCuadrilla(model, out message);
                     if (result)
                     {
                         response = request.CreateResponse(HttpStatusCode.OK,message);

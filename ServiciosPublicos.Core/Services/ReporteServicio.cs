@@ -61,9 +61,9 @@ namespace ServiciosPublicos.Core.Services
             return _reporteRepository.ObtenerUltimoID() + 1;
         }
 
-
-        //Recibe el ticket y las imagenes
-        // Primero verifica si el reporte existe. Si existe, solo actualiza el campo para conteo de tickets.
+        // Entrada: objeto de tipo Ticket, lista de tipo Imagen y mensaje de tipo String.
+        // Salida: valor booleano.
+        // Descripción: Primero verifica si el reporte existe. Si existe, solo actualiza el campo para conteo de tickets.
         //Si no existe crea un nuevo reporte. En ambos casos regresa el ID
         //Despues inserta la relacion reporte-ticket
         // Por ultimo, registra las imagenes con los id de reporte y ticket
@@ -92,7 +92,7 @@ namespace ServiciosPublicos.Core.Services
                 {
                     foreach (var imagen in imagenes)
                     {
-                        _imagenRepository.InsertarImagen(ticket.ID_ticket, idReporte, imagen);
+                        _imagenRepository.InsertarImagen( idReporte, imagen, ticket.ID_ticket);
                     }
                 }
                 result = true;
@@ -103,9 +103,12 @@ namespace ServiciosPublicos.Core.Services
                 Message = "Registro de reporte fallido" + ex.Message;
             }
             return result;
-        }       
+        }
 
-        //Actualizar reporte pasando elemento reporte
+        // Entrada: Objeto de tipo Reporte y mensaje de tipo string
+        // Salida: valor booleano.
+        // Descripción: Actualiza el reporte pasado como argumento y los tickets relacionados
+        // con este reporte.
         public bool ActualizarReporte(Reporte reporte, out string Message)
         {
 
@@ -133,7 +136,9 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        //Se actualizan los datos del reporte en el ticket
+        // Entrada: objeto Ticket y objeto Reporte
+        // Salida: objeto Ticket.
+        // Descripción: Se actualizan los datos del ticket con los nuevos datos del reporte
         public Ticket ModificacionesTicket(Ticket ticket, Reporte reporte)
         {
             ticket.FechaCierre_ticket = reporte.FechaCierre_reporte;
@@ -143,7 +148,10 @@ namespace ServiciosPublicos.Core.Services
             return ticket;
         }
 
-        //Obtiene todas las imagenes de los reportes
+        // Entrada: string con ID de reporte y string con indicador del tipo de imagen.
+        // Salida: Lista de Imagenes.
+        // Descripción: Llama al método del reporsitorio de imagen para consultar las imágenes que coincidan
+        // con el ID del reporte y el tipo de imagen.
         public List<Imagen> GetImagenesReporte(string idReporte,string tipoImagen, out string Message)
         {
             Message = string.Empty;
@@ -161,7 +169,10 @@ namespace ServiciosPublicos.Core.Services
             return listaImagenes;
         }
 
-        //Insertar imagenes de reporte para cierre. Recibe el reporte y la lista de imagenes
+        // Entrada: ID del reporte de tipo INT, lista de tipo Imagen y mensaje de tipo String
+        // Salida: valor booleano.
+        // Descripción: Llama al método del reporsitorio de imagen
+        // para insertar nuevas imágenes en la base de datos.
         public bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message)
         {
             Message = string.Empty;
@@ -170,7 +181,7 @@ namespace ServiciosPublicos.Core.Services
             {
                 foreach (var imagen in imagenes )
                 {
-                    _imagenRepository.InsertarImagenCierre(idReporte, imagen);
+                    _imagenRepository.InsertarImagen(idReporte, imagen);
                     result = true;
                 }                
                 Message = "Imágenes de cierre se agregaron exitosamente";
@@ -182,27 +193,6 @@ namespace ServiciosPublicos.Core.Services
             return result;            
         }
 
-        //Insertar reporte pasando un elemento Reporte
-        /* public bool InsertarReporte(Reporte reporte, out string Message)
-         {
-             Message = string.Empty;
-             bool result = false;
-             try
-             {
-                 _reporteRepository.Add<int>(reporte);
-
-                 Message = "Reporte registrado con exito";
-                 result = true;
-             }
-             catch (Exception ex)
-             {
-
-                 Message = "Reporte No pudo ser registrado Error: " + ex.Message;
-             }
-
-             return result;
-         }
-        */
 
     }
 }

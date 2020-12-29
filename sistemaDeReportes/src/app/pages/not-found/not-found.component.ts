@@ -30,8 +30,6 @@ export class NotFoundComponent implements OnInit {
   // Salida: Vacío.
   // Decsripción: Función para redireccionar a inicio.
   redireccionarInicio(): void{
-    console.log('NAVEGA INICIO');
-    
     this.router.navigate(['../inicio']);
   }
 
@@ -39,7 +37,6 @@ export class NotFoundComponent implements OnInit {
   // Salida: Vacío.
   // Decsripción: Función para redireccionar a Login.
   redireccionarLogin(): void{
-    console.log('NAVEGA LOGIN');
     this.router.navigate(['../login']);
   }
 }

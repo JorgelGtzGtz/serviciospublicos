@@ -20,9 +20,11 @@ namespace ServiciosPublicos.Core.Repository
     {
         public CuadrillaRepository(IDbFactory dbFactory) : base(dbFactory)
         {
-        }      
-        
-        //Obtener cuadrilla por ID
+        }
+
+        // Entrada: valor INT de ID de cuadrilla.
+        // Salida: Objeto de tipo Cuadrilla.
+        // Descripción:Query para obtener cuadrilla por ID
         public Cuadrilla GetCuadrilla(int id)
         {
             Sql query = new Sql()
@@ -31,8 +33,9 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.SingleOrDefault<Cuadrilla>(query); 
         }
 
-
-        //Obtener todas las cuadrillas registradas y se muestra el nombre del jefe de cuadrilla
+        // Entrada: Ninguna.
+        // Salida: lista de tipo dynamic con los registros de cuadrillas.
+        // Descripción:Query para obtener todas las cuadrillas registradas con el nombre del jefe de cuadrilla
         public List<dynamic> GetCuadrillasConJefeQuery()
         {
             Sql query = new Sql(@"select cuadrilla.*, usuario.Nombre_usuario as jefe
@@ -42,7 +45,9 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<dynamic>(query);
         }
 
-        // Búsqueda de cuadrillas, de acuerdo a determinados filtros
+        // Entrada: valor string para texto de búsqueda y valor string para estado de cuadrilla.
+        // Salida: lista de tipo dynamic con los registros de cuadrillas.
+        // Descripción:Query para búsqueda de cuadrillas con sus respectivos jefes, de acuerdo a determinados filtros
         public List<dynamic> FiltroDinamicoCuadrillas(string textoB, string estado)
         {
             string filter = " WHERE ";
@@ -70,6 +75,9 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<dynamic>(query);
         }
 
+        // Entrada: Ninguna.
+        // Salida: valor INT.
+        // Descripción: Query para obtener último ID registrado en tabla de la base de datos.
         public int ObtenerUltimoID()
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Cuadrilla')");

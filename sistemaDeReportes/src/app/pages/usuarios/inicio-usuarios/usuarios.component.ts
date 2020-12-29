@@ -164,7 +164,7 @@ export class UsuariosComponent implements OnInit {
  eliminarUsuario(usuario: any): void{
   const result = confirm('¿Seguro que desea eliminar el usuario?');
   if (result) {
-    this.usuarioService.eliminarUsuario(usuario.ID_usuario).subscribe(res => {
+    this.usuarioService.eliminarUsuario(usuario).subscribe(res => {
       alert(res);
       this.actualizarTabla();
     }, (error: HttpErrorResponse) => {

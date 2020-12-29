@@ -11,7 +11,7 @@ namespace ServiciosPublicos.Core.Repository
 {
     public interface ISectorRepository : IRepositoryBase<Sector>
     {
-        List<dynamic> filtroDinamicoSector(string textoB, string estado);
+        List<Sector> filtroDinamicoSector(string textoB, string estado);
         List<Sector> GetSectoresList();
         int ObtenerUltimoID();
     }
@@ -21,8 +21,10 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
-        // Búsqueda de sectores, de acuerdo a determinados filtros.
-        public List<dynamic> filtroDinamicoSector(string textoB, string estado)
+        // Entrada: string con texto de búsqueda y string con estado de sector.
+        // Salida: Lista de tipo Sector.
+        // Descripción: query para búsqueda de sectores, de acuerdo a determinados filtros.
+        public List<Sector> filtroDinamicoSector(string textoB, string estado)
         {
             string filter = " WHERE ";
             bool operacion = false;
@@ -41,9 +43,12 @@ namespace ServiciosPublicos.Core.Repository
             }
 
             Sql query = new Sql(@"SELECT * FROM Sector" + filter);
-            return this.Context.Fetch<dynamic>(query);
+            return this.Context.Fetch<Sector>(query);
         }
 
+        // Entrada: Ninguna.
+        // Salida: Lista de tipo Sector.
+        // Descripción: Query para obtener los registros de tabla sector que no han sido eliminados (eliminación lógica)
         public List<Sector> GetSectoresList()
         {
             Sql query = new Sql()
@@ -53,6 +58,9 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<Sector>(query);
         }
 
+        // Entrada: Ninguna
+        // Salida: Ultimo ID registrado en base de datos de tipo INT.
+        // Descripción: Obtiene el ID del último registro de la tabla Sector en la base de datos.
         public int ObtenerUltimoID()
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Sector')");

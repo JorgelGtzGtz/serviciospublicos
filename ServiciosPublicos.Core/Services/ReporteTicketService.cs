@@ -25,7 +25,9 @@ namespace ServiciosPublicos.Core.Services
             _reporteTicketRepository = reporteTicketRepository;
         }
 
-        //Insertar nuevo registro de relacion reporte-ticket
+        // Entrada: objeto de tipo Reporte_Ticket y mensaje de tipo string
+        // Salida: valor boolean
+        // Descripción:Insertar nuevo registro de relacion reporte-ticket en base de datos.
         public bool Insertar(Reporte_Ticket reporteTicket, out string Message)
         {
             bool result = false;
@@ -45,18 +47,30 @@ namespace ServiciosPublicos.Core.Services
 
         }
 
+        // Entrada: ID de reporte de tipo INT
+        // Salida: lista de tipo Reporte_Ticket
+        // Descripción: Llama al método del reporsitorio de Reporte_Ticket para obtener los registros 
+        // relacionados al ID de reporte.
         public List<Reporte_Ticket> GetReporteTickets(int idReporte)
         {
            var reporteTickets = _reporteTicketRepository.GetReporteTickets(idReporte);
             return reporteTickets;
         }
 
+        // Entrada: Ninguna
+        // Salida: lista de tipo Reporte_Ticket
+        // Descripción: Llama al método del repositorio Reporte_Ticket para obtener los registros
+        // de la tabla Reporte_Ticket
         public List<Reporte_Ticket> GetAllReporteTickets()
         {
             var reporteTicketLista = _reporteTicketRepository.GetAllReporteTicket();
             return reporteTicketLista;
         }
 
+        // Entrada: Folio de Reporte_Ticket de tipo INT
+        // Salida: Objeto de tipo Reporte_ticket
+        // Descripción: Llama al método del repositorio Reporte_Ticket para obtener el registro que
+        // coincide con el folio.
         public Reporte_Ticket GetReporteTicket(int folio)
         {
             var registro = _reporteTicketRepository.GetReporteTicket(folio);

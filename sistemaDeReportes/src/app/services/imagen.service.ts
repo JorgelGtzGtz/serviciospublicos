@@ -43,10 +43,6 @@ export class ImagenService {
     return this.photosList;
   }
 
-  // getListaImagenObjeto(){
-  //   return this.listaImagenObjeto;
-  // }
-
   // Entrada: Objeto JSON con interface Imagen
   // Salida: Objeto ImagenM.
   // Descripción:Método que construye un objeto ImagenM, a partir de los datos
@@ -174,7 +170,7 @@ export class ImagenService {
     return listaPath;
   }
 
-  //    // Entrada: Ninguna
+  // // Entrada: Ninguna
   // // Salida: vacío.
   // // Descripción:
   // generarSrcAlterno(): string{

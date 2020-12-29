@@ -27,8 +27,10 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
-       
-       
+
+        // Entrada: string de usuario y string de contraseña.
+        // Salida: objeto de tipo Usuario.
+        // Descripción: Query para buscar Usuario por su usuario y contraseña.
         public Usuario GetUsuario(string usr, string password)
         {
             var query = new Sql()
@@ -41,6 +43,10 @@ namespace ServiciosPublicos.Core.Repository
             return user;
         }
 
+        // Entrada: valor string para usuario.
+        // Salida: objeto de tipo Usuario.
+        // Descripción: Query para obtener un Usuario que cuyo valor de Login_usuario
+        // coincida con el proporcionado.
         public Usuario GetUsuario(string usr)
         {
             var query = new Sql()
@@ -58,6 +64,10 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<dynamic>(sql);
         }
 
+        // Entrada: ID de tipo de Usuario de tipo INT
+        // Salida: Lista de tipo Usuario.
+        // Descripción: Query para consultar usuarios cuyo tipo de usuario sea de Jefe de cuadrilla y no estén
+        // asignados a ninguna cuadrilla.
         public List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe)
         {
             Sql query = new Sql()
@@ -66,7 +76,12 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<Usuario>(query);
         }
 
-       public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
+        // Entrada: string para texto de búsqueda, string para estado de usuario, string para tipo de usuario y 
+        //          string para reportes activos.
+        // Salida: lista de tipo Dynamic con los registros de usuario.
+        // Descripción: query para obtener los registros de usuario y su tipo de usuario de los registros que coincidan
+        // con los filtros de búsqueda.
+        public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
         {
             string filter = " WHERE ";
             bool operacion = false;
@@ -109,6 +124,9 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<dynamic>(query);
         }
 
+        // Entrada: Ninguna
+        // Salida: valor INT
+        // Descripción: query para obtener el ID del último registro de la tabla Usuario en la base de datos.
         public int GetUltimoID()
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Usuario')");
@@ -116,6 +134,10 @@ namespace ServiciosPublicos.Core.Repository
         }
 
 
+        // Entrada: ID de tipo de usuario
+        // Salida: Lista de tipo Usuario.
+        // Descripción: Query para obtener los usuarios cuyo ID de tipo de usuario
+        // coincida con el proporcionado.
         public List<Usuario> GetUsuariosPorTipo(int tipoUsuario)
         {
             Sql query2 = new Sql()

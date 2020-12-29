@@ -133,7 +133,7 @@ export class CuadrillasComponent implements OnInit {
   eliminarCuadrilla( cuadrilla: Cuadrilla): void{
     const result = confirm('¿Seguro que desea eliminar la cuadrilla?');
     if (result) {
-      this.cuadrillaService.eliminarCuadrilla(cuadrilla.ID_cuadrilla).subscribe( res => {
+      this.cuadrillaService.eliminarCuadrilla(cuadrilla).subscribe( res => {
         alert('La cuadrilla se ha eliminado.');
         this.actualizarTabla();
       }, (error: HttpErrorResponse) => {

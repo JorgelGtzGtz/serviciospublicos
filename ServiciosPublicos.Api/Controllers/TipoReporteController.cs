@@ -20,6 +20,9 @@ namespace ServiciosPublicos.Api.Controllers
 
         }
 
+        // Entrada: request de tipo HttpRequestMessage
+        // Salida: respuesta de tipo HttpResponseMessage y lista de tipo TipoReporte
+        // Descripción: Obtiene una lista de los Tipos de Reporte existentes.
         [HttpGet]
         [Route("GetTipoReporte")]
         public async Task<HttpResponseMessage> GetTipoReporte(HttpRequestMessage request)
@@ -44,11 +47,6 @@ namespace ServiciosPublicos.Api.Controllers
                     });
                 }
                 return await Task.FromResult(response);
-
-
-
-
-
             });
         }
     }

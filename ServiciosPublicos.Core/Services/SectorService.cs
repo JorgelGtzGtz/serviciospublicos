@@ -12,10 +12,10 @@ namespace ServiciosPublicos.Core.Services
     {
         bool InsertSector(Sector sector, out string Message);
         bool UpdateSector(Sector sector, out string Message);
-        bool EliminarSector(int id, out string Message);
+        bool EliminarSector(Sector sector, out string Message);
         Sector GetSector(int id);
         List<Sector> GetSectorList();
-        List<dynamic> FiltroSectores(string textoB, string estado);
+        List<Sector> FiltroSectores(string textoB, string estado);
         int ObtenerIDRegistro();
     }
     public class SectorService: ISectorService
@@ -31,7 +31,9 @@ namespace ServiciosPublicos.Core.Services
             _ticketReporsitory = ticketRepository;
         }
 
-        //Insertar nuevo sector
+        // Entrada: Objeto de tipo Sector y mensaje de tipo String
+        // Salida: valor booleano.
+        // Descripción: Llama al método del reporsitorio que insertar el sector en la base de datos.
         public bool InsertSector(Sector sector, out string Message)
         {
             Message = string.Empty;
@@ -51,7 +53,9 @@ namespace ServiciosPublicos.Core.Services
 
         }
 
-        //Actualizar sector
+        // Entrada: Objeto de tipo Sector y mensaje de tipo string.
+        // Salida: valor booleano.
+        // Descripción: Llama al método del repositorio para actualizar el registro del sector en la base de datos.
         public bool UpdateSector(Sector sector, out string Message)
         {
             Message = string.Empty;
@@ -69,37 +73,49 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        //Consultar un Sector por ID
+        // Entrada: ID de sector de tipo INT
+        // Salida: Objeto de tipo Sector
+        // Descripción: Llama al método del repositorio para obtener el Sector
+        // que coincide con el ID proporcionado.
         public Sector GetSector(int id)
         {
             return _SectorRepository.Get<int>(id);
         }
 
-        //Consultar los sectores existentes
+        // Entrada: Ninguna.
+        // Salida: Lista de tipo Sector.
+        // Descripción: Llama al método del repositorio de Sector para obtener 
+        // los registros de tabla sector.
         public List<Sector> GetSectorList()
         {
             return _SectorRepository.GetSectoresList();
         }
 
-        // Llama a la función que ejecuta el query para hacer búsqueda de sectores por filtros
-        public List<dynamic> FiltroSectores(string textoB, string estado)
+        // Entrada: string para texto de búsqueda y string para estado de sector.
+        // Salida: lista de tipo dynamic con los sectores encontrados.
+        // Descripción: Llama a la función que ejecuta el query para hacer búsqueda de sectores por filtros
+        public List<Sector> FiltroSectores(string textoB, string estado)
         {
             return _SectorRepository.filtroDinamicoSector(textoB,estado);
         }
 
-        // Llama a la función que ejecuta el query para obtener el último ID registrado y devuelve el siguiente
+        // Entrada: Ninguna.
+        // Salida: ID de nuevo registro de tipo INT
+        // Descripción:  Llama a la función que ejecuta el query para obtener el último ID registrado y devuelve el siguiente
         // al sumarle 1
         public int ObtenerIDRegistro()
         {
             return _SectorRepository.ObtenerUltimoID() + 1;
         }
 
-        //Eliminar un sector
-        public bool EliminarSector(int id, out string Message)
+        // Entrada: Objeto de tipo Sector y mensaje de tipo string.
+        // Salida: valor booleano.
+        // Descripción: Efectúa eliminación lógica de sector al modificar 
+        // atributo "disponible" de sector.
+        public bool EliminarSector(Sector sector, out string Message)
         {
             Message = string.Empty;
             bool result = false;
-            Sector sector = _SectorRepository.Get<int>(id);
                 try
                 {
                     sector.Disponible = false;

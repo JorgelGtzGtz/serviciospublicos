@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MatDialog, MatDialogState } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MatDialogState } from '@angular/material/dialog';
 
 @Injectable({
   providedIn: 'root'
@@ -10,12 +10,11 @@ export class DialogService {
   constructor(private dialog: MatDialog) {
   }
 
-  // Metodo que se llama al querer cambiar de ruta en el sidebar
-  // es un metodo que llamará a otros con el fin de verificar si existen
-  // dialogs abierto en los que se han hecho cambios y asi permitir al usuario
-  // decidir si sigue trabajando o si se sale de la página
-  // Regresa la variable permisoParaNavegar, que puede ser true o false, según
-  // se cumplan las condiciones del método "verificarDialogsAbiertos()"
+  // Entrada: Ninguna
+  // Salida: valor tip boolean.
+  // Descripción: Método que se llama al querer cambiar de ruta en el sidebar
+  // es un metodo que llamará al método "VerificarDialogsAbiertos()" para verificar
+  // si existen dialogs abiertos.
 verificarDialogs(): boolean{
   let permisoParaNavegar: boolean;
   permisoParaNavegar = this.verificarDialogsAbiertos();
@@ -23,11 +22,12 @@ verificarDialogs(): boolean{
 
 }
 
-// Este método verifica si existen dialogs abiertos, si los hay,
+// Entrada: Ninguna
+// Salida: valor booleano.
+// Descripción: Método que verifica si existen dialogs abiertos, si los hay,
 // llama al método "obtenerDialogAbierto()" para encontrar el dialog en uso.
 // Después, llama al método "verificarCambios" para saber si el usuario
-//  ha interactuado con el formulario y evitar que pierda datos
-// Regresa la variable navegar, que puede ser true o false, según se cumpla la condición.
+// ha interactuado con el formulario y evitar que pierda datos.
   verificarDialogsAbiertos(): boolean{
     let navegar: boolean;
     let dialogAbierto;
@@ -37,13 +37,14 @@ verificarDialogs(): boolean{
     }else{
       navegar = true;
     }
-    console.log('permiso para cambiar ruta:', navegar);
     return navegar;
   }
 
-  // Método que permite obtener el dialog que se encuentra abierto actualmente.
-  // No recibe parámetros, devuelve el MatDialogRef del dialog cuyo estado sea "OPEN"
-  obtenerDialogAbierto(): any{
+  // Entrada: Ninguna
+  // Salida: valor tipo MatDialogRef con referencia de Dialog abierto.
+  // Descripción: Método que permite obtener el dialog que se encuentra 
+  // abierto actualmente, con estado OPEN.
+  obtenerDialogAbierto(): MatDialogRef<any, any>{
     for (let d of this.dialog.openDialogs) {
       if (d.getState() === MatDialogState.OPEN ){
         console.log('dialog abierto:', d);
@@ -52,12 +53,13 @@ verificarDialogs(): boolean{
     }
   }
 
-  // Este método verifica si la variable "modificado" que existe en el componente del dialog
+  // Entrada: valor tipo MatDialogRef<any,any> con referencia de dialog abierto.
+  // Salida: valor booleano.
+  // Descripción: Este método verifica si la variable "modificado" que existe en el componente del dialog
   //  es true o false; si es true, manda a llamar el método "mostrarMensajeConfirmacion"
   //  para permitir que el usuario decida si quiere salir de la página actual con el dialog abierto
   //  o cambiar de página, aunque esto implique que el dialog se cierra sin guardar cambios.
-  // Recibe un MatDialogRef y regresa el boolean "navegar" el cual puede ser true o false.
-  verificarCambios(dialogAbierto: any): boolean{
+  verificarCambios(dialogAbierto: MatDialogRef<any, any>): boolean{
     let navegar: boolean;
     let d;
     d = dialogAbierto.componentInstance; // Con esto se accede al componente del dialog
@@ -70,15 +72,16 @@ verificarDialogs(): boolean{
     return navegar;
   }
 
-  // Este método lanza un mensaje al usuario, si éste modificó el formulario que contiene el dialog
-  //  en este mensaje se le pide confirme su decisión de salir. Al ser una respuesta true, los 
-  // dialogs abiertos se cierra y regresa un true. Al ser false, los dialogs se quedan abiertos
-  //  y regresa un false;
-  // Recibe un MatDialogRef y devuelve un true o false según la respuesta del usuario
-  mostrarMensajeConfirmacion(d: any): boolean{
-    let respuesta = confirm('¿Está seguro que desea salir?');
+  // Entrada: Valor tipo MatDialogRef<any,any> con la referencia del dialog abierto.
+  // Salida: valor tipo boolean.
+  // Descripción: Este método lanza un mensaje al usuario, si éste modificó el formulario
+  // que contiene el dialog, en este mensaje se le pide confirme su decisión de salir.
+  // Al ser una respuesta true, los dialogs abiertos se cierra y regresa un true.
+  // Al ser false, los dialogs se quedan abiertos y regresa un false.
+  mostrarMensajeConfirmacion(dialogAbierto: MatDialogRef<any, any>): boolean{
+    const respuesta = confirm('¿Está seguro que desea salir?');
     if (respuesta){
-      d.close();
+      dialogAbierto.close();
       return true;
     }else{
       return false;

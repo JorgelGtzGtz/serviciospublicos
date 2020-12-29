@@ -17,7 +17,7 @@ namespace ServiciosPublicos.Core.Services
         List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado= null);
         bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message);
         bool InsertTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> permisosAsignados, out string Message);
-        bool EliminarTipoUsuario(int id, out string Message);
+        bool EliminarTipoUsuario(Tipo_usuario tipoUsuario, out string Message);
         int ObtenerIDRegistro(out string Message);
         List<Procesos_Permiso> GetPermisos();
         List<Permiso> GetPermisosTipoUsuario(int id, out string Message);
@@ -75,7 +75,7 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        // Entrada: Variable para mensaje de transacción de tipo string.
+        // Entrada: Variable para mensaje de tipo string.
         // Salida: valor int.
         // Descripción: Método para obtener el próximo ID de tipo de usuario.
         public int ObtenerIDRegistro(out string Message)
@@ -177,13 +177,12 @@ namespace ServiciosPublicos.Core.Services
         // Salida: valor boolean.
         // Descripción: Elimina tipo de usuario al modificar su valor Diponible a falso.
         // Esto se realiza solo si no tiene registros relacionados.
-        public bool EliminarTipoUsuario(int id, out string Message)
+        public bool EliminarTipoUsuario(Tipo_usuario tipoUsuario, out string Message)
         {
             Message = string.Empty;
             bool result = false;
             try
             {
-                var tipoUsuario = _tipoUsuarioRepository.Get(id);
                 //VERIFICAR QUE NO EXISTAN REGISTROS CON ESTE TIPO DE USUARIO
                 List<Usuario> usuario = _usuarioReporsitory.GetUsuariosPorTipo(tipoUsuario.ID_tipoUsuario);
                 if (usuario.Count == 0)

@@ -15,7 +15,6 @@ namespace ServiciosPublicos.Core.Services
         List<Ticket> GetTickets();
         int InsertarTicket(Ticket ticket, out string Message);
         bool ActualizarTicket(Ticket ticket, out string Message);
-        bool EliminarTicket(int id, out string Message);
        
     }
     public class TicketService : ITicketService
@@ -33,18 +32,28 @@ namespace ServiciosPublicos.Core.Services
             _reporteTicketRepository = reporteTicketReporsitory;
         }
 
+        // Entrada: valor INT con ID de ticket
+        // Salida: objeto de tipo Ticket.
+        // Descripción: Llama al método del repositorio de Ticket para
+        // ejecutar una consulta de un ticket.
         public Ticket GetTicket(int id)
         {
             return _ticketRepository.GetTicket(id);
 
         }
 
+        // Entrada: Ninguna.
+        // Salida: Lista tipo Ticket.
+        // Descripción: Obtiene todos los registros de tickets existentes en tabla Ticket de la base de datos.
         public List<Ticket> GetTickets()
         {
             return _ticketRepository.GetAll("hiram74_residencias.Ticket").ToList();
         }
 
-       public int InsertarTicket(Ticket ticket, out string Message)
+        // Entrada: Objeto de tipo Ticket y mensaje de tipo String
+        // Salida: valor tipo INT con el ID del ticket registrado.
+        // Descripción: Inserta un nuevo ticket en la base de datos.
+        public int InsertarTicket(Ticket ticket, out string Message)
         {
             Message = string.Empty;
             var idTicket = 0;
@@ -60,8 +69,11 @@ namespace ServiciosPublicos.Core.Services
             }
             return idTicket;
         }
-       
 
+        // Entrada: Objeto de tipo Ticket y mensaje de tipo string
+        // Salida: alor de tipo booleano.
+        // Descripción: Actualiza la información de un registro de la base de datos
+        // mediante el método Modify del repositorio.
         public bool ActualizarTicket(Ticket ticket, out string Message)
         {
             Message = string.Empty;
@@ -78,29 +90,6 @@ namespace ServiciosPublicos.Core.Services
             }
             return result;
         }
-
-        public bool EliminarTicket(int id, out string Message)
-        {
-            Message = string.Empty;
-            bool result = false;
-            try
-            {
-                var ticket = _ticketRepository.GetTicket(id);
-
-                _ticketRepository.Remove(ticket);
-
-                Message = "Ticket eliminado con exito";
-                result = true;
-            }
-            catch (Exception ex)
-            {
-                Message = "Ticket no pudo ser eliminado Error: " + ex.Message;
-            }
-            return result;
-        }
-
-        
-
-       
+ 
     }
 }

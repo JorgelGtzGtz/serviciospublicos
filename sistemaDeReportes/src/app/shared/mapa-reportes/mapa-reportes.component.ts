@@ -20,6 +20,11 @@ export class MapaReportesComponent implements OnInit {
     this.inicializarLatLng();
   }
 
+  // Entrada: Ninguna.
+  // Salida: Vacío.
+  // Descripción: Función para inicializar valores de latitud y longitud
+  // para mostrar ubicación en mapa de google. EN caso de no existir lat y lng
+  // mediante la variable "disponibilidad" se indica a un componente que muestre un mensaje.
   inicializarLatLng(): void{
     const latAux = this.reporteDatos.Latitud_reporte;
     const lngAux = this.reporteDatos.Longitud_reporte;

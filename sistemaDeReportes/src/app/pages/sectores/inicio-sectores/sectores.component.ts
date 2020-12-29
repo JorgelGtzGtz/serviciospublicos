@@ -134,7 +134,7 @@ export class SectoresComponent implements OnInit {
   eliminarSector(sector: Sector): void{
     const result = confirm('¿Seguro que desea eliminar el sector?');
     if (result) {
-      this.sectorService.eliminarSector(sector.ID_sector).subscribe( res => {
+      this.sectorService.eliminarSector(sector).subscribe( res => {
         this.actualizarTabla();
         alert('El sector ' + sector.Descripcion_sector + ' se ha eliminado.');
       }, (error: HttpErrorResponse) => {

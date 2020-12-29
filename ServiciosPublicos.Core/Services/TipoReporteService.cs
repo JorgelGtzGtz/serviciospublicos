@@ -21,6 +21,9 @@ namespace ServiciosPublicos.Core.Services
             _tipoReporteRepository = tipoReporteRepository;
         }
 
+        // Entrada: Ninguna.
+        // Salida: lista de tipo Tipo_Reporte.
+        // Descripción: Obtiene los registros de la tabla Tipo_reporte de la base de datos.
         public List<Tipo_Reporte> GetTipos()
         {
             return _tipoReporteRepository.GetAll("Tipo_Reporte").ToList();

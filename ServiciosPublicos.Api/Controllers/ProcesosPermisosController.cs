@@ -20,6 +20,9 @@ namespace ServiciosPublicos.Api.Controllers
 
         }
 
+        // Entrada: Http request
+        // Salida: Lista de tipo ProcesosPermisos.
+        // Descripción: Obtiene la lista de tipo Procesospermisos que se encuentran en la base de datos.
         [HttpGet]
         [Route("GetProcesosPermisos")]
         public async Task<HttpResponseMessage> GetPermisos(HttpRequestMessage request)
