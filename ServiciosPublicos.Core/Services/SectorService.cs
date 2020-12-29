@@ -78,7 +78,7 @@ namespace ServiciosPublicos.Core.Services
         //Consultar los sectores existentes
         public List<Sector> GetSectorList()
         {
-            return _SectorRepository.GetAll("Sector").ToList();
+            return _SectorRepository.GetSectoresList();
         }
 
         // Llama a la función que ejecuta el query para hacer búsqueda de sectores por filtros

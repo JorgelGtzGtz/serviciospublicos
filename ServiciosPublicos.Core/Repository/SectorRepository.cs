@@ -12,6 +12,7 @@ namespace ServiciosPublicos.Core.Repository
     public interface ISectorRepository : IRepositoryBase<Sector>
     {
         List<dynamic> filtroDinamicoSector(string textoB, string estado);
+        List<Sector> GetSectoresList();
         int ObtenerUltimoID();
     }
     public class SectorRepository : RepositoryBase<Sector>, ISectorRepository
@@ -41,6 +42,15 @@ namespace ServiciosPublicos.Core.Repository
 
             Sql query = new Sql(@"SELECT * FROM Sector" + filter);
             return this.Context.Fetch<dynamic>(query);
+        }
+
+        public List<Sector> GetSectoresList()
+        {
+            Sql query = new Sql()
+                .Select("*")
+                .From("Sector")
+                .Where("Disponible = 1");
+            return this.Context.Fetch<Sector>(query);
         }
 
         public int ObtenerUltimoID()

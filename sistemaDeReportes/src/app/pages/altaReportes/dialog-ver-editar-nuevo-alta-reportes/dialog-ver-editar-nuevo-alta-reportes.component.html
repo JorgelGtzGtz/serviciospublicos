@@ -2,8 +2,8 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
-        <div *ngIf="!datosCargados()" class="d-flex justify-content-center">
-            <div class="spinner-border m-5 align-self-center" role="status">
+        <div *ngIf="!datosCargados()" class="spinner-container">
+            <div class="spinner-border align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
@@ -235,6 +235,6 @@
 </div>
 
 <div matDialogActions align="end">
-    <button type="button" [disabled]="accion === 'ver' || estadoReporte !== 1" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button type="button" [disabled]="accion === 'ver' || estadoReporte === 4" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

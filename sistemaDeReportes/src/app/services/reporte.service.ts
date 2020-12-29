@@ -151,4 +151,34 @@ export class ReporteService {
     return fechaHora.join(' ');
   }
 
+  // Entrada: Ninguna
+  // Salida: valor tipo string con hora ( 00:00:00).
+  // Descripción: Obtiene los datos del tiempo actual y les da formato
+  formatoHora(): string{
+    const date: Date = new Date();
+    const hora = date.getHours().toString();
+    const minutos = date.getMinutes().toString();
+    const segundos = date.getSeconds().toString();
+    const fechaHora: string[] = [hora, minutos, segundos];
+    return fechaHora.join(':');
+  }
+
+  // Entrada: valor string calle 1 y valor string calle 2
+  // Salida: valor tipo string con calles juntas o un string vacío.
+  // Descripción: Obtiene los datos de las calles y crea un nuevo string que
+  // incluya y de formato a las calles proporcionadas.
+  formatoEntreCalles(calle1: string, calle2: string): string{
+    let entreCalles: string;
+    if (calle1.length > 0 && calle2.length > 0){
+      entreCalles = calle1 + ' y ' + calle2;
+    } else if (calle1.length > 0 && calle2.length === 0){
+      entreCalles = calle1;
+    } else if (calle2.length > 0 && calle1.length === 0){
+      entreCalles = calle2;
+    }else{
+      entreCalles = '';
+    }
+    return entreCalles;
+  }
+
 }

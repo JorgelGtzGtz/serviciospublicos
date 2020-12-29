@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 // declare function init_plugins();
 import * as $ from 'jquery';
 // import * as AdminLte from 'admin-lte';
+import { UsuarioService } from '../../services/usuario.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
@@ -10,7 +12,8 @@ import * as $ from 'jquery';
 })
 export class NavbarComponent implements OnInit {
 
-  constructor() {
+  constructor(private usuarioService: UsuarioService,
+              private router: Router) {
   }
 
   ngOnInit(): void {
@@ -25,7 +28,15 @@ export class NavbarComponent implements OnInit {
       portalBody.removeClass('sidebar-collapse');
       portalBody.addClass('sidebar-open');
     } else {
-      portalBody.addClass('sidebar-collapse'); 
-    } 
+      portalBody.addClass('sidebar-collapse');
+    }
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para cerrar sesión a través del método "logOut" del servicio de usuario
+  cerrarSesion(): void{
+    this.usuarioService.logOut();
+    this.router.navigate(['../login']);
   }
 }

@@ -276,7 +276,6 @@ cargarImagenesReporte(): void{
     return this.form.get('descripcionR');
   }
 
-  // Devuelve true si el usuario interactuó con el formulario o false si no.
   // Entrada: Ninguna
   // Salida: valor booleano.
   // Descripción: Método que devuelve la variable "modificado" que indica si se
@@ -358,22 +357,24 @@ obtenerEstadoFormulario(): boolean{
   }
 
   // Entrada: Ninguna
-  // Salida:  lista de numeros.
+  // Salida:  promesa de tipo lista de numeros.
   // Descripción: Método para generar las coordenadas de la dirección ingresada en formulario
   // mediante un llamado al servicio de reporte.
-  generarCoordenadas(): number[] {
+  async generarCoordenadas(): Promise<number[]>{
     const calleNumero = this.campoCallePrincipal.value;
     const colonia = this.campoColonia.value;
     const direccion = this.mapService.generarDireccionCompleta(calleNumero, colonia);
-    let latLng: number[] = [];
-    this.mapService.obtenerLatLng(direccion)
+    // let latLng: number[] = [];
+    const latLng = await this.mapService.obtenerLatLng(direccion).toPromise()
     .then((respuesta: any) => {
       const direcciones = respuesta.results[0];
-      latLng = [direcciones.geometry.location.lat, direcciones.geometry.location.lng ];
-      console.log(latLng);
+      const resLatLng = [direcciones.geometry.location.lat, direcciones.geometry.location.lng ];
+      console.log(resLatLng);
+      return resLatLng;
     })
     .catch(error => {
       console.log('Error al obtener coordenadas de dirección. ' + error);
+      return [];
     });
     return latLng;
   }
@@ -382,13 +383,16 @@ obtenerEstadoFormulario(): boolean{
   // Salida: vacío.
   // Descripción: Método para modificar datos pertinentes de reporte
    modificarDatosReporte(coordenadas: number[]): void{
-     const entreCalles = this.campoCalleSecundaria1.value + ' y ' + this.campoCalleSecundaria2.value;
+     const entreCalles = this.reporteSevice.formatoEntreCalles(this.campoCalleSecundaria1.value, this.campoCalleSecundaria2.value);
+     const hora: string = this.reporteSevice.formatoHora();
+     const fechaHoraApertura = this.reporteSevice.juntarFechaHora(this.campoFechaInicio.value, hora);
+     const fechaHoraCierre = this.reporteSevice.juntarFechaHora(this.campoFechaCierre.value, hora);
      this.reporte.ID_sector = this.campoSector.value;
      this.reporte.ID_tipoReporte = this.campoTipoReporte.value;
      this.reporte.Latitud_reporte = coordenadas[0]; // lat
      this.reporte.Longitud_reporte = coordenadas[1]; // lng
-     this.reporte.FechaRegistro_reporte = this.campoFechaInicio.value;
-     this.reporte.FechaCierre_reporte = this.campoFechaCierre.value;
+     this.reporte.FechaRegistro_reporte = fechaHoraApertura;
+     this.reporte.FechaCierre_reporte = fechaHoraCierre;
      this.reporte.Direccion_reporte = this.campoCallePrincipal.value;
      this.reporte.Referencia_reporte = this.campoReferencia.value;
      this.reporte.EntreCalles_reporte = entreCalles;
@@ -404,13 +408,15 @@ obtenerEstadoFormulario(): boolean{
   // Descripción: Método para generar nuevo ticket para el reporte
   generarNuevoTicket(coordenadas: number[]): TicketM{
     const usuarioActual = this.obtenerUsuarioActual();
-    const entreCalles = this.campoCalleSecundaria1.value + ' y ' + this.campoCalleSecundaria2.value;
+    const hora: string = this.reporteSevice.formatoHora();
+    const fechaHoraApertura = this.reporteSevice.juntarFechaHora(this.campoFechaInicio.value, hora);
+    const entreCalles = this.reporteSevice.formatoEntreCalles(this.campoCalleSecundaria1.value, this.campoCalleSecundaria2.value);
     const ticket: TicketM = new TicketM(
       this.campoId.value,
       this.campoTipoReporte.value,
       usuarioActual.ID_usuario,
       this.estadoReporte,
-      this.campoFechaInicio.value,
+      fechaHoraApertura,
       null,
       coordenadas[0], // Latitud
       coordenadas[1], // Longitud
@@ -427,7 +433,7 @@ obtenerEstadoFormulario(): boolean{
       this.campoDescripcionReporte.value,
       2
     );
-
+    console.log('NUEVO TICKET:', ticket);
     return ticket;
   }
 

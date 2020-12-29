@@ -3,17 +3,21 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Usuario } from '../Interfaces/IUsuario';
 import { UsuarioM } from '../Models/UsuarioM';
 import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuarioService {
   url = 'http://localhost:50255/api/Usuario';
+  // datosLogin: string [];
 
   constructor(private http: HttpClient ) { }
 
-  // Método login para el inicio de sesión.
-  login(){
+  // Entrada: Ninguna.
+  // Salida: Observable de tipo Usuario.
+  // Descripción: Método login para el inicio de sesión mediante una petición http POST
+  login(): Observable<UsuarioM>{
     return this.http.post<Usuario>(this.url + '/Login', null, {
      }).pipe(
        map( dato => {
@@ -21,12 +25,18 @@ export class UsuarioService {
      }));
   }
 
-  logOut(){
+  // Entrada: ninguna
+  // Salida: vacío.
+  // Descripción: Método para eliminar la información de usuario almacenada en el localStorgae
+  logOut(): void{
     localStorage.removeItem('usuario');
+    localStorage.removeItem('datosLogin');
   }
 
-  // Obtener lista de usuarios utilizando parametros
-  obtenerListaUsuarios(textoB?: string, estadoUsuario?: string, tipoU?: string, repActi?: boolean){
+  // Entrada: valor tipo string para cada parámetro de filtro de búsqueda.
+  // Salida: observable con la respuesta de la petición.
+  // Descripción: Obtener lista de usuarios utilizando parametros medinate petición http GET
+  obtenerListaUsuarios(textoB?: string, estadoUsuario?: string, tipoU?: string, repActi?: boolean): Observable<object>{
     console.log('Se recibe en servicio:', textoB, estadoUsuario, tipoU, repActi);
     let reportesActivos: string;
     if (textoB === undefined){
@@ -56,11 +66,18 @@ export class UsuarioService {
       });
   }
 
-  obtenerUsuario(idUsuario: number){
+  // Entrada: valor tipo number.
+  // Salida: observable de tipo Usuario.
+  // Descripción: método para obtener un Usuario por su ID mediante una petición http GET
+  obtenerUsuario(idUsuario: number): Observable<Usuario>{
     return this.http.get<Usuario>(this.url + '/GetUsuario/' + idUsuario + '/');
   }
 
-  obtenerJefesCuadrilla(){
+  // Entrada: ninguna.
+  // Salida: observable de tipo lista de usuario.
+  // Descripción: Método para obtener los usuarios de tipo jefes de cuadrilla
+  // con una petición http de tipo GET.
+  obtenerJefesCuadrilla(): Observable<Usuario[]>{
     return this.http.get<Usuario[]>(this.url + '/GetJefesCuadrilla').pipe(
       map(jefes => {
         return jefes.map(user => UsuarioM.usuarioDesdeJson(user));
@@ -68,53 +85,81 @@ export class UsuarioService {
     );
   }
 
-  obtenerIDRegistro(){
-    return this.http.get(this.url + '/ObtenerID');
+  // Entrada: Ninguna.
+  // Salida: observable de tipo number con el resultado de la petición http.
+  // Descripción: Método para obtener el ID del nuevo registro, mediante una petición http de tipo get.
+  obtenerIDRegistro(): Observable<number>{
+    return this.http.get<number>(this.url + '/ObtenerID');
   }
 
-  registrarUsuario(usuario: Usuario){
+  // Entrada: valor tipo Usuario.
+  // Salida: Observable con el resultado de la petición.
+  // Descripción: Método para hacer una petición Http de tipo POST para registrar un nuevo usuario.
+  registrarUsuario(usuario: Usuario): Observable<object>{
     return this.http.post(this.url + '/Registrar', usuario);
   }
 
-  actualizarUsuario(usuario: Usuario){
+  // Entrada: valor tipo Usuario.
+  // Salida: observable con el resultado de la petición http PUT.
+  // Descripción: Método para actualizar la información del usuario.
+  actualizarUsuario(usuario: Usuario): Observable<object>{
     return this.http.put(this.url + '/Actualizar', usuario);
   }
 
-  eliminarUsuario(idUsuario: number){
+  // Entrada: valor tipo number con el ID del usuario.
+  // Salida: observable con el resultado de la petición http DELETE.
+  // Descripción: Método para hacer una petición DELETE a la API, para eliminar el usuario.
+  eliminarUsuario(idUsuario: number): Observable<object>{
     console.log('Recibe en eliminar usuario:', idUsuario);
     return this.http.delete(this.url + '/Eliminar/' + idUsuario);
   }
 
+  // Entrada: objeto tipo Usuario
+  // Salida: vacío.
+  // Descripción: Método para guardar el objeto de tipo Usuario en el local storage
   almacenarUsuarioLog(usuario: Usuario): void{
     localStorage.setItem('usuario', JSON.stringify( usuario));
   }
 
-  // Al iniciar sesión, almacena temporalmente el usuario y contraseña para los header en 
-  // el interceptor
+  // Entrada: valor tipo string para usuario y valor tipo string para contraseña.
+  // Salida: vacío.
+  // Descripción: Al iniciar sesión, almacena temporalmente el usuario
+  // y contraseña para los headers en el interceptor
   almacenarDatosLogin(usuarioLogin: string, password: string): void{
-    const datosLogin: string[] = [usuarioLogin, password];
+    const datosLogin = [usuarioLogin, password];
     localStorage.setItem('datosLogin', JSON.stringify(datosLogin));
   }
 
-  // Obtener los datos usuario y contraseña ingresados en el login.
+  // Entrada: Ninguna
+  // Salida: lista de tipo string.
+  // Descripción: Obtener los datos usuario y contraseña ingresados en el login.
   obtenerDatosLogin(): string []{
     const datosLogin: string [] = JSON.parse(localStorage.getItem('datosLogin'));
     return datosLogin;
   }
 
-  // Método para obtener los datos del usuario que  inicio de sesión.
-  obtenerUsuarioLogueado(): UsuarioM{
+  // Entrada: Ninguna
+  // Salida: objeto tipo Usuario.
+  // Descripción: Método para obtener el usuario que inicio de sesión del local storage.
+  obtenerUsuarioLogueado(): Usuario{
     const usuario = JSON.parse(localStorage.getItem('usuario'));
     return usuario;
   }
 
-  // Eliminar el item en el local storage que tenía los datos usuario
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Eliminar el item en el local storage que tenía los datos usuario
   //  y contraseña ingresados en el login
   eliminarDatosLogin(): void{
+    console.log('BORRA DATOS LOGIN;', localStorage.getItem('datosLogin'));
     localStorage.removeItem('datosLogin');
   }
-  convertirDesdeJSON(obj: Object){
-    return UsuarioM.usuarioDesdeJson(obj);
+
+  // Entrada: objeto JSON con datos de usuario.
+  // Salida: objeto de tipo Usuario.
+  // Descripción: Crea un objeto tipo Usuario a partir de los datos del parámetro.
+  convertirDesdeJSON(datosUsuario: JSON): Usuario{
+    return UsuarioM.usuarioDesdeJson(datosUsuario);
   }
 
 

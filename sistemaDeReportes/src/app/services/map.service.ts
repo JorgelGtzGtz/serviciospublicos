@@ -37,7 +37,7 @@ export class MapService {
     let params = new HttpParams();
     params = params.append('address', direccion);
     params = params.append('key', environment.mapsKey);
-    return this.http.get(this.URL,{params}).toPromise();
+    return this.http.get(this.URL, {params});
   }
 
   obtenerDireccionCoordenadas(query: number[]){
