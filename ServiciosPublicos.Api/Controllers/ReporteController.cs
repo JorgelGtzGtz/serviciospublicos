@@ -176,6 +176,7 @@ namespace ServiciosPublicos.Api.Controllers
         {
             try
             {
+                String paths = "";
                 var httpRequest = HttpContext.Current.Request;
                 var postedFile = httpRequest.Files[0];
                 string filename = postedFile.FileName;
@@ -293,6 +294,34 @@ namespace ServiciosPublicos.Api.Controllers
                 {
                     var item = _reporteServicio.GetAllReportes(parametro);
                     response = request.CreateResponse(HttpStatusCode.OK, item);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Para obtener un listado de todos los reportes
+        [HttpGet]
+        [Route("GetReporteByJefeAsignado/{id_jefe}/{id_tipo}/{id_estatus}")]
+        public async Task<HttpResponseMessage> GetReporteByJefe(HttpRequestMessage request, int id_jefe, int id_tipo, int id_estatus)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var listaReportes = _reporteServicio.GetReporteJefeAsignado(id_jefe, id_tipo, id_estatus);
+                    response = request.CreateResponse(HttpStatusCode.OK, listaReportes);
                 }
                 catch (Exception ex)
                 {

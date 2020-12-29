@@ -39,6 +39,7 @@ namespace ServiciosPublicos.Core.Repository
         public void InsertarImagenCierre(int idReporte, Imagen imagen)
         {            
             imagen.ID_reporte = idReporte;
+            imagen.ID_ticket = null;
             this.Add<int>(imagen);
         }
     }

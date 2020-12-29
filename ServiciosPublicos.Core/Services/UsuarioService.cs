@@ -22,6 +22,7 @@ namespace ServiciosPublicos.Core.Services
         bool InsertarUsuario(Usuario Usuario, out string Message);
         bool EliminarUsuario(int id, out string Message);
         int ObtenerIDRegistro(out string Message);
+        string SendMail(Usuario user, out string Message, int code);
     }
 
     public class UsuarioService : IUsuarioService
@@ -75,7 +76,6 @@ namespace ServiciosPublicos.Core.Services
             try
             {
                 _usuarioRepository.Add<int>(usuario);
-
                 Message = "Usuario " + usuario.Login_usuario + " registrado con exito";
                 result = true;
             }
@@ -144,6 +144,12 @@ namespace ServiciosPublicos.Core.Services
                 Message = "Error al obtener ID de registro actual. Error: " + ex.Message;
             }
             return result;
+        }
+
+        public string SendMail(Usuario user, out string Message, int code)
+        {
+            Message = _usuarioRepository.EnviarCorreo(user.Correo_usuario, "Confirma tu correo", "Tu código de verificación es: "+code);
+            return Message;
         }
     }
 }

@@ -120,6 +120,36 @@ namespace ServiciosPublicos.Api.Controllers
             
         }
 
+        [HttpGet]
+        [Route("GetTicketsByUser/{id}/{id_tipo}/{id_estatus}")]
+        public async Task<HttpResponseMessage> GetTicketsByUser(HttpRequestMessage request, int id, int id_tipo, int id_estatus)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var listaTickets = _ticketService.GetTicketsByUserID(id, id_tipo, id_estatus);
+                    response = request.CreateResponse(HttpStatusCode.OK, listaTickets);
+
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                        new
+                        {
+                            error = "ERROR",
+                            exception = ex.Message
+
+                        });
+
+                }
+                return await Task.FromResult(response);
+            });
+
+        }
+
         [HttpPut]
         [Route("ActualizarTicket")]
         public async Task<HttpResponseMessage> ActualizarTicket(HttpRequestMessage request, Ticket model)

@@ -16,7 +16,8 @@ namespace ServiciosPublicos.Core.Services
         int InsertarTicket(Ticket ticket, out string Message);
         bool ActualizarTicket(Ticket ticket, out string Message);
         bool EliminarTicket(int id, out string Message);
-       
+        List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus);
+
     }
     public class TicketService : ITicketService
     {
@@ -44,7 +45,12 @@ namespace ServiciosPublicos.Core.Services
             return _ticketRepository.GetAll("hiram74_residencias.Ticket").ToList();
         }
 
-       public int InsertarTicket(Ticket ticket, out string Message)
+        public List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus)
+        {
+            return _ticketRepository.ticketsPorUsuario(id, id_tipo, id_estatus);
+        }
+
+        public int InsertarTicket(Ticket ticket, out string Message)
         {
             Message = string.Empty;
             var idTicket = 0;

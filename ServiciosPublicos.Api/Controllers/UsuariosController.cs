@@ -282,5 +282,31 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
+
+        [HttpPost]
+        [Route("Send/{code:int}")]
+        public async Task<HttpResponseMessage> SendMail(HttpRequestMessage request, Usuario model, int code)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var result = _usuarioservice.SendMail(model, out message, code);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
     }
 }

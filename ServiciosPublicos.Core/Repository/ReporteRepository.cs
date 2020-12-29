@@ -18,6 +18,7 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetAllReportes(string textoBusqueda = null);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
+        List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus);
 
     }
     public class ReporteRepository : RepositoryBase<Reporte>, IReporteRepository
@@ -114,6 +115,17 @@ namespace ServiciosPublicos.Core.Repository
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Reporte')");
             return this.Context.SingleOrDefault<int>(query);
+        }
+
+        public List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus)
+        {
+            Sql query = new Sql(@"SELECT reporte.*, cuadrilla.ID_JefeCuadrilla AS jefeAsignado
+                                FROM [hiram74_residencias].[Reporte] reporte
+                                INNER JOIN [hiram74_residencias].[Cuadrilla] cuadrilla 
+                                ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla WHERE cuadrilla.ID_JefeCuadrilla = @0"+
+                                (idTipo != 0 ? " AND reporte.ID_tipoReporte = @1" : "") +
+                                (idEstatus != 0 ? " AND reporte.Estatus_reporte = @2" : ""),id_jefe, idTipo, idEstatus);
+            return this.Context.Fetch<dynamic>(query);
         }
 
     }
