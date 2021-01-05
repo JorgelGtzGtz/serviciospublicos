@@ -119,7 +119,7 @@ namespace ServiciosPublicos.Api.Controllers
             });
             
         }
-
+        //G: OBTENER TICKETS CREADOS POR USUARIO PARA LISTARLOS EN LA APP
         [HttpGet]
         [Route("GetTicketsByUser/{id}/{id_tipo}/{id_estatus}")]
         public async Task<HttpResponseMessage> GetTicketsByUser(HttpRequestMessage request, int id, int id_tipo, int id_estatus)
@@ -171,6 +171,34 @@ namespace ServiciosPublicos.Api.Controllers
                     {
                         error = "ERROR",
                         exception = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
+        //G: PARA VISUALIZAR IMAGENES DE TICKET EN LA APP
+        [HttpGet]
+        [Route("GetImagenesTicket")]
+        public async Task<HttpResponseMessage> GetImagenesTicket(HttpRequestMessage request, string idTicket)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var imagenesReporte = _ticketService.GetImagenesByTicket(idTicket, out message);
+                    response = request.CreateResponse(HttpStatusCode.OK, imagenesReporte);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
                     });
                 }
 

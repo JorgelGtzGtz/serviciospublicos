@@ -282,7 +282,7 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
-
+        //G: METODO PARA ENVIAR CODIGO DE CONFIRMACION AL CORREO AL MOMENTO DE REGISTRAR USUARIO O REESTABLECER CONTRASEÑA
         [HttpPost]
         [Route("Send/{code:int}")]
         public async Task<HttpResponseMessage> SendMail(HttpRequestMessage request, Usuario model, int code)
@@ -303,6 +303,87 @@ namespace ServiciosPublicos.Api.Controllers
                     {
                         error = "ERROR",
                         message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+        //G: UN GET PARA OBTENER UUARIOS POR LOGIN, ESTO PARA VERIFICAR UE EL USUARIO NO EXISTE ANTES DEL REGISTRO
+        [Route("GetUsuarioByLogin")]
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetUsuario(HttpRequestMessage request, string loginUsuario)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var usuario = _usuarioservice.GetUsuario(loginUsuario);
+
+                    response = request.CreateResponse(HttpStatusCode.OK, usuario);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+        //METODO PARA VERIFICAR SI EL CORREO EXISTE O NO
+        [Route("GetUsuarioByEmail")]
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetUsuarioByEmail(HttpRequestMessage request, string correoUsuario)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var usuario = _usuarioservice.GetUsuarioEmail(correoUsuario);
+
+                    response = request.CreateResponse(HttpStatusCode.OK, usuario);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+        //METODO PARA VERIFICAR SI EL TELEFONO EXISTE O NO
+        [Route("GetUsuarioByTel")]
+        [HttpGet]
+        public async Task<HttpResponseMessage> GetUsuarioByTelefono(HttpRequestMessage request, string telefonoUsuario)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var usuario = _usuarioservice.GetUsuarioTel(telefonoUsuario);
+
+                    response = request.CreateResponse(HttpStatusCode.OK, usuario);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
                     });
                 }
                 return await Task.FromResult(response);

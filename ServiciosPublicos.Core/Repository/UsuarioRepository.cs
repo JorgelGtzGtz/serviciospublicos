@@ -16,6 +16,8 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetByDynamicFilter(Sql sql);
         Usuario GetUsuario(string usr, string password);
         Usuario GetUsuario(string usr);
+        Usuario GetUsuarioByEmail(string email);
+        Usuario GetUsuarioByPhone(string telefono);
         List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe);
         List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
         int ObtenerUltimoID();
@@ -42,7 +44,9 @@ namespace ServiciosPublicos.Core.Repository
 
             return user;
         }
-
+        //G: METODO PARA ENVIAR CORREO
+        //USA UN CORREO ESPECIFICAMENTE CREADO PARA ESTO EL CUAL ES EL UE SE ENCARGA DE ENVIAR CORREOS A LOS DESTINATARIOS
+        //TODA LA INFORMACION DEL CORREO ESTA EN EL METODO
         public string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo)
         {
             string mensaje = "Error al enviar correo.";
@@ -87,7 +91,31 @@ namespace ServiciosPublicos.Core.Repository
 
             return user;
         }
-       
+
+        public Usuario GetUsuarioByEmail(string email)
+        {
+            var query = new Sql()
+                .Select("*")
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Correo_usuario) = @0", email.ToLower());
+
+            var user = this.Context.SingleOrDefault<Usuario>(query);
+
+            return user;
+        }
+
+        public Usuario GetUsuarioByPhone(string telefono)
+        {
+            var query = new Sql()
+                .Select("*")
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Telefono_usuario) = @0", telefono.ToLower());
+
+            var user = this.Context.SingleOrDefault<Usuario>(query);
+
+            return user;
+        }
+
         public List<dynamic> GetByDynamicFilter(Sql sql)
         {
             return this.Context.Fetch<dynamic>(sql);

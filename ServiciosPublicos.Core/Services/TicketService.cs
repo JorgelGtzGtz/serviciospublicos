@@ -18,6 +18,7 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarTicket(int id, out string Message);
         List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus);
 
+        List<Imagen> GetImagenesByTicket(string idTicket, out string Message);
     }
     public class TicketService : ITicketService
     {
@@ -105,8 +106,23 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        
+        public List<Imagen> GetImagenesByTicket(string idTicket,out string Message)
+        {
+            Message = string.Empty;
+            List<Imagen> listaImagenes = new List<Imagen>();
+            try
+            {
+                var idTic = Int32.Parse(idTicket);
+                listaImagenes = _imagenRepository.GetImagenTickets(idTic);
+                Message = "Imágenes encontradas con exito";
+            }
+            catch (Exception ex)
+            {
+                Message = "No fué posible obtener imágenes del reporte. " + ex;
+            }
+            return listaImagenes;
+        }
 
-       
+
     }
 }

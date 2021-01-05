@@ -252,7 +252,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var result = _reporteServicio.ActualizarReporte(model, out message);
+                    var result = _reporteServicio.ActualizarReporte(model, HttpContext.Current.Server.MapPath("~") , out message);
                     if (result)
                     {
                         response = request.CreateResponse(HttpStatusCode.OK);
@@ -309,7 +309,7 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Para obtener un listado de todos los reportes
+        //G: PARA VISUALIZAR TODOS LOS REPORTES ASIGNADOS A JEFE DE CUADRILLA EN LA APP
         [HttpGet]
         [Route("GetReporteByJefeAsignado/{id_jefe}/{id_tipo}/{id_estatus}")]
         public async Task<HttpResponseMessage> GetReporteByJefe(HttpRequestMessage request, int id_jefe, int id_tipo, int id_estatus)
@@ -333,6 +333,32 @@ namespace ServiciosPublicos.Api.Controllers
                     });
                 }
 
+                return await Task.FromResult(response);
+            });
+        }
+        //G:METODO PARA ENVIAR SMS DE AVISO
+        [HttpPost]
+        [Route("SendSMS")]
+        public async Task<HttpResponseMessage> SendMail(HttpRequestMessage request)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var result = _reporteServicio.SendSMS(out message);
+                    response = request.CreateResponse(HttpStatusCode.OK, message);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
                 return await Task.FromResult(response);
             });
         }

@@ -14,6 +14,8 @@ namespace ServiciosPublicos.Core.Services
     {
         Usuario GetUsuario(int id);
         Usuario GetUsuario(string usr);
+        Usuario GetUsuarioEmail(string email);
+        Usuario GetUsuarioTel(string telefono);
         Usuario GetUsuario(string usr, string password);
         List<Usuario> GetUsuarios();
         List<dynamic> GetUsuariosFiltro(string textoB, string estado, string tipoU, string repActivos);
@@ -47,6 +49,16 @@ namespace ServiciosPublicos.Core.Services
         public Usuario GetUsuario(string usr)
         {
             return _usuarioRepository.GetUsuario(usr);
+        }
+
+        public Usuario GetUsuarioEmail(string email)
+        {
+            return _usuarioRepository.GetUsuarioByEmail(email);
+        }
+
+        public Usuario GetUsuarioTel(string telefono)
+        {
+            return _usuarioRepository.GetUsuarioByPhone(telefono);
         }
 
         public List<Usuario> GetUsuarios() {
@@ -145,7 +157,7 @@ namespace ServiciosPublicos.Core.Services
             }
             return result;
         }
-
+        //G: LLAMA DIRECTO AL METODO DE ENVIAR CORREO ENVIANDO CODIGO DE CONFIRMACION Y MENSAJE POR PARAMETROS
         public string SendMail(Usuario user, out string Message, int code)
         {
             Message = _usuarioRepository.EnviarCorreo(user.Correo_usuario, "Confirma tu correo", "Tu código de verificación es: "+code);
