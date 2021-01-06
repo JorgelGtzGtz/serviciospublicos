@@ -1,15 +1,12 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
-
-interface Reporte{
-  num: number;
-  fechaInicio: string;
-  numTickets: number;
-  colonia: string;
-  calle: string;
-  descripcion: string;
-}
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
+import { DialogService } from '../../../services/dialog-service.service';
+import { Reporte } from '../../../Interfaces/IReporte';
+import { Imagen } from '../../../Interfaces/IImagen';
+import { ImagenService } from '../../../services/imagen.service';
+import { ReporteService } from '../../../services/reporte.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-cierre-reportes',
@@ -17,23 +14,24 @@ interface Reporte{
   styleUrls: ['./dialog-ver-editar-nuevo-cierre-reportes.component.css']
 })
 export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
-  imagenesApertura: string [];
-  imagenesCierre: string [];
+  @ViewChild('inputFile') inputFile: ElementRef;
+  pathImgApertura: string[] = [];
+  pathImgCierre: string[] = [];
+  imagenesApertura: Imagen [] = [];
+  imagenesCierre: Imagen [] = [];
+  uploadedImg: string [] = [];
   mostrarImgApertura: boolean;
   mostrarImgCierre: boolean;
   modificado: boolean;
   form: FormGroup;
-  datosReporte: any;
-  reporte: Reporte = { num: 1,
-    fechaInicio: '05/10/2020',
-    numTickets: 3,
-    colonia: 'Prados del tepeyac',
-    calle: 'Golfo de Tehuantepec',
-    descripcion: 'Las luces de la calle mar de cortez no prenden desde hace 3 dias'
-   };
+  reporte: Reporte;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoCierreReportesComponent>,
               @Inject (MAT_DIALOG_DATA) private data,
+              private dialogService: DialogService,
+              private imagenService: ImagenService,
+              private reporteSevice: ReporteService,
+              private renderer: Renderer2,
               private formBuilder: FormBuilder) {
                 dialogRef.disableClose = true;
                 this.buildForm();
@@ -41,29 +39,19 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
 
 //  Al iniciar se mandarán los datos al componente de mapa
   ngOnInit(): void {
-    this.datosReporte = {
-      posicion: [-109.9285487, 27.5129998, 16],
-      reporte: this.reporte,
-    };
-    this.imagenesApertura = ['alumbrado.jpg', 'baches.jpg', 'fugaAgua.jpg'];
-    this.imagenesCierre = [];
-    if (this.imagenesApertura.length !== 0){
-      this.mostrarImgApertura = true;
-    }else{
-      this.mostrarImgApertura = false;
-    }
-    if (this.imagenesCierre.length !== 0){
-      this.mostrarImgCierre = true;
-    }else{
-      this.mostrarImgCierre = false;
-    }
+    this.obtenerObjetoReporte();
+    this.inicializarFormulario();
+    this.cargarImagenesReporte();
   }
 
-  // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
-  private buildForm(){
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción:Inicializa el formulario reactivo, aquí es donde
+  // se crean los controladores de los inputs.
+  private buildForm(): void{
     this.form = this.formBuilder.group({
-      fechaCierre: ['', [Validators.required]],
-      hora: ['', [Validators.required]]
+      fechaCierre: [''],
+      hora: ['']
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
@@ -75,34 +63,160 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
     });
   }
 
-  get campoFechaCierre(){
+// Entrada: Ninguna
+// Salida: control de tipo AbstractControl.
+// Descripción: Métodos para tener acceso a los controles con los que se obtiene
+// la información de los campos del formulario.
+  get campoFechaCierre(): AbstractControl{
     return this.form.get('fechaCierre');
   }
 
-  get campoHora(){
+  get campoHora(): AbstractControl{
     return this.form.get('hora');
   }
 
-  // Devuelve true si el usuario interactuó con el formulario o false si no.
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para convertir los datos del registro seleccionado en la tabla de inicio
+  // a un objeto de tipo ReporteM.
+  obtenerObjetoReporte(): void{
+    this.reporte = this.reporteSevice.convertirDesdeJSON(this.data.reporte);
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para inicializar los valores de los campos del formulario.
+  inicializarFormulario(): void{
+    // fecha cierre
+    if (this.reporte.FechaCierre_reporte !== null){
+      const fechaHora: string[] = this.reporteSevice.separarFechaHora(this.reporte.FechaCierre_reporte);
+      this.campoFechaCierre.setValue(fechaHora[0]);
+      this.campoHora.setValue(fechaHora[1]);
+    }
+  }
+
+  // Entrada: Ninguna
+  // Salida: valor boolean.
+  // Descripción: Método que devuelve true si el usuario interactuó con el formulario o false si no.
   obtenerEstadoFormulario(): boolean{
     return this.modificado;
   }
 
-  // Método que se llama cuando se le da click en guardar en el formulario.
-  guardar() {
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para obtener las imágenes de apertura y cierre que
+  // contiene el reporte.
+cargarImagenesReporte(): void{
+  // Imagenes de apertura
+  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 1)
+  .subscribe( (imgApertura: Imagen[]) => {
+    this.pathImgApertura = this.imagenService.llenarListaPathImagenes(imgApertura);
+    this.inicializarContenedorImagenes();
+    console.log('SE CARGAN 2');
+  }, (error: HttpErrorResponse) => {
+    console.log('Error al obtener imágenes. ' + error);
+  });
+
+  // imágenes de cierre
+  this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 2)
+  .subscribe( (imgCierre: Imagen[]) => {
+    this.pathImgCierre = this.imagenService.llenarListaPathImagenes(imgCierre);
+    this.inicializarContenedorImagenes();
+  }, (error: HttpErrorResponse) => {
+    console.log('Error al obtener imágenes de cierre. ' + error);
+  });
+}
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método que verifica si las listas de imágenes contienen
+  // elementos para determinar si se muestran las imágenes o un mensaje para indicar que no hay.
+  inicializarContenedorImagenes(): void{
+    if (this.pathImgApertura.length !== 0){
+      this.mostrarImgApertura = true;
+    }else{
+      this.mostrarImgApertura = false;
+    }
+    if (this.pathImgCierre.length !== 0){
+      this.mostrarImgCierre = true;
+    }else{
+      this.mostrarImgCierre = false;
+    }
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método que se llama al presionar el botón "Subir imágenes"
+  // con el fin de abrir la ventana para selección de archivos del input tipo = file
+  abrirVentanaImagenes(): void{
+    this.renderer.selectRootElement(this.inputFile.nativeElement).click();
+  }
+
+  // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
+  // Salida: vacío.
+  // Descripción: Método que recibe el evento que se genera al seleccionar imagenes en input
+  // obtiene la lista de files o imagenes y las almacena en el servicio de imagen
+  // Muestra en pantalla las imagenes seleccionadas.
+   obtenerImagenesSubidas(event): void{
+    const photosList = event.target.files;
+    this.imagenService.setListaImagenesSel(photosList);
+    this.uploadedImg = this.imagenService.readThis(photosList);
+  }
+
+  // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
+  // Salida: vacío.
+  // Descripción: Método que recibe el evento que se genera al seleccionar imagenes en input
+  // obtiene la lista de files o imagenes y las almacena en el servicio de imagen
+  // Muestra en pantalla las imagenes seleccionadas.
+  async accionGuardar(): Promise<void>{
+    // Obtener datos a actualizar
+    const fechaCierre = this.campoFechaCierre.value;
+    const horaCierre = this.campoHora.value;
+    const fechaCierreHora: string = this.reporteSevice.juntarFechaHora(fechaCierre, horaCierre);
+    this.reporte.FechaCierre_reporte = fechaCierreHora;
+    this.reporte.Estatus_reporte = 2;
+
+    // Obtener imágenes
+    if (this.uploadedImg.length > 0){
+      this.imagenesCierre = await this.imagenService.llenarListaImagen(2);
+      this.reporteSevice.insertarImgReporte(this.reporte, this.imagenesCierre).subscribe(res => {
+        console.log('Imagenes de cierre:', this.imagenesCierre);
+        console.log(res);
+      }, (error: HttpErrorResponse) => {
+        alert('Surgió un error al subir imágenes de cierre de reporte. Inténtelo más tarde o verifique las imágenes');
+        console.log('Imágenes de cierre no pudieron ser procesadas.', error.message);
+      });
+    }
+    // actualizar reporte
+    this.reporteSevice.actualizarReporte(this.reporte). subscribe( respuesta => {
+      alert('¡Cierre de reporte exitoso!');
+      this.dialogRef.close();
+    }, (error: HttpErrorResponse) => {
+      alert('¡Lo sentimos! El cierre no se ha podido efectuar. Verifique que los datos sean correctos o solicite ayuda. ');
+      console.log('Error al efectuar actualización para cierre de reporte.', error.message);
+    });
+
+
+  }
+
+  // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
+  // Salida: vacío.
+  // Descripción: Método que se llama cuando se le da click en guardar en el formulario para
+  // llamar al método "accionGuardar" que efectúa los procesos para mandar información a la API.
+  guardar(): void {
     // event.preventDefault();
     if (this.form.valid){
-      const value = this.form.value;
-      alert('¡Cierre de reporte exitoso!');
-      this.dialogRef.close(this.data);
-      console.log(value);
+      this.accionGuardar();
     } else{
       this.form.markAllAsTouched();
     }
   }
 
-  cerrarDialog(): void{
-    this.dialogRef.close();
-  }
+// Método que a través del método "verificarCambios" del servicio de DialogService
+// verifica si el usuario interactuó con el formulario.
+// Si la interacción sucedió se despliega un mensaje de confirmación.
+cerrarDialog(): void{
+  this.dialogService.verificarCambios(this.dialogRef);
+}
 
 }

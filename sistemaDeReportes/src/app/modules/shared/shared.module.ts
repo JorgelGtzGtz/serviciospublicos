@@ -10,9 +10,9 @@ import { TablaComponent } from '../../shared/tabla/tabla.component';
 
 // PIPES
 import { CapitalizadoPipe } from '../../pipes/capitalizado.pipe';
+import { CustomDate } from '../../pipes/customDate.pipe';
+import { EstadoReporte } from '../../pipes/estadoReporte.pipe';
 
-// MAPA
-import { AgmCoreModule } from '@agm/core';
 
 // MODULES
 import { MatIconModule } from '@angular/material/icon';
@@ -20,7 +20,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 
 // SERVICES
-import { DialogServiceService } from '../../services/dialog-service.service';
+import { DialogService } from '../../services/dialog-service.service';
+
+// GOOGLE MAPS
+import { AgmCoreModule } from '@agm/core';
+import { environment } from '../../../environments/environment';
 
 @NgModule({
   declarations: [
@@ -29,16 +33,18 @@ import { DialogServiceService } from '../../services/dialog-service.service';
     NavbarComponent,
     SidebarComponent,
     TablaComponent,
-    CapitalizadoPipe
+    CapitalizadoPipe,
+    CustomDate,
+    EstadoReporte
   ],
   imports: [
     CommonModule,
     MatIconModule,
     MatButtonModule,
+    RouterModule,
     AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyCJv_Hxz7_A7OTUNDIz-CnyOOcLlnuq530'
-    }),
-    RouterModule
+      apiKey: environment.mapsKey
+    })
   ],
   exports: [
     HeaderComponent,
@@ -46,10 +52,12 @@ import { DialogServiceService } from '../../services/dialog-service.service';
     NavbarComponent,
     SidebarComponent,
     TablaComponent,
-    CapitalizadoPipe
+    CapitalizadoPipe,
+    CustomDate,
+    EstadoReporte
   ],
   providers: [
-    DialogServiceService
+    DialogService
   ]
 })
 export class SharedModule { }

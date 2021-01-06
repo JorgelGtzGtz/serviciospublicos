@@ -3,6 +3,8 @@ import {Location} from '@angular/common';
 import { NavigationStart, Router, RouterEvent } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { tap, filter } from 'rxjs/operators';
+import { UsuarioService } from '../../services/usuario.service';
+import { Usuario } from 'src/app/Interfaces/IUsuario';
 
 @Component({
   selector: 'app-pages',
@@ -12,7 +14,8 @@ import { tap, filter } from 'rxjs/operators';
 export class PagesComponent implements OnInit {
   seccion: string;
 
-  constructor(private location: Location, private router: Router, private matDialog: MatDialog ) {
+  constructor(private location: Location, private router: Router, private matDialog: MatDialog,
+              private usuarioService: UsuarioService ) {
     this.obtenerNombreSeccion();
     // this.cerrarDialogsAbiertos();
   }
@@ -38,9 +41,9 @@ export class PagesComponent implements OnInit {
   }
 
   generarNombreSeccion(urlActual: string): void {
-    let urlArray = urlActual.split('/');
-    let longitud = urlArray.length;
-    let lugar = urlArray[longitud - 1];
+    const urlArray = urlActual.split('/');
+    const longitud = urlArray.length;
+    const lugar = urlArray[longitud - 1];
     switch (lugar) {
       case 'tiposDeUsuarios':
         this.seccion = 'Tipos de usuarios';
@@ -63,8 +66,17 @@ export class PagesComponent implements OnInit {
       case 'cierreDeReportes':
         this.seccion = 'Cierre de reportes';
         break;
+      case 'tiposDeReportes':
+        this.seccion = 'Tipos de reportes';
+        break;
+      case 'reportadorDeInformes':
+        this.seccion = 'Reportador de informes';
+        break;
+      case 'home':
+        this.seccion = 'Inicio';
+        break;
       default:
-        this.seccion = ' ';
+        this.seccion = '';
         break;
     }
   }

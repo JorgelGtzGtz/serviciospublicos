@@ -61,6 +61,15 @@ button {
 }
 
 
+/* TABLA */
+
+.btn-proceso {
+    width: 100px;
+    margin: 5px 0;
+    background-color: #ececf0;
+}
+
+
 /* Para tablets */
 
 @media only screen and (min-width:600px) {
@@ -80,6 +89,11 @@ button {
     }
     .btn-nuevo {
         float: none;
+    }
+    /* TABLA */
+    .btn-proceso {
+        width: 100px;
+        margin: 5px 0;
     }
 }
 
@@ -101,5 +115,15 @@ button {
         /* width: 100%; */
         width: 120px;
         margin-top: 10px;
+    }
+    #btn-limpiar {
+        width: 150px;
+    }
+    /* TABLA */
+    .btn-proceso {
+        width: 110px;
+        margin: 5px 10px;
+        line-height: 30px;
+        padding: 0 12px;
     }
 }

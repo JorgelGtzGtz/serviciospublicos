@@ -3,7 +3,7 @@
 <mat-dialog-content>
     <div class="container-fluid">
         <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
-        <app-mapa-reportes [datos]="datosReporte"></app-mapa-reportes>
+        <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
 
         <section id="imagenesReporte">
             <h3>Imágenes del reporte</h3>
@@ -16,8 +16,13 @@
                     <div class="card card-body">
                         <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
                         <ng-template #bloqueImgApertura>
-                            <div class="img-container">
-                                <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                            <div *ngIf="pathImgApertura.length === 0" class="img-container">
+                                <div class="spinner-border align-self-center m-5" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div *ngIf="pathImgApertura.length !== 0" class="img-container">
+                                <img *ngFor="let path of pathImgApertura" class="img-reporte" [src]="path" onerror="src = 'http://localhost:50255/Photos/no-image.png'">
                             </div>
                         </ng-template>
                     </div>
@@ -31,8 +36,13 @@
                     <div class="card card-body">
                         <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
                         <ng-template #bloqueImgCierre>
-                            <div class="img-container">
-                                <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                            <div *ngIf="pathImgCierre.length === 0" class="img-container">
+                                <div class="spinner-border align-self-center m-5" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div *ngIf="pathImgCierre.length !== 0" class="img-container">
+                                <img *ngFor="let path of pathImgCierre" class="img-reporte" [src]="path" onerror="src = 'http://localhost:50255/Photos/no-image.png'">
                             </div>
                         </ng-template>
                     </div>
@@ -72,15 +82,18 @@
 
             </div>
             <div class="row mb-3">
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="row form-group">
-                        <label class="lblForm col-md-auto col-form-label" for="imagenCierre">Agregar imágenes </label>
-                        <div class="col-md-8 col-12">
-                            <input id="imagenCierre" type="file" multiple class="form-control-file">
-                            <!-- <button mat-raised-button>Imágenes</button> -->
+                <!-- <div class="col-lg-6 col-md-6 col-12"> -->
+                <div class="row form-group">
+                    <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
+                    <button id="btn-subirImg" mat-raised-button (click)="abrirVentanaImagenes()">Subir imágenes</button>
+                    <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
+                    <div>
+                        <div class="img-container" *ngIf="uploadedImg.length > 0">
+                            <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
                         </div>
                     </div>
                 </div>
+                <!-- </div> -->
             </div>
         </form>
     </div>

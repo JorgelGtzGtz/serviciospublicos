@@ -19,7 +19,7 @@ namespace ServiciosPublicos.Core.Repository
         TKey Add<TKey>(TEntity entity);
         void Modify(TEntity entity);
         void Remove(TEntity entity);
-        TKey InsertOrUpdate<TKey>(TEntity entity);
+        TKey InsertOrUpdate<TKey>(TEntity entity, string propiedad);
         void BeginTransaction();
         void CommitTransaction();
         void RollBackTransaction();
@@ -69,22 +69,24 @@ namespace ServiciosPublicos.Core.Repository
             return Context.Fetch<TEntity>(sql);
         }
 
-        public TKey InsertOrUpdate<TKey>(TEntity entity)
+        public TKey InsertOrUpdate<TKey>(TEntity entity, string propiedad)
         {
             //var pd = PocoData.ForType(typeof(TEntity), Context.DefaultMapper);
             //var primaryKey = pd.TableInfo.PrimaryKey;
 
-            var id = entity.GetType().GetProperty("ID").GetValue(entity, null);
+            var id = entity.GetType().GetProperty(propiedad).GetValue(entity, null);
+            // Busca el elemento con el id obtenido, si no lo encuentra devuelve un default
+            // por eso en la condicion se verifica si devolvió un default para saber si ya existe
             var exists = Context.SingleOrDefault<TEntity>(id);
-
             if (!EqualityComparer<TEntity>.Default.Equals(exists, default(TEntity)))
             {
                 Context.Update(entity);
                 return (TKey)id;
             }
-
+            //regresa el id
             return (TKey)Context.Insert(entity);
         }
+                
 
         public void Modify(TEntity entity)
         {

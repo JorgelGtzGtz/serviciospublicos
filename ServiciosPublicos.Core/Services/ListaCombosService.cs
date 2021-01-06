@@ -1,4 +1,4 @@
-﻿using dbconnection;
+﻿using dbServiciosPublicos;
 using ServiciosPublicos.Core.Repository;
 using PetaPoco;
 using System;
@@ -11,7 +11,7 @@ namespace ServiciosPublicos.Core.Services
 {
     public interface IListaCombosService
     {
-        List<TiposUsuario> GetTipoUsuarios();
+        List<Tipo_usuario> GetTipoUsuarios();
     }
 
     public class ListaCombosService : IListaCombosService
@@ -23,7 +23,7 @@ namespace ServiciosPublicos.Core.Services
             _tipoUsuarioRepository = tipoUsuarioRepository;
         }
 
-        public List<TiposUsuario> GetTipoUsuarios()
+        public List<Tipo_usuario> GetTipoUsuarios()
         {
             Sql query = new Sql()
                 .Select("*").From("TiposUsuario");

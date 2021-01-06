@@ -3,7 +3,13 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
-        <form [formGroup]="form">
+        <div *ngIf="!datosCargados()" class="spinner-container">
+            <div class="spinner-border align-self-center" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
+        <form *ngIf="datosCargados()" [formGroup]="form">
             <section id="datosUsuario">
                 <div class="row form-sections">
 
@@ -69,11 +75,11 @@
                         <div class="row justify-content-end row-input-group">
                             <label id="lblGenero" class="col-md-auto">Género: </label>
                             <div class="col-md-4 custom-control custom-radio custom-control-inline">
-                                <input type="radio" id="masculinoRadio" name="genero" formControlName="genero" value="masculino" class="custom-control-input">
+                                <input type="radio" id="masculinoRadio" name="genero" formControlName="genero" value="M" class="custom-control-input">
                                 <label class="custom-control-label" for="masculinoRadio">Masculino</label>
                             </div>
                             <div class="col-md-4 custom-control custom-radio custom-control-inline">
-                                <input type="radio" id="femeninoRadio" name="genero" formControlName="genero" value="femenino" class="custom-control-input">
+                                <input type="radio" id="femeninoRadio" name="genero" formControlName="genero" value="F" class="custom-control-input">
                                 <label class="custom-control-label" for="femeninoRadio">Femenino</label>
                             </div>
                             <div *ngIf="campoGenero.errors && campoGenero.touched">
@@ -89,10 +95,12 @@
                     <label class="lblForm col-form-label col-md-auto" for="tipoUsuario">Tipo de usuario</label>
                     <div class="col-md-3">
                         <select class="custom-select" id="tipoUsuario" formControlName="tipoUsuario">
-                            <option selected>Todos</option>
-                            <option value="1">Activo</option>
-                            <option value="2">Inactivo</option>
-                            <option value="3">Todos</option>
+                            <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                            <option *ngFor="let tipo of tiposUsuario"                                    
+                                    [ngValue] = "tipo.ID_tipoUsuario"
+                                    >
+                                {{ tipo.Descripcion_tipoUsuario }}
+                            </option>
                         </select>
                         <div *ngIf="campoTipoUsuario.errors && campoTipoUsuario.touched">
                             <p class="error" *ngIf="campoTipoUsuario.hasError('required')">Campo requerido</p>

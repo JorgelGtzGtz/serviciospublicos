@@ -32,11 +32,19 @@ button {
     color: #ff0000;
 }
 
+.ocultar {
+    display: none;
+}
+
 
 /* IMAGENES */
 
 .img-group {
     margin: 10px 0;
+}
+
+#imagenesReporte {
+    margin-top: 80px;
 }
 
 .img-container {
@@ -47,6 +55,17 @@ button {
     width: 100%;
     height: auto;
     margin: 10px;
+}
+
+.uploadedImages {
+    width: 30%;
+    height: auto;
+    margin: 10px;
+}
+
+#btn-subirImg {
+    background-color: #ececf0;
+    margin-bottom: 20px;
 }
 
 

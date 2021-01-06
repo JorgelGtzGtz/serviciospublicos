@@ -3,7 +3,12 @@
 
     <div class="content"> -->
 <div class="container-fluid">
-    <div class="card">
+    <div *ngIf="!datosCargados()" class="card justify-content-center">
+        <div class="spinner-border d-flex align-self-center m-5" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="datosCargados()" class="card">
         <div class="content-header">
             <form [formGroup]="form">
                 <div class="row">
@@ -12,10 +17,10 @@
                             <label id="lblSector" class="lblForm col-md-auto" for="sectorSelector">Sector</label>
                             <div class="col-lg-8 col-md-12">
                                 <select class="custom-select" id="sectorSelector" formControlName="sector">
-                                            <option selected>Todos</option>
-                                            <option value="1">Sector 1</option>
-                                            <option value="2">Sector 2</option>
-                                            <option value="3">Sector 3</option>
+                                            <option>Todos</option>
+                                            <option *ngFor="let sector of listaSectores" [ngValue] = "sector.ID_sector">
+                                                {{ sector.Descripcion_sector }}
+                                            </option>
                                         </select>
                             </div>
                         </div>
@@ -38,44 +43,73 @@
                     </div>
                 </div>
                 <div class="input-group mb-3 row">
-                    <div class="col-lg-4 col-md-5 col-sm-6 col-12">
+                    <div class="col-xl-4 col-lg-3 col-md-6 col-sm-6 col-12">
                         <div class="row">
                             <label id="lblEstado" class="lblForm col-md-auto" for="estadoSelector">Estado</label>
                             <div class="col-lg-8 col-md-12">
                                 <select class="custom-select" id="estadoSelector" formControlName="estado">
-                                            <option selected>Todos</option>
-                                            <option value="1">Cancelados</option>
-                                            <option value="2">Abiertos</option>
-                                            <option value="3">Cerrados</option>
-                                        </select>
+                                    <option >Todos</option>
+                                    <option value="1">Abierto</option>
+                                    <option value="2">Cerrado</option>
+                                    <option value="3">Inconcluso</option>
+                                    <option value="4">Cancelado</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-6 col-md-5 col-sm-6 col-12">
+                    <div class=" col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
                         <div class="row">
                             <label id="lblTReporte" class="lblForm col-md-auto" for="tipoReporteSelector">Tipo de reporte</label>
                             <div class="col-lg-6 col-md-12">
                                 <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
-                                            <option selected>Todos</option>
-                                            <option value="1">Cancelados</option>
-                                            <option value="2">Abiertos</option>
-                                            <option value="3">Cerrados</option>
+                                            <option>Todos</option>
+                                            <option *ngFor="let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte"> 
+                                                {{tipo.Descripcion_tipoReporte}} 
+                                            </option>
                                         </select>
                             </div>
                         </div>
                     </div>
-                    <div class=" col-lg-2 col-md-2 col-sm-12 align-self-md-end">
-                        <button id="btn-buscar" type="button" class="btn btn-primary btn-header  mb-md-0" mat-raised-button color="primary" (click)="buscar()">
+                    <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+                        <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
+                                     Limpiar búsqueda
+                        </button>
+                    </div>
+                    <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12 align-self-md-end">
+                        <button id="btn-buscar" type="button" class="btn-header" mat-raised-button color="primary" (click)="buscar()">
                             <i class="fas fa-search"></i>
                                      Buscar
                         </button>
                     </div>
-
                 </div>
             </form>
         </div>
         <div class="content-card">
-            <app-tabla [modeloTabla]="datosAsignacionTickets" (enviarAccion)="seleccionarReporte($event)"></app-tabla>
+            <!-- <app-tabla [modeloTabla]="datosAsignacionTickets" (enviarAccion)="seleccionarReporte($event)"></app-tabla> -->
+            <div class="table-wrapper">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let reporte of listaReportes">
+                            <td>{{ reporte.ID_reporte }}</td>
+                            <td>{{ reporte.FechaRegistro_reporte |customDate }}</td>
+                            <td>{{ reporte.NoTickets_reporte }}</td>
+                            <td>{{ reporte.Estatus_reporte | estadoReporte }}</td>
+                            <td>{{ reporte.sectorDescripcion }}</td>
+                            <td>{{ reporte.Direccion_reporte }}</td>
+                            <td>
+                                <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="seleccionarReporte(reporte)">
+                                    Seleccionar
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

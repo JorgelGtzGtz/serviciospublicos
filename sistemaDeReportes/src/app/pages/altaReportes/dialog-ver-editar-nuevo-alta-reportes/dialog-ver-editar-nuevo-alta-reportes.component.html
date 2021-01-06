@@ -2,7 +2,12 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
-        <form [formGroup]="form">
+        <div *ngIf="!datosCargados()" class="spinner-container">
+            <div class="spinner-border align-self-center" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <form *ngIf="datosCargados()" [formGroup]="form">
             <div class="row form-sections mb-3">
                 <div class="col-sm-6 col-12">
                     <div class="row mb-2 form-group justify-content-start row-input-group">
@@ -16,10 +21,10 @@
                         <label class="lblForm col-auto col-form-label" for="tipoReporteSelector">Tipo de reporte</label>
                         <div class="col-lg-8 col-md col-12">
                             <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
-                                <option selected>Todos</option>
-                                <option value="1">Tipo1</option>
-                                <option value="2">Tipo2</option>
-                                <option value="3">Tipo3</option>
+                                <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                                <option  *ngFor = "let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte">
+                                    {{ tipo.Descripcion_tipoReporte }}
+                                </option>
                             </select>
                             <div *ngIf="campoTipoReporte.errors && campoTipoReporte.touched">
                                 <p class="error" *ngIf="campoTipoReporte.hasError('required')">Campo requerido</p>
@@ -31,10 +36,10 @@
                         <label class="lblForm col-md-auto col-form-label" for="sectorSelector">Sector</label>
                         <div class="col-md-8 col-12">
                             <select class="custom-select" id="sectorSelector" formControlName="sector">
-                                <option selected>Todos</option>
-                                <option value="1">Tipo1</option>
-                                <option value="2">Tipo2</option>
-                                <option value="3">Tipo3</option>
+                                <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                                <option *ngFor = "let sector of listaSectores" [ngValue] = "sector.ID_sector">
+                                    {{ sector.Descripcion_sector }}
+                                </option>
                             </select>
                             <div *ngIf="campoSector.errors && campoSector.touched">
                                 <p class="error" *ngIf="campoSector.hasError('required')">Campo requerido</p>
@@ -71,7 +76,7 @@
                 <div class="row form-group form-sections row-input-group">
                     <label id="lblCallePrincipal" class="col-form-label col-md-auto" for="callePrincipal">Calle </label>
                     <div class="col p-0">
-                        <input type="text" class="form-control" id="callePrincipal" formControlName="calleP">
+                        <input type="text" class="form-control" id="callePrincipal" placeholder="Ej.Calle Hidalgo #150" formControlName="calleP">
                         <div *ngIf="campoCallePrincipal.errors && campoCallePrincipal.touched">
                             <p class="error" *ngIf="campoCallePrincipal.hasError('required')">Campo requerido</p>
                         </div>
@@ -133,17 +138,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="row form-group row-input-group">
-                            <label id="lblPoblacion" class="col-form-label col-md-auto" for="poblacion">Poblacion</label>
-                            <div class="col-md-6 p-0">
-                                <input type="text" class="form-control" id="poblacion" formControlName="poblacion">
-                                <div *ngIf="campoPoblacion.errors && campoPoblacion.touched">
-                                    <p class="error" *ngIf="campoPoblacion.hasError('required')">Campo requerido</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </section>
 
@@ -151,7 +145,7 @@
                 <div class="row form-group form-sections row-input-group">
                     <label id="lblDescripcion" class="col-form-label col-md-12" for="descripcion">Descripción del reporte</label>
                     <div class="col-md-12 p-0">
-                        <textarea type="text" class="form-control" id="descripcion" maxlength="130" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/130
+                        <textarea type="text" class="form-control" id="descripcion" maxlength="130" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/40
                         <div *ngIf="campoDescripcionReporte.errors && campoDescripcionReporte.touched">
                             <p class="error" *ngIf="campoDescripcionReporte.hasError('required')">Campo requerido</p>
                             <p class="error" *ngIf="campoDescripcionReporte.hasError('maxlength')"> Sobrepasado. La cantidad máxima de caracteres de 120</p>
@@ -160,12 +154,18 @@
                 </div>
             </section>
 
-            <section id="imagenesReporte">
-                <!-- <div class="mt-6"> -->
+            <section id="imagenesReporte" *ngIf="accion === 'nuevo' || accion === 'ver'">
                 <h3>Imágenes del reporte</h3>
                 <hr>
                 <div class="form-group form-sections row" *ngIf="accion === 'nuevo'">
-                    <input type="file" multiple class="form-control-file" id="inputImgIniciales" placeholder="Seleccionar">
+                    <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
+                    <button id="btn-subirImg" mat-raised-button (click)="abrirVentanaImagenes()">Subir imágenes</button>
+                    <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
+                    <div>
+                        <div class="img-container" *ngIf="uploadedImg.length > 0">
+                            <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
+                        </div>
+                    </div>
                 </div>
 
                 <div *ngIf="accion === 'ver'" class="row form-sections">
@@ -176,8 +176,13 @@
                         <div class="card card-body">
                             <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
                             <ng-template #bloqueImgApertura>
-                                <div class="img-container">
-                                    <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                                <div *ngIf="pathImgApertura.length === 0" class="img-container">
+                                    <div class="spinner-border align-self-center m-5" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                                <div *ngIf="pathImgApertura.length !== 0" class="img-container">
+                                    <img *ngFor="let path of pathImgApertura" class="img-reporte" [src]="path" onerror="src = 'http://localhost:50255/Photos/no-image.png'">
                                 </div>
                             </ng-template>
                         </div>
@@ -191,14 +196,18 @@
                         <div class="card card-body">
                             <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
                             <ng-template #bloqueImgCierre>
-                                <div class="img-container">
-                                    <img *ngFor="let img of imagenesCierre" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                                <div *ngIf="pathImgCierre.length === 0" class="img-container">
+                                    <div class="spinner-border align-self-center m-5" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                                <div *ngIf="pathImgCierre.length !== 0" class="img-container">
+                                    <img *ngFor="let path of pathImgCierre" class="img-reporte" [src]="path" onerror="src = 'http://localhost:50255/Photos/no-image.png'">
                                 </div>
                             </ng-template>
                         </div>
                     </div>
                 </div>
-                <!-- </div> -->
             </section>
 
             <section id="cancelacionReporte" *ngIf="accion === 'editar'">
@@ -206,7 +215,7 @@
                 <hr>
                 <div class="row form-sections">
                     <div class="col-12">
-                        <button type="button" id="btn-cancelar" [disabled]="reporteCancelado()" mat-raised-button (click)="cancelarReporte()">
+                        <button type="button" id="btn-cancelar" [disabled]="estadoReporte !== 1" mat-raised-button (click)="cancelarReporte()">
                             <i class="fas fa-window-close"></i> 
                             Cancelar reporte
                         </button>
@@ -226,6 +235,6 @@
 </div>
 
 <div matDialogActions align="end">
-    <button type="button" [disabled]="accion === 'ver' || reporteCancelado()" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button type="button" [disabled]="accion === 'ver' || estadoReporte === 4" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

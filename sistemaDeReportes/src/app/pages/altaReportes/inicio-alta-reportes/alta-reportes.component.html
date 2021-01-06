@@ -1,5 +1,10 @@
 <div class="container-fluid">
-    <div class="card">
+    <div *ngIf="!datosCargados()" class="card justify-content-center">
+        <div class="spinner-border d-flex align-self-center m-5" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+    <div *ngIf="datosCargados()" class="card">
         <div class="content-header">
             <form [formGroup]="form">
                 <div class="row">
@@ -8,10 +13,10 @@
                             <label class="lblForm col-lg-auto col-md-12" for="tipoReporteSelector">Tipo de reporte</label>
                             <div class="col-lg-6 col-md-12">
                                 <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
-                                    <option selected>Todos</option>
-                                    <option value="1">Tipo1</option>
-                                    <option value="2">Tipo2</option>
-                                    <option value="3">Tipo3</option>
+                                    <option>Todos</option>
+                                    <option *ngFor="let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte"> 
+                                        {{tipo.Descripcion_tipoReporte}} 
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -22,10 +27,10 @@
                             <label class="lblForm col-lg-auto col-md-12" for="cuadrillaSelector">Cuadrilla</label>
                             <div class="col-lg-5 col-md-12">
                                 <select class="custom-select" id="cuadrillaSelector" formControlName="cuadrilla">
-                                    <option selected>Todos</option>
-                                    <option value="1">Tipo1</option>
-                                    <option value="2">Tipo2</option>
-                                    <option value="3">Tipo3</option>
+                                    <option> Todos</option>
+                                    <option *ngFor="let cuadrilla of listaCuadrillas" [ngValue] = "cuadrilla.ID_cuadrilla">
+                                         {{ cuadrilla.Nombre_cuadrilla }} 
+                                        </option>
                                 </select>
                             </div>
                         </div>
@@ -38,10 +43,11 @@
                             <label class="lblForm col-lg-auto col-md-12" for="estadoSelector">Estado</label>
                             <div class="col-lg-7 col-md-12">
                                 <select class="custom-select" id="estadoSelectorAR" formControlName="estado">
-                                    <option selected>Todos</option>
-                                    <option value="1">Cancelados</option>
-                                    <option value="2">Abiertos</option>
-                                    <option value="3">Cerrados</option>
+                                    <option >Todos</option>
+                                    <option value="1">Abierto</option>
+                                    <option value="2">Cerrado</option>
+                                    <option value="3">Inconcluso</option>
+                                    <option value="4">Cancelado</option>
                                 </select>
                             </div>
                         </div>
@@ -52,10 +58,10 @@
                             <label class="lblForm col-lg-auto col-md-12" for="sectorSelector">Sector</label>
                             <div class="col-lg-8 col-md-12">
                                 <select class="custom-select" id="sectorSelector" formControlName="sector">
-                                    <option selected>Todos</option>
-                                    <option value="1">Tipo1</option>
-                                    <option value="2">Tipo2</option>
-                                    <option value="3">Tipo3</option>
+                                    <option>Todos</option>
+                                    <option *ngFor="let sector of listaSectores" [ngValue] = "sector.ID_sector">
+                                        {{ sector.Descripcion_sector }}
+                                    </option>
                                 </select>
                             </div>
                         </div>
@@ -68,7 +74,7 @@
                                 <select class="custom-select" id="origenSelector" formControlName="origen">
                                     <option selected>Todos</option>
                                     <option value="1">App</option>
-                                    <option value="1">Web</option>
+                                    <option value="2">Web</option>
                                 </select>
                             </div>
                         </div>
@@ -76,22 +82,27 @@
 
                 </div>
                 <div class="row">
-                    <div class="col-lg-5 col-md-4 col-12">
+                    <div class="col-lg-3 col-md-6 col-12">
                         <div class="row input-group">
                             <label class="lblForm col-lg-auto col-md-12" for="fechaInicio">Fecha </label>
-                            <div class="col-lg-5 col-md-12">
+                            <div class="col-lg-8 col-md-12">
                                 <input type="date" class="form-control" id="fechaInicio" formControlName="fechaInicio">
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-3 col-md-4 col-12">
+                    <div class="col-lg-3 col-md-6 col-12">
                         <div class="row input-group">
                             <label class="lblForm col-lg-auto col-md-12" for="fechaFinal">al </label>
                             <div class="col-lg-9 col-md-12">
                                 <input type="date" class="form-control" id="fechaFinal" formControlName="fechaFinal">
                             </div>
                         </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6 col-12">
+                        <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
+                                     Limpiar búsqueda
+                        </button>
                     </div>
                     <div class="col-lg-2 col-md-6 col-12">
                         <button id="btn-buscar" type="button" class="btn btn-primary btn-header" mat-raised-button color="primary" (click)="buscar()">
@@ -110,7 +121,33 @@
             </form>
         </div>
         <div class="content-card">
-            <app-tabla [modeloTabla]="datosAltaReportes" (enviarAccion)="recibirAccion($event)"></app-tabla>
+            <!-- <app-tabla [modeloTabla]="datosAltaReportes" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
+            <div class="table-wrapper">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let reporte of listaReportes">
+                            <td>{{ reporte.ID_reporte }}</td>
+                            <td>{{ reporte.FechaRegistro_reporte | customDate }}</td>
+                            <td>{{ reporte.FechaCierre_reporte | customDate }}</td>
+                            <td>{{ reporte.Estatus_reporte | estadoReporte }}</td>
+                            <td>{{ reporte.sectorDescripcion }}</td>
+                            <td>{{reporte.Direccion_reporte}}</td>
+                            <td>
+                                <div class="botones-wrapper">
+                                    <button type="button" id="btn-ver" class="btn-proceso" mat-raised-button (click)="verReporte(reporte)"> <i class="fas fa-eye"></i> Ver</button>
+                                    <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="editarReporte(reporte)"><i class="fas fa-pen"></i> Editar</button>
+                                </div>
+
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

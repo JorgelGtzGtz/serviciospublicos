@@ -40,7 +40,7 @@ input {
 .btn-login {
     margin: 30px 0 15px 0;
     border: none;
-    border-radius: 25px;
+    /* border-radius: 25px; */
     background-color: #343a40;
 }
 

@@ -1,4 +1,11 @@
-img.img-main-screen {
+img.img-logo {
+    /* position: absolute;
+    left: 60%;
+    top: 50%;
+    transform: translate(-50%, -50%); */
     display: block;
-    margin: 100px auto;
+    margin: 7rem auto;
+    width: 50%;
+    height: auto;
+    opacity: 0.5;
 }

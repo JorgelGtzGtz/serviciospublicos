@@ -4,6 +4,9 @@ import { CommonModule } from '@angular/common';
 // FORMULARIOS
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
+// SERVICIOS
+import { DialogService } from '../../../services/dialog-service.service';
+
 // ANGULAR MATERIAL
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -30,6 +33,7 @@ import { SharedModule } from '../../shared/shared.module';
     SharedModule
   ],
   providers: [
+    DialogService
   ],
   exports: [
     DialogVerEditarNuevoUsuarioComponent

@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { environment } from '../../../environments/environment';
-import * as Mapboxgl from 'mapbox-gl';
+import { ReporteM } from '../../Models/ReporteM';
 
 @Component({
   selector: 'app-mapa-reportes',
@@ -8,35 +7,35 @@ import * as Mapboxgl from 'mapbox-gl';
   styleUrls: ['./mapa-reportes.component.css']
 })
 export class MapaReportesComponent implements OnInit {
+  @Input() reporteDatos: ReporteM;
   lat: number;
   lng: number;
   zoom: number;
-  @Input() datos: any;
-  datosReporte: any;
-  // mapa: Mapboxgl.Map;
+  disponibilidad: boolean;
 
 
   constructor() { }
 
   ngOnInit(): void {
-    this.datosReporte = this.datos.reporte;
-    this.lat = this.datos.posicion[0];
-    this.lng = this.datos.posicion[1];
-    this.zoom = this.datos.posicion[2];
-    // Mapboxgl.accessToken = environment.mapboxKey;
-    // this.mapa = new Mapboxgl.Map({
-    // container: 'mapa-mapBox', // container id
-    // style: 'mapbox://styles/mapbox/streets-v11',
-    // center: this.datos.posicion, // starting position LNG  LAT
-    // zoom: 17 // starting zoom
-    //   });
-    // this.crearMarcador(this.datos.posicion);
+    this.inicializarLatLng();
   }
 
-  // crearMarcador(posicion: any): void{
-  //   const marker = new Mapboxgl.Marker()
-  //   .setLngLat(posicion)
-  //   .addTo(this.mapa);
-  // }
+  // Entrada: Ninguna.
+  // Salida: Vacío.
+  // Descripción: Función para inicializar valores de latitud y longitud
+  // para mostrar ubicación en mapa de google. EN caso de no existir lat y lng
+  // mediante la variable "disponibilidad" se indica a un componente que muestre un mensaje.
+  inicializarLatLng(): void{
+    const latAux = this.reporteDatos.Latitud_reporte;
+    const lngAux = this.reporteDatos.Longitud_reporte;
+    if (latAux !== null && lngAux !== null){
+      this.lat = this.reporteDatos.Latitud_reporte;
+      this.lng = this.reporteDatos.Longitud_reporte;
+      this.zoom = 17;
+      this.disponibilidad = true;
+    }else{
+      this.disponibilidad = false;
+    }
+  }
 
 }

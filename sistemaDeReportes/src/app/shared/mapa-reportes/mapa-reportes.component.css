@@ -10,6 +10,12 @@ p {
     font-size: 0.85rem;
 }
 
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .sin-margin {
     margin: 0;
 }
@@ -17,10 +23,10 @@ p {
 
 /* ESTILOS MAPA */
 
-#mapa-mapBox {
+#mapa {
     width: 100%;
-    height: calc(100vh * 0.3);
-    text-align: center;
+    height: calc(100vh * 0.5);
+    /* height: calc(100vh * 0.3); */
 }
 
 
@@ -57,7 +63,7 @@ p {
 /* Para computadoras */
 
 @media only screen and (min-width: 992px) {
-    /* #datos-reporte-container {
-        margin-top: 0;
-    } */
+    #datos-reporte-container {
+        margin: 0;
+    }
 }
