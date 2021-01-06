@@ -28,9 +28,12 @@ export class MapService {
   // Salida: Observable con datos de dirección obtenida.
   // Descripción: Petición Http de tipo GET para obtener
   // la dirección que pertenece a una longitud y latituda dada.
-  obtenerDireccionCoordenadas(latitud: number, longitud: number): string[]{
-    const direccion: string[] = [];
-    return direccion;
+  obtenerDireccionCoordenadas(latitud: number, longitud: number): Observable<object>{
+    let params = new HttpParams();
+    params = params.append('latlng', latitud.toString() + ',' + longitud.toString());
+    params = params.append('key', environment.mapsKey);
+    // https://maps.googleapis.com/maps/api/geocode/json?latlng=40.714224,-73.961452&key=YOUR_API_KEY
+    return this.http.get<object>(this.URL, {params});
   }
 
   // Entrada: valor string para dirección y valor string para colonia.

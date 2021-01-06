@@ -72,9 +72,8 @@ export class PagesComponent implements OnInit {
       case 'reportadorDeInformes':
         this.seccion = 'Reportador de informes';
         break;
-      case 'inicio':
-        const usuario = this.usuarioService.obtenerUsuarioLogueado();
-        this.seccion = 'Bienvenido ' + usuario.Nombre_usuario;
+      case 'home':
+        this.seccion = 'Inicio';
         break;
       default:
         this.seccion = '';

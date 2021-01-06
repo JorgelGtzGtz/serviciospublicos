@@ -4,5 +4,8 @@ img.img-logo {
     top: 50%;
     transform: translate(-50%, -50%); */
     display: block;
-    margin: 10rem auto;
+    margin: 7rem auto;
+    width: 50%;
+    height: auto;
+    opacity: 0.5;
 }

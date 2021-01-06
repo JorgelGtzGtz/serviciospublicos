@@ -21,6 +21,11 @@ export const ROUTES: Routes = [
         .then(mod => mod.NotFoundRoutingModule)
     },
     {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'login'
+      },
+    {
 
         path: '**',
         pathMatch: 'full',
