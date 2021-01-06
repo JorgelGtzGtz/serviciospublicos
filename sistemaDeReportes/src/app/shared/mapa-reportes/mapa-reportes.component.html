@@ -1,11 +1,13 @@
 <div class="row mb-3">
-    <div class="col-lg-6 col-md-6">
-        <agm-map id="mapa" [latitude]="lat" [longitude]="lng">
+    <div class="col-lg-8 col-md-6">
+        <agm-map *ngIf="disponibilidad" id="mapa" [latitude]="lat" [longitude]="lng" [zoom]=zoom class="center">
             <agm-marker [latitude]="lat" [longitude]="lng"></agm-marker>
         </agm-map>
-        <!-- <div id="mapa-mapBox"></div> -->
+        <div *ngIf="!disponibilidad" id="mapa" class="center">
+            <p class="align-self-center">Localización en mapa no disponible</p>
+        </div>
     </div>
-    <div id="datos-reporte-container" class="col-lg-6 col-md-6">
+    <div id="datos-reporte-container" class="col-lg-4 col-md-6">
         <section class=" mb-3" id="datos-reporte">
             <div class="row mt-2">
                 <div class="col">
@@ -13,22 +15,22 @@
                 </div>
                 <div class="col-12 campo-datos-reporte">
                     <h4 class="sin-margin">Descripción:</h4>
-                    <p id="descripcion">{{ datosReporte.descripcion }}</p>
+                    <p id="descripcion">{{ reporteDatos.Observaciones_reporte }}</p>
                 </div>
 
                 <div class="col-12 campo-datos-reporte">
                     <h4 class="sin-margin">Calle:</h4>
-                    <p id="calle">{{ datosReporte.calle }} </p>
+                    <p id="calle">{{ reporteDatos.Direccion_reporte }} </p>
                 </div>
 
                 <div class="col-12 campo-datos-reporte">
                     <h4 class="sin-margin">Colonia:</h4>
-                    <p id="colonia">{{ datosReporte.colonia }} </p>
+                    <p id="colonia">{{ reporteDatos.Colonia_reporte }} </p>
                 </div>
 
                 <div class="col-12 campo-datos-reporte">
                     <h4 class="sin-margin">Fecha:</h4>
-                    <p id="fechaInicio"> {{ datosReporte.fechaInicio }} </p>
+                    <p id="fechaInicio"> {{ reporteDatos.FechaRegistro_reporte | customDate }} </p>
                 </div>
             </div>
         </section>

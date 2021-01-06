@@ -19,7 +19,10 @@ namespace ServiciosPublicos.Api.Controllers
         {
             _reporteTicketService = reporteTicketService;
         }
-          
+
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Reporte_Ticket
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Insertar nuevo registro de tipo Reporte_Ticket en base de datos.
         [HttpPost]
         [Route("Insertar")]
         public async Task<HttpResponseMessage> InsertReporteTicket(HttpRequestMessage request, Reporte_Ticket model)
@@ -31,7 +34,14 @@ namespace ServiciosPublicos.Api.Controllers
                 try
                 {
                     var result = _reporteTicketService.Insertar(model, out message);
-                    response = request.CreateResponse(HttpStatusCode.OK, result);
+                    if (result)
+                    {
+                        response = request.CreateResponse(HttpStatusCode.OK);
+                    }
+                    else
+                    {
+                        response = request.CreateResponse(HttpStatusCode.BadRequest);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -47,8 +57,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-
-        //Para obtener todos los registros de la tabla
+        // Entrada: request de tipo HttpRequestMessage
+        // Salida: respuesta de tipo HttpResponseMessage y lista de tipo Reporte_Ticket.
+        // Descripción: Para obtener todos los registros de la tabla Reporte_ticket
         [HttpGet]
         [Route("GetAll")]
         public async Task<HttpResponseMessage> GetAllReporteTicket(HttpRequestMessage request)
@@ -75,7 +86,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Para obtener los registros relacionados a el id de reporte que se manda
+        // Entrada: request de tipo HttpRequestMessage y ID de reporte de tipo INT
+        // Salida: lista de tipo Reporte_Ticket 
+        // Descripción: Para obtener los registros relacionados a el id de reporte que se manda
         [HttpGet]
         [Route("GetTickets/{idReporte}")]
         public async Task<HttpResponseMessage> GetTickets(HttpRequestMessage request, int idReporte)
@@ -103,8 +116,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-
-        //Para obtener un registro especifico de esta tabla
+        // Entrada: request de tipo HttpRequestMessage y folio Reporte_ticket de tipo INT
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de tipo Reporte_Ticket.
+        // Descripción: Para obtener un registro especifico de esta tabla
         [HttpGet]
         [Route("GetReporteTicket/{folio}")]
         public async Task<HttpResponseMessage> GetReporteTicket(HttpRequestMessage request, int folio)

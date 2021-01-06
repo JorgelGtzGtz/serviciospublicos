@@ -24,10 +24,12 @@ namespace ServiciosPublicos.Api.Controllers
             _ticketService = ticketService;
         }
 
-        //Para obtener un listado de todos los reportes
+        // Entrada: Http request y ID tipo de Cuadrilla de tipo Int
+        // Salida: Lista de tipo dynamic con los registros de reportes.
+        // Descripción: Para obtener un listado de todos los reportes filtrando por cuadrilla
         [HttpGet]
-        [Route("GetAll")]
-        public async Task<HttpResponseMessage> GetAllReportes(HttpRequestMessage request)
+        [Route("GetReportesCuadrillasFiltro")]
+        public async Task<HttpResponseMessage> GetReportesCuadrilla(HttpRequestMessage request, string idCuadrilla=null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -35,35 +37,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var listaReportes = _reporteServicio.GetAllReportes();
-                        response = request.CreateResponse(HttpStatusCode.OK, listaReportes); 
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        message = ex.Message
-                    });
-                }
-
-                return await Task.FromResult(response);
-            });
-        }
-
-        //Para obtener un listado de todos los reportes filtrando por cuadrilla
-        [HttpGet]
-        [Route("GetReportesCuadrillas/{id}")]
-        public async Task<HttpResponseMessage> GetReportesCuadrilla(HttpRequestMessage request, int id)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var listaReportes = _reporteServicio.GetReporteCuadrilla(id);
+                    var listaReportes = _reporteServicio.GetReporteFiltroCuadrilla(idCuadrilla);
                     response = request.CreateResponse(HttpStatusCode.OK, listaReportes);
                 }
                 catch (Exception ex)
@@ -80,7 +54,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Obtener ID para registro nuevo
+        // Entrada: Http request
+        // Salida: valor tipo Int con el nuevo ID
+        // Descripción: Obtener ID para registro nuevo
         [HttpGet]
         [Route("ObtenerID")]
         public async Task<HttpResponseMessage> GetIDRegistro(HttpRequestMessage request)
@@ -107,7 +83,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Obtener imagenes del reporte
+        // Entrada: Http request, string con ID de reporte y string con indicador del tipo de imagen.
+        // Salida: Lista de Imagenes.
+        // Descripción: Obtener imagenes del reporte
         [HttpGet]
         [Route("GetImagenesReporte")]
         public async Task<HttpResponseMessage> GetImagenesReporte(HttpRequestMessage request, string idReporte, string tipoImagen)
@@ -135,8 +113,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Insertar imagenes del reporte, tomando a consideracion, una situacion de cierre de reporte.
-        //recibe un objeto JSON que contiene los datos del reporte y la lista de imagenes
+        // Entrada: Http request y objeto JSON con los datos del reporte y el listado de imágenes.
+        // Salida: Lista de Imagenes.
+        // Descripción: Insertar imagenes del reporte, tomando a consideracion, una situacion de cierre de reporte.
         [HttpPost]
         [Route("InsertarImagenesReporte")]
         public async Task<HttpResponseMessage> InsertarImagenesReporte(HttpRequestMessage request, [FromBody] JObject data)
@@ -170,31 +149,10 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        /*[HttpPost]
-        [Route("SubirImagenApi")]
-        public string SaveFile()
-        {
-            try
-            {
-                String paths = "";
-                var httpRequest = HttpContext.Current.Request;
-                var postedFile = httpRequest.Files[0];
-                string filename = postedFile.FileName;
-                var physicalPath = HttpContext.Current.Server.MapPath("~/Photos/" + filename);
 
-                postedFile.SaveAs(physicalPath);
-
-                return physicalPath;
-            }
-            catch (Exception ex)
-            {
-
-                return "error" + ex.Message;
-            }
-        }
-        */
-
-        //Registrar un nuevo reporte,
+        // Entrada: Http request y objeto JSON con los datos del reporte y el listado de imágenes.
+        // Salida: respuesta de tipo HttpResponseMessage
+        // Descripción: Registrar un nuevo reporte,
         //recibe un objeto JSON con los datos del reporte y un listado de imagenes
         [HttpPost]
         [Route("Registrar")]
@@ -241,7 +199,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Actualizacion de reporte, recibe un Reporte
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo reporte
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Actualizacion de reporte.
         [HttpPut]
         [Route("Actualizar")]
         public async Task<HttpResponseMessage> ActualizarReporte(HttpRequestMessage request, Reporte model)
@@ -280,11 +240,13 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-
-        //Regresa los reportes que coinciden con el parámetros que se manda
+        // Entrada: request tipo HttpRequestMessage y valores string para tipo reporte, estado, sector, origen, fecha inicial y fecha final
+        // Salida: respuesta de tipo HttpResponseMessage con la lista de tipo dynamic, con los registros que coincidieron.
+        // Descripción: Regresa los reportes que coinciden con el parámetros que se manda
         [HttpGet]
-        [Route("lista/{parametro?}/")]
-        public async Task<HttpResponseMessage> GetReportesFiltro(HttpRequestMessage request, string parametro = null)
+        [Route("ListaBusqueda")]
+        public async Task<HttpResponseMessage> GetReportesFiltro(HttpRequestMessage request, string tipoR=null, string cuadrilla=null, 
+            string estado=null, string sector=null, string origen=null, string fechaIni=null, string fechaF=null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -292,7 +254,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _reporteServicio.GetAllReportes(parametro);
+                    var item = _reporteServicio.GetReportesFiltro(tipoR, cuadrilla, estado, sector, origen, fechaIni, fechaF);
                     response = request.CreateResponse(HttpStatusCode.OK, item);
                 }
                 catch (Exception ex)

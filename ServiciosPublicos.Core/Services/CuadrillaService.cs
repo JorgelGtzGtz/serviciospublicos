@@ -13,10 +13,11 @@ namespace ServiciosPublicos.Core.Services
     {
         bool InsertarCuadrilla(Cuadrilla cuadrilla, out string Message);
         bool ActualizarCuadrilla(Cuadrilla cuadrilla, out string Message);
-        bool EliminarCuadrilla(int id, out string Message);
+        bool EliminarCuadrilla(Cuadrilla cuadrilla, out string Message);
         int ObtenerIDRegistro();
         Cuadrilla GetCuadrilla(int id);
-        List<dynamic> GetCuadrillaList();
+        List<Cuadrilla> GetCuadrillaList();
+        List<dynamic> GetCuadrillasConJefe();
         List<dynamic> FiltroCuadrillas(string textoB, string estado);
         void ModificarUsuarioJefe(int idUsuario, bool asignacion);
     }
@@ -36,31 +37,53 @@ namespace ServiciosPublicos.Core.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        //Obtener cuadrilla buscando por ID
+        // Entrada: ID de cuadrilla de tipo INT
+        // Salida: Objeto de tipo Cuadrilla.
+        // Descripción: Llama al método del repositorio de cuadrilla para buscar una cuadrilla por ID.
         public Cuadrilla GetCuadrilla(int id)
         {
             var valor = _cuadrillaRepository.GetCuadrilla(id);
             return valor;
         }
 
-        //Obtener lista de cuadrillas
-        public List<dynamic> GetCuadrillaList()
+        // Entrada: Ninguna
+        // Salida: Lista de tipo Cuadrilla.
+        // Descripción: obtener lista de cuadrillas general
+        public List<Cuadrilla> GetCuadrillaList()
         {
-            return _cuadrillaRepository.GetCuadrillaList();
+            return _cuadrillaRepository.GetAll("Cuadrilla").ToList();
         }
 
+        // Entrada: Ninguna.
+        // Salida: lista de tipo dynamic de los registros de cuadrilla y sus jefes de cuadrilla.
+        // Descripción: Obtener lista de cuadrillas con el nombre del jefe de cuadrilla
+        public List<dynamic> GetCuadrillasConJefe()
+        {
+            return _cuadrillaRepository.GetCuadrillasConJefeQuery();
+        }
+
+        // Entrada: valor string para texto de búsqueda y valor string para estado de cuadrilla.
+        // Salida: lista de tipo dynamic con los registros de cuadrillas y sus jefes de cuadrilla, respectivamente.
+        // Descripción: Llama al método de repositorio de Cuadrilla para efectuar una búsqueda dinámica de cuadrillas.
         public List<dynamic> FiltroCuadrillas(string textoB, string estado)
         {
             return _cuadrillaRepository.FiltroDinamicoCuadrillas(textoB, estado);
         }
 
+        // Entrada: Ninguna.
+        // Salida: valor INT.
+        // Descripción: Llama al método de repositorio Cuadrilla para obtener el ID del último registro y le suma 1
+        // para obtener el próximo ID.
         public int ObtenerIDRegistro()
         {
             return _cuadrillaRepository.ObtenerUltimoID() + 1;
         }
 
-        //Insertar cuadrilla, recibe un objeto cuadrilla y devuelve un valor booleando
-        // que informa si la operacion fue exitosa o no
+        // Entrada: Objeto de tipo Cuadrilla y mensaje de tipo string.
+        // Salida: valor booleano.
+        // Descripción: Insertar cuadrilla mediante método "Add" de repositorio y actualiza usuario para indicar
+        // que fué asignado a una cuadrilla.
+        //Devuelve un valor booleando que informa si la operacion fue exitosa o no
         public bool InsertarCuadrilla(Cuadrilla cuadrilla, out string Message)
         {
             Message = string.Empty;
@@ -82,7 +105,9 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        // Modificar el campo "Jefe asignado" en Usuario
+        // Entrada: ID de usuario de tipo INT y valor bool que indica asignación o no.
+        // Salida: Vacío.
+        // Descripción: Modificar el campo "Jefe asignado" en Usuario
         public void ModificarUsuarioJefe(int idUsuario, bool asignacion)
         {
             var usuarioJefe = _usuarioRepository.Get(idUsuario);
@@ -90,7 +115,11 @@ namespace ServiciosPublicos.Core.Services
             _usuarioRepository.Modify(usuarioJefe);
         }
 
-        //Actualizar cuadrilla, recibe un objeto cuadrilla
+        // Entrada: objeto Cuadrilla y mensaje de tipo string.
+        // Salida: valor booleano.
+        // Descripción: Actualiza cuadrilla con los datos del objeto Cuadrilla proporcionado.
+        // Verifica que el usuario asignado como jefe de cuadrilla haya cambiado y de ser así realiza las 
+        // modificaciones necesarias.
         public bool ActualizarCuadrilla(Cuadrilla cuadrilla, out string Message)
         {
             Message = string.Empty;
@@ -121,32 +150,21 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        //Elimina una cuadrilla, recibe un ID de cuadrilla y regresa un booleando 
-        //para indicar si la operacion fue exitosa o no
-        public bool EliminarCuadrilla(int id, out string Message)
+        // Entrada: Objeto cuadrilla y mensaje de tipo string.
+        // Salida: valor booleano.
+        // Descripción: efectúa la eliminación lógica de una cuadrilla y modifica el usuario que se encontraba asignado
+        // como jefe de cuadrilla.
+        public bool EliminarCuadrilla(Cuadrilla cuadrilla, out string Message)
         {
             Message = string.Empty;
             bool result = false;
             try
-            {
-                Cuadrilla cuadrilla = _cuadrillaRepository.Get<int>(id);
-                //VERIFICAR QUE NO EXISTAN REGISTROS CON ESTA CUADRILLA EN TICKETS Y REPORTES
-                List<Ticket> tickets = _ticketRepository.ticketsPorCuadrilla(id);
-                List<Reporte> reportes = _reporteRepository.ReportesPorCuadrilla(id);                
-
-                //SI NO ESTA REFERENCIADA EN REPORTES NI TICKETS, SE ELIMINA
-                if (tickets.Count == 0 && reportes.Count == 0)
-                {
-                    ModificarUsuarioJefe(cuadrilla.ID_JefeCuadrilla, false);
-                    _cuadrillaRepository.Remove(cuadrilla);
-                    Message = "Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " eliminado con exito";
-                    result = true;
-                }
-                else
-                {
-                    Message = "Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " no puede ser eliminado porque " +
-                                "está asignada a reportes";
-                }
+            { 
+                ModificarUsuarioJefe(cuadrilla.ID_JefeCuadrilla, false);
+                cuadrilla.Disponible = false;
+                _cuadrillaRepository.Modify(cuadrilla);
+                Message = "Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " eliminado con exito";
+                result = true;
             }
             catch (Exception ex)
             {

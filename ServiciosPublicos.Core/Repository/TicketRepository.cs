@@ -22,6 +22,9 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
+        // Entrada: valor INT del ID del ticket.
+        // Salida: Objeto de tipo Ticket
+        // Descripción: Ejecuta un query para buscar un ticket por su ID en la base de datos.
         public Ticket GetTicket(int id)
         {
             var query = new Sql()
@@ -34,8 +37,9 @@ namespace ServiciosPublicos.Core.Repository
             return ticket;
         }
 
-        //Buscar si existe un ticket,
-        // por id de sector
+        // Entrada: ID de sector de tipo INT
+        // Salida: Lista de tipo Ticket.
+        // Descripción: query para consultar tickets por ID de sector
         public List<Ticket> GetSectoresTicket(int idSector)
         {
             Sql query = new Sql()
@@ -45,6 +49,9 @@ namespace ServiciosPublicos.Core.Repository
 
         }
 
+        // Entrada: ID de cuadrilla de tipo INT
+        // Salida: Lista de tipo Ticket.
+        // Descripción: Query para consultar tickets por ID de cuadrilla.
         public List<Ticket> ticketsPorCuadrilla(int idCuadrilla)
         {
             Sql queryTicket = new Sql()

@@ -2,8 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import * as Mapboxgl from 'mapbox-gl';
 
 @Injectable({
   providedIn: 'root'
@@ -15,52 +13,34 @@ export class MapService {
 
   constructor(private http: HttpClient) { }
 
-  iniciarMapa(posicion: number[]): void{
-    Mapboxgl.accessToken = environment.mapsKey;
-    const mapa = new Mapboxgl.Map({
-    container: 'mapa-mapBox', // container id
-    style: 'mapbox://styles/mapbox/streets-v11',
-    center: posicion, // starting position LNG  LAT
-    zoom: 16, // starting zoom
-      });
-    this.crearMarcador(posicion, mapa);
-  }
-
-  crearMarcador(posicion: number[], mapa: Mapboxgl.Map): void{
-    const marker = new Mapboxgl.Marker()
-    .setLngLat(posicion)
-    .addTo(mapa);
-  }
-
-  obtenerLatLng(direccion: string){
-    console.log('query recibido:', direccion);
+  // Entrada: valor tipo string con dirección de lugar.
+  // Salida: Observable con resultado de petición.
+  // Descripción: Petición Http de tipo GET para obtener datos
+  // geográficos de una dirección dada. Entre estos se encuentra latitud y longitud.
+  obtenerLatLng(direccion: string): Observable<object>{
     let params = new HttpParams();
     params = params.append('address', direccion);
     params = params.append('key', environment.mapsKey);
-    return this.http.get(this.URL,{params}).toPromise();
+    return this.http.get<object>(this.URL, {params});
   }
 
-  obtenerDireccionCoordenadas(query: number[]){
-    this.URL = 'https://api.mapbox.com/geocoding/v5/mapbox.places/';
-    return this.http.get(this.URL + query[0] + ',' + query[1] + '.json?types=address&access_token=' + environment.mapsKey);
+  // Entrada: valor tipo number de latitud y valor tipo number de longitud.
+  // Salida: Observable con datos de dirección obtenida.
+  // Descripción: Petición Http de tipo GET para obtener
+  // la dirección que pertenece a una longitud y latituda dada.
+  obtenerDireccionCoordenadas(latitud: number, longitud: number): string[]{
+    const direccion: string[] = [];
+    return direccion;
   }
 
+  // Entrada: valor string para dirección y valor string para colonia.
+  // Salida: valor tipo string con la nueva dirección.
+  // Descripción: Método para unir y agregar datos faltantes a dirección como ciudad
+  // y estado.
   generarDireccionCompleta(direccion: string, colonia: string): string{
-    let direccionCompleta: string = '';
-    direccionCompleta += direccion + ' ' + colonia + ' ' + this.ciudad + ' ' + this.estado     
+    let direccionCompleta = '';
+    direccionCompleta += direccion + ' ' + colonia + ' ' + this.ciudad + ' ' + this.estado;
     return direccionCompleta;
   }
-  // getLatLng(direccion: string) {
-  //   return new Promise((resolve, reject) => {
-  //     this.geocoder.geocode({ address: direccion }, (result, status) => {
-  //       if (status === 'OK') {
-  //         result.map((latlng) => {
-  //           resolve(latlng.geometry.location);
-  //         });
-  //       } else {
-  //         reject({ message: 'no results found' });
-  //       }
-  //     });
-  //   });
-  // }
+
 }

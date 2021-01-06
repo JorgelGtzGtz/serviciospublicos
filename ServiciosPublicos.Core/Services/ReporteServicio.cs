@@ -12,8 +12,8 @@ namespace ServiciosPublicos.Core.Services
     {
         bool AltaReporte(Ticket ticket, List<Imagen> imagenes, out string Message);
         bool ActualizarReporte(Reporte reporte, string path ,out string Message);
-        List<dynamic> GetAllReportes(string textoBusqueda = null);        
-        List<dynamic> GetReporteCuadrilla(int idCuadrilla);
+        List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
+        List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla);
         List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
         int ObtenerIDRegistro();
@@ -38,24 +38,36 @@ namespace ServiciosPublicos.Core.Services
             _usuarioRepository = usuarioRepository;
         }
 
-        public List<dynamic> GetAllReportes(string textoBusqueda = null)
-        {
-            return this._reporteRepository.GetAllReportes(textoBusqueda);
+        // Entrada: valores de tipo string que funcionan como filtros para la búsqueda de registros.
+        // Salida: lista de tipo dynamic con los registros de reportes.
+        // Descripción: Método para ejecutar el query que realiza una búsqueda dinámica de reportes
+        // de acuerdo a los diversos filtros que se indican.
+        public List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
+        {           
+            return this._reporteRepository.GetReportesFiltroDinamico(tipoR,cuadrilla,estado,sector,origen,fechaIni,fechaF);
         }
 
-        public List<dynamic> GetReporteCuadrilla(int idCuadrilla)
+        // Entrada: id de cuadrilla de tipo string
+        // Salida: lista de tipo dynamic con los registros de reportes.
+        // Descripción: Método para ejecutar el query que realiza una búsqueda dinámica de reportes
+        // tomando como filtro las cuadrillas.
+        public List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla)
         {
-            return _reporteRepository.GetReporteCuadrilla(idCuadrilla);
+            return _reporteRepository.GetReporteFiltroCuadrilla(idCuadrilla);
         }
 
+        // Entrada: Ninguna
+        // Salida: ID de reporte de tipo Int
+        // Descripción: Método que llama a ejecutar el query para obtener el último ID
+        // de reporte registrado, y le suma 1.
         public int ObtenerIDRegistro()
         {
             return _reporteRepository.ObtenerUltimoID() + 1;
         }
 
-
-        //Recibe el ticket y las imagenes
-        // Primero verifica si el reporte existe. Si existe, solo actualiza el campo para conteo de tickets.
+        // Entrada: objeto de tipo Ticket, lista de tipo Imagen y mensaje de tipo String.
+        // Salida: valor booleano.
+        // Descripción: Primero verifica si el reporte existe. Si existe, solo actualiza el campo para conteo de tickets.
         //Si no existe crea un nuevo reporte. En ambos casos regresa el ID
         //Despues inserta la relacion reporte-ticket
         // Por ultimo, registra las imagenes con los id de reporte y ticket
@@ -84,7 +96,7 @@ namespace ServiciosPublicos.Core.Services
                 {
                     foreach (var imagen in imagenes)
                     {
-                        _imagenRepository.InsertarImagen(ticket.ID_ticket, idReporte, imagen);
+                        _imagenRepository.InsertarImagen( idReporte, imagen, ticket.ID_ticket);
                     }
                 }
                 result = true;
@@ -95,10 +107,13 @@ namespace ServiciosPublicos.Core.Services
                 Message = "Registro de reporte fallido" + ex.Message;
             }
             return result;
-        }       
+        }
 
-        //Actualizar reporte pasando elemento reporte
         public bool ActualizarReporte(Reporte reporte, string path ,out string Message)
+        // Entrada: Objeto de tipo Reporte y mensaje de tipo string
+        // Salida: valor booleano.
+        // Descripción: Actualiza el reporte pasado como argumento y los tickets relacionados
+        // con este reporte.
         {
 
             Message = string.Empty;
@@ -142,27 +157,22 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        //Se actualizan los datos del reporte en el ticket
+        // Entrada: objeto Ticket y objeto Reporte
+        // Salida: objeto Ticket.
+        // Descripción: Se actualizan los datos del ticket con los nuevos datos del reporte
         public Ticket ModificacionesTicket(Ticket ticket, Reporte reporte)
         {
             ticket.FechaCierre_ticket = reporte.FechaCierre_reporte;
             ticket.Estatus_ticket = reporte.Estatus_reporte;
             ticket.ID_cuadrilla = reporte.ID_cuadrilla;
             ticket.TiempoEstimado_ticket = reporte.TiempoEstimado_reporte;
-            // ticket.ID_tipoReporte = reporte.ID_tipoReporte;
-            // ticket.Latitud_ticket = reporte.Latitud_reporte;
-            // ticket.Longitud_ticket = reporte.Longitud_reporte;
-            // ticket.ID_sector = reporte.ID_sector;           
-            // ticket.Direccion_ticket = reporte.Direccion_reporte;
-            // ticket.EntreCalles_ticket = reporte.EntreCalles_reporte;
-            // ticket.Referencia_ticket = reporte.Referencia_reporte;
-            // ticket.Colonia_ticket = reporte.Colonia_reporte;
-            // ticket.Poblacion_ticket = reporte.Poblado_reporte;
-            // ticket.Observaciones_ticket = reporte.Observaciones_reporte;
             return ticket;
         }
 
-        //Obtiene todas las imagenes de los reportes
+        // Entrada: string con ID de reporte y string con indicador del tipo de imagen.
+        // Salida: Lista de Imagenes.
+        // Descripción: Llama al método del reporsitorio de imagen para consultar las imágenes que coincidan
+        // con el ID del reporte y el tipo de imagen.
         public List<Imagen> GetImagenesReporte(string idReporte,string tipoImagen, out string Message)
         {
             Message = string.Empty;
@@ -180,7 +190,10 @@ namespace ServiciosPublicos.Core.Services
             return listaImagenes;
         }
 
-        //Insertar imagenes de reporte para cierre. Recibe el reporte y la lista de imagenes
+        // Entrada: ID del reporte de tipo INT, lista de tipo Imagen y mensaje de tipo String
+        // Salida: valor booleano.
+        // Descripción: Llama al método del reporsitorio de imagen
+        // para insertar nuevas imágenes en la base de datos.
         public bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message)
         {
             Message = string.Empty;
@@ -189,7 +202,7 @@ namespace ServiciosPublicos.Core.Services
             {
                 foreach (var imagen in imagenes )
                 {
-                    _imagenRepository.InsertarImagenCierre(idReporte, imagen);
+                    _imagenRepository.InsertarImagen(idReporte, imagen);
                     result = true;
                 }                
                 Message = "Imágenes de cierre se agregaron exitosamente";
@@ -201,27 +214,6 @@ namespace ServiciosPublicos.Core.Services
             return result;            
         }
 
-        //Insertar reporte pasando un elemento Reporte
-        /* public bool InsertarReporte(Reporte reporte, out string Message)
-         {
-             Message = string.Empty;
-             bool result = false;
-             try
-             {
-                 _reporteRepository.Add<int>(reporte);
-
-                 Message = "Reporte registrado con exito";
-                 result = true;
-             }
-             catch (Exception ex)
-             {
-
-                 Message = "Reporte No pudo ser registrado Error: " + ex.Message;
-             }
-
-             return result;
-         }
-        */
 
         public List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus)
         {

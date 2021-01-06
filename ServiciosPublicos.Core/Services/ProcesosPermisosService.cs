@@ -23,6 +23,10 @@ namespace ServiciosPublicos.Core.Services
 
         }
 
+        // Entrada: Ninguna
+        // Salida: Lista de tipo ProcesosPermiso.
+        // Descripción: Llama al método del repositorio que ejecuta el query
+        // para obtener los ProcesosPermisos de la base de datos.
         public List<Procesos_Permiso> GetProcesos()
         {
             return _procesosPermisosRepository.GetProcesosPermisos();

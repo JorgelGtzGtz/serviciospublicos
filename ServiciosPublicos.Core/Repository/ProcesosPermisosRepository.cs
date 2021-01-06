@@ -21,6 +21,9 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
+        // Entrada: Ninguna
+        // Salida: Lista de tipo ProcesosPermiso.
+        // Descripción: Ejecuta el query para obtener los registros de la tabla ProcesosPermisos.
         public List<Procesos_Permiso> GetProcesosPermisos()
         {
             var query = new Sql()

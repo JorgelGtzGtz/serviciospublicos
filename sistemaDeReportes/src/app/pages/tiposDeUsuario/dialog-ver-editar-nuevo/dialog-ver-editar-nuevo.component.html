@@ -3,12 +3,12 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
-        <div *ngIf="!procesosYpermisos && !idListo" class="d-flex justify-content-center">
+        <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border m-5 align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <form [formGroup]="form" *ngIf="(procesosYpermisos && idListo) && accion==='nuevo' || procesosYpermisos && accion !== 'nuevo'">
+        <form [formGroup]="form" *ngIf="datosCargados()">
             <div class="row form-sections">
 
                 <div class="col-6" id="id-col">

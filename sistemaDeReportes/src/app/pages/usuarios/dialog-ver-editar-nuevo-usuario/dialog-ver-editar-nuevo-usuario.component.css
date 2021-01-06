@@ -8,6 +8,20 @@ button {
     height: calc(100vh * 0.55);
 }
 
+
+/*SPINNER*/
+
+.spinner-container {
+    text-align: center;
+    width: 3rem;
+    height: 3rem;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+}
+
 .form-sections {
     margin: 20px 0;
     /* height: 38px; */

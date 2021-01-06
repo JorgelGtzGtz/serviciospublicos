@@ -12,8 +12,6 @@ namespace ServiciosPublicos.Core.Services
     {
         List<Permiso> GetPermisos(int tipoU);
         bool InsertarPermiso(Permiso permiso, out string Message);
-        bool ActualizarPermiso(Permiso permiso, out string Message);
-        bool EliminarPermiso(int id, out string Message);
 
     }
     public class PermisosService : IPermisosService
@@ -25,12 +23,19 @@ namespace ServiciosPublicos.Core.Services
 
         }
 
+        // Entrada: ID tipo de Usuario de tipo INT
+        // Salida: Lista de tipo permiso.
+        // Descripción: Llama al método del repositorio para obtener 
+        // la lista de permisos que se relacionan con un tipo de usuario.
         public List<Permiso> GetPermisos(int idTipo)
         {
            return  _permisosRepository.GetPermisosTipoUsuario(idTipo);
 
         }
 
+        // Entrada: objeto de tipo Permiso y valor string de mensaje
+        // Salida: valor booleano.
+        // Descripción: Llama al método del repositorio que inserta un permiso en la base de datos.
         public bool InsertarPermiso(Permiso permiso, out string Message)
         {
             Message = string.Empty;
@@ -51,46 +56,6 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        public bool ActualizarPermiso(Permiso permiso, out string Message)
-        {
-            Message = string.Empty;
-            bool result = false;
-            try
-            {
-                _permisosRepository.InsertOrUpdate<int>(permiso, "ID_permiso");
-                Message = "Permiso actualizado con exito";
-                result = true;
-            }
-            catch (Exception ex)
-            {
-
-                Message = "Permiso no pudo ser guardado Error: " + ex.Message;
-            }
-
-            return result;
-        }
-
-
-        public bool EliminarPermiso(int id, out string Message)
-        {
-            Message = string.Empty;
-            bool result = false;
-            try
-            {
-                var permiso = _permisosRepository.Get(id);
-
-                _permisosRepository.Remove(permiso);
-
-                Message = "Permiso eliminado con exito";
-                result = true;
-            }
-            catch (Exception ex)
-            {
-
-                Message = "Permiso no pudo ser eliminado Error: " + ex.Message;
-            }
-            return result;
-        }
 
     }
 }

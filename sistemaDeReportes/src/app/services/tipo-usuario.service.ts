@@ -4,8 +4,7 @@ import { TipoUsuario } from '../Interfaces/ITipoUsuario';
 import { TipoUsuarioM } from '../Models/TipoUsuarioM';
 import { ProcesoPermiso } from '../Interfaces/IProcesoPermiso';
 import { map } from 'rxjs/operators';
-import { Permiso } from '../Interfaces/IPermiso';
-import { PermisoM } from '../Models/PermisoM';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -13,12 +12,13 @@ import { PermisoM } from '../Models/PermisoM';
 export class TipoUsuarioService {
   url = 'http://localhost:50255/api/TipoUsuario';
 
-
-
   constructor(private http: HttpClient) { }
 
-  obtenerListaTipoU(textoB?: string, estadoValor?: string){
-    console.log('Se recibió en servicio:', textoB, estadoValor);
+  // Entrada: valor tipo string con texto de búsqueda y valor string con estado de tipo de usuario.
+  // Salida: Observable de tipo lista de tipos de usuario.
+  // Descripción: Función para realizar petición Http de tipo GET para obtener
+  // una lista de los tipos de usuario que cumplen con los parámetros de búsqueda.
+  obtenerListaTipoU(textoB?: string, estadoValor?: string): Observable<TipoUsuario[]>{
     if (textoB === undefined){
       textoB = '';
    }
@@ -37,35 +37,53 @@ export class TipoUsuarioService {
     );
   }
 
-  obtenerTipoUsuario(idTipo: number){
+  // Entrada: valor tipo number con ID del Tipo de usuario a buscar.
+  // Salida: Observable de tipo Tipo de Usuario con respuesta de petición.
+  // Descripción: Función para realizar petición Http de tipo GET para obtener
+  // un Tipo de usuario.
+  obtenerTipoUsuario(idTipo: number): Observable<TipoUsuario>{
     return this.http.get<TipoUsuario>(this.url + '/GetTipoUsuario/' + idTipo).pipe(
       map( tipoU =>
         TipoUsuarioM.tipoDesdeJson(tipoU)
         ));
   }
 
-  obtenerIDRegistro(){
-    return this.http.get(this.url + '/ObtenerID');
+  // Entrada: ninguna.
+  // Salida: Observable de tipo number con respuesta de petición.
+  // Descripción: Función para realizar petición Http de tipo GET para obtener
+  // el ID del nuevo tipo de usuario.
+  obtenerIDRegistro(): Observable<number>{
+    return this.http.get<number>(this.url + '/ObtenerID');
   }
 
-  insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]){
+  // Entrada: objeto de tipo TipoUsuario y lista de tipo ProcesosPermiso.
+  // Salida: Observable con respuesta de la petición.
+  // Descripción: Función para realizar petición Http de tipo POST para insertar nuevo
+  // tipo de usuario y sus permisos.
+  insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<object>{
     return this.http.post(this.url + '/Insertar', {
       'tipo': tipoUsuario,
       'permisos': permisosT
     });
   }
 
-  actualizarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]){
+  // Entrada: objeto de tipo TipoUsuario y lista de tipo ProcesosPermiso.
+  // Salida: Observable con respuesta de la petición.
+  // Descripción: Función para realizar petición Http de tipo PUT para actualizar
+  // tipo de usuario y sus permisos.
+  actualizarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<object>{
     return this.http.put(this.url + '/Actualizar', {
       'tipo': tipoUsuario,
       'permisos': permisosT
     });
   }
 
-  eliminarTipoUsuario(idTipo: number){
-    console.log('tipo recibido para eliminar:' + idTipo);
-    return this.http.delete(this.url + '/Eliminar/' + idTipo);
+  // Entrada: valor tipo number con ID del tipo de usuario.
+  // Salida: Observable con respuesta de la petición.
+  // Descripción: Función para realizar petición Http de tipo DELETE para efectuar
+  // eliminación lógica de tipo de usuario.
+  eliminarTipoUsuario(tipoUsuario: TipoUsuario): Observable<object>{
+    return this.http.put(this.url + '/EliminarTipoUsuario', tipoUsuario);
   }
 
-  
 }

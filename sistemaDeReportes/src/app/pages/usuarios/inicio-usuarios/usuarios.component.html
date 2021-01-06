@@ -39,10 +39,10 @@
 
                 <div class="mb-3 row">
 
-                    <div class="col-lg-5 col-md-6">
+                    <div class="col-lg-4 col-md-6">
                         <div class="row input-group m-0">
                             <label class="lblForm col-md-auto" for="estadoTipoUsuario">Estado</label>
-                            <div class="col-md-6">
+                            <div class="col-md-7">
                                 <select class="custom-select" id="estadoTipoUsuario" formControlName="estado">
                                     <option selected>Todos</option>
                                     <option value="1">Activo</option>
@@ -52,11 +52,16 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-3  col-md-6">
+                    <div class="col-lg-2  col-md-6">
                         <div class="custom-control custom-switch btn-switch-container">
                             <input type="checkbox" class="custom-control-input" id="reportesActivosSwitch" formControlName="reportesActivos">
                             <label class="custom-control-label" for="reportesActivosSwitch">Con reportes activos</label>
                         </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
+                                     Limpiar búsqueda
+                        </button>
                     </div>
                     <div class="col-lg-2 col-md-6">
                         <button id="btn-buscar" type="button" class="btn-header" mat-raised-button color="primary" (click)="buscar()">
@@ -79,7 +84,9 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
+                            <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">
+                                {{encabezado}}
+                            </th>
                         </tr>
                     </thead>
                     <tbody>

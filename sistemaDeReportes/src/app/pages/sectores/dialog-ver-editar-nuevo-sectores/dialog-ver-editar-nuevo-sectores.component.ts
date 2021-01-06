@@ -17,7 +17,7 @@ accion: string;
 form: FormGroup;
 modificado: boolean;
 idListo: boolean;
-datosCargados: boolean;
+datosSectorCargados: boolean;
 sector: Sector;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoSectoresComponent>,
@@ -35,8 +35,24 @@ sector: Sector;
     this.iniciarFormulario();
   }
 
+  // Entrada: Ninguna
+  // Salida: valor boolean.
+  // Descripción: verifica que los datos del formulario se encuentrar listos, para poder
+  // mostrar el formulario o el spinner.
+  datosCargados(): boolean{
+    let cargado: boolean;
+    if (this.idListo && this.accion === 'nuevo' || this.datosSectorCargados  && this.accion !== 'nuevo'){
+      cargado = true;
+    }else{
+      cargado = false;
+    }
+    return cargado;
 
-  // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción:Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
   // con sus respectivas validaciones de campos.
   private buildForm(): void{
     this.form = this.formBuilder.group({
@@ -54,29 +70,10 @@ sector: Sector;
     });
   }
 
-  // Se inicializan los valores de los campos del formulario
-  // dependiendo del tipo de actividad a realizar.
-  iniciarFormulario(): void{
-    if (this.accion !== 'nuevo'){
-        this.sector = this.data.sector;
-        this.campoId.setValue( this.sector.ID_sector);
-        this.campoNombreSector.setValue(this.sector.Descripcion_sector);
-        this.campoEstado.setValue(!this.sector.Estatus_sector);
-        this.datosCargados = true;
-    }else{
-      this.obtenerIDNuevo();
-      this.campoEstado.setValue(false);
-    }
-  }
-
-   // Función para obtener el ID del nuevo registro
-   obtenerIDNuevo(): void{
-    this.sectorService.obtenerIDRegistro().subscribe( (id: number) => {
-      this.campoId.setValue(id);
-      this.idListo = true;
-    });
-  }
-
+  // Entrada: Ninguna
+  // Salida: control de tipo AbstractControl.
+  // Descripción: Métodos para obtener el acceso a los controladores que se relacionan con los
+  // campos del formulario.
   get campoId(): AbstractControl{
     return this.form.get('id');
   }
@@ -87,14 +84,9 @@ sector: Sector;
     return this.form.get('nombreS');
   }
 
-// Devuelve true si el usuario interactuó con el formulario o false si no.
-  obtenerEstadoFormulario(): boolean{
-    return this.modificado;
-  }
-
-// Este método habilita o deshabilita el formulario según lo que se quiera hacer en el
-//  En "ver" todos los campos aparecen deshabilitados y en "nuevo" el único deshabilitado
-//  es "activar"
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Este método habilita o deshabilita el formulario según lo que se quiera hacer en el.
 tipoFormularioAccion(): void{
   switch (this.accion){
     case 'ver':
@@ -110,7 +102,44 @@ tipoFormularioAccion(): void{
   }
 }
 
-// Método que se llama cuando se le da click en guardar en el formulario.
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción:Se inicializan los valores de los campos del formulario
+  // dependiendo del tipo de actividad a realizar.
+  iniciarFormulario(): void{
+    if (this.accion !== 'nuevo'){
+        this.sector = this.data.sector;
+        this.campoId.setValue( this.sector.ID_sector);
+        this.campoNombreSector.setValue(this.sector.Descripcion_sector);
+        this.campoEstado.setValue(!this.sector.Estatus_sector);
+        this.datosSectorCargados = true;
+    }else{
+      this.obtenerIDNuevo();
+      this.campoEstado.setValue(false);
+    }
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Función para obtener el ID del nuevo registro
+   obtenerIDNuevo(): void{
+    this.sectorService.obtenerIDRegistro().subscribe( (id: number) => {
+      this.campoId.setValue(id);
+      this.idListo = true;
+    });
+  }
+
+  // Entrada: Ninguna
+  // Salida: valor boolean.
+  // Descripción: Devuelve true si el usuario interactuó con el formulario o false si no.
+  obtenerEstadoFormulario(): boolean{
+    return this.modificado;
+  }
+
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Método que se llama cuando se le da click en guardar en el formulario. Llama al
+// método "accionGuardar" para ejecutar las acciones para guardar o actualizar.
 guardar(): void {
   // event.preventDefault();
   if (this.form.valid){
@@ -121,35 +150,45 @@ guardar(): void {
   }
 }
 
-// Acciones a ejecutar para el boton guardar dependiendo
-//  del tipo de proceso que se hizo en el dialog
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Acciones a ejecutar para guardar dependiendo
+// del tipo de proceso que se hizo en el dialog. Se usan las peticiones del servicio de sector.
 accionGuardar(): void{
   const sector = this.generarSector();
   if (this.accion !== 'nuevo'){
    this.sectorService.actualizarSector(sector).subscribe( res => {
     alert ('¡Sector ' + sector.Descripcion_sector + ' actualizado con éxito!');
     }, (error: HttpErrorResponse) => {
-      alert('¡Sector ' + sector.Descripcion_sector + ' no pudo ser actualizado! Error: ' + error.message);
+      alert('¡Sector ' + sector.Descripcion_sector + ' no pudo ser actualizado! Verifique los datos o solicite asistencia.');
+      console.log('Error al actualizar sector: ' + error.message);
     });
   } else{
     this.sectorService.insertarSector(sector).subscribe( res => {
       alert ('¡Sector ' + sector.Descripcion_sector + ' registrado con éxito!');
     }, (error: HttpErrorResponse) => {
-      alert ('¡Sector ' + sector.Descripcion_sector + ' no pudo ser guardado! Error: ' + error.message);
+      alert ('¡Sector ' + sector.Descripcion_sector + ' no pudo ser guardado! Verifique los datos o solicite asistencia.');
+      console.log('Error al registrar nuevo sector: ' + error.message);
     });
   }
 }
 
-// Se crea nuevo sector en nuevos registros
+// Entrada: Ninguna
+// Salida: Objeto de tipo SectorM.
+// Descripción: Se crea nuevo objeto sectorM con los datos ingresados en los campos
+// del formulario.
 generarSector(): SectorM{
   return new SectorM(
     this.campoId.value,
     this.campoNombreSector.value,
-    !this.campoEstado.value
+    !this.campoEstado.value,
+    true
   );
 }
 
-// Método que a través del método "verificarCambios" del servicio de DialogService
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción:  Método que a través del método "verificarCambios" del servicio de DialogService
 // verifica si el usuario interactuó con el formulario.
 // Si la interacción sucedió se despliega un mensaje de confirmación.
 cerrarDialog(): void{

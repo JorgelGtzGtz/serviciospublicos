@@ -18,10 +18,10 @@ namespace ServiciosPublicos.Core.Repository
         Usuario GetUsuario(string usr);
         Usuario GetUsuarioByEmail(string email);
         Usuario GetUsuarioByPhone(string telefono);
+        List<Usuario> GetUsuariosPorTipo(int tipoUsuario);
         List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe);
         List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
-        int ObtenerUltimoID();
-
+        int GetUltimoID();
         string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo);
     }
 
@@ -31,8 +31,10 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
-       
-       
+
+        // Entrada: string de usuario y string de contraseña.
+        // Salida: objeto de tipo Usuario.
+        // Descripción: Query para buscar Usuario por su usuario y contraseña.
         public Usuario GetUsuario(string usr, string password)
         {
             var query = new Sql()
@@ -121,6 +123,10 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<dynamic>(sql);
         }
 
+        // Entrada: ID de tipo de Usuario de tipo INT
+        // Salida: Lista de tipo Usuario.
+        // Descripción: Query para consultar usuarios cuyo tipo de usuario sea de Jefe de cuadrilla y no estén
+        // asignados a ninguna cuadrilla.
         public List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe)
         {
             Sql query = new Sql()
@@ -129,14 +135,21 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<Usuario>(query);
         }
 
-       public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
+        // Entrada: string para texto de búsqueda, string para estado de usuario, string para tipo de usuario y 
+        //          string para reportes activos.
+        // Salida: lista de tipo Dynamic con los registros de usuario.
+        // Descripción: query para obtener los registros de usuario y su tipo de usuario de los registros que coincidan
+        // con los filtros de búsqueda.
+        public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
         {
             string filter = " WHERE ";
             bool operacion = false;
 
+
+            filter += "usuario.Disponible = 1 ";
             if (!string.IsNullOrEmpty(textoBusqueda))
             {
-                filter += string.Format("(usuario.Nombre_usuario like '%{0}%' or " +
+                filter += string.Format(" AND (usuario.Nombre_usuario like '%{0}%' or " +
                                         "usuario.Login_usuario like '%{0}%' or " +
                                         "usuario.ID_usuario like '%{0}%' or " +
                                         "tipoUsuario.Descripcion_tipoUsuario like '%{0}%')", textoBusqueda);
@@ -145,37 +158,51 @@ namespace ServiciosPublicos.Core.Repository
 
             if (!string.IsNullOrEmpty(estado))
             {
-                filter += (operacion ? " AND " : "") + string.Format("Estatus_usuario LIKE '%{0}%'", estado);
+                filter += string.Format(" AND Estatus_usuario LIKE '%{0}%'", estado);
                 operacion = true;
             }
 
             if (!string.IsNullOrEmpty(tipoU))
             {
-                filter += (operacion ? " AND " : "") + string.Format("usuario.ID_tipoUsuario LIKE '%{0}%'", tipoU);
+                filter += string.Format(" AND usuario.ID_tipoUsuario LIKE '%{0}%'", tipoU);
                 operacion = true;
             }
 
             if (!string.IsNullOrEmpty(repActivos))
             {
-                filter += (operacion ? " AND " : "") + string.Format("0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
-                                                                     "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
-                                                                     "AND ticket.Estatus_ticket LIKE '%{0}%')", repActivos);
+                filter += string.Format(" AND 0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
+                                         "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
+                                          "AND ticket.Estatus_ticket LIKE '%{0}%')", repActivos);
                 operacion = true;
             }
 
             Sql query = new Sql(@"SELECT usuario.*, tipoUsuario.Descripcion_tipoUsuario AS NombreTipo
                                 FROM [hiram74_residencias].[Usuario] usuario
                                 INNER JOIN [hiram74_residencias].[Tipo_usuario] tipoUsuario 
-                                ON tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario " + (operacion ? filter : ""));
+                                ON tipoUsuario.ID_tipoUsuario = usuario.ID_tipoUsuario " + filter);
             return this.Context.Fetch<dynamic>(query);
         }
 
-        public int ObtenerUltimoID()
+        // Entrada: Ninguna
+        // Salida: valor INT
+        // Descripción: query para obtener el ID del último registro de la tabla Usuario en la base de datos.
+        public int GetUltimoID()
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Usuario')");
             return this.Context.SingleOrDefault<int>(query);
         }
 
 
+        // Entrada: ID de tipo de usuario
+        // Salida: Lista de tipo Usuario.
+        // Descripción: Query para obtener los usuarios cuyo ID de tipo de usuario
+        // coincida con el proporcionado.
+        public List<Usuario> GetUsuariosPorTipo(int tipoUsuario)
+        {
+            Sql query2 = new Sql()
+                .Select("*").From("Usuario")
+                .Where("ID_tipoUsuario = @0", tipoUsuario);
+            return this.Context.Fetch<Usuario>(query2);
+        }
     }
 }

@@ -128,7 +128,34 @@ namespace ServiciosPublicos.Api.Controllers
 
         //Obtener una lista de cuadrillas existentes
         [HttpGet]
-        [Route("GetCuadrillaList")]        
+        [Route("GetCuadrillasConJefe")]        
+        public async Task<HttpResponseMessage> GetCuadrillaListConJefe(HttpRequestMessage request)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var cuadrillasLista = _cuadrillServicio.GetCuadrillasConJefe();
+                    response = request.CreateResponse(HttpStatusCode.OK, cuadrillasLista);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+        //Obtener una lista de cuadrillas existentes
+        [HttpGet]
+        [Route("GetCuadrillaList")]
         public async Task<HttpResponseMessage> GetCuadrillaList(HttpRequestMessage request)
         {
             return await CreateHttpResponseAsync(request, async () =>
@@ -205,9 +232,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        [HttpDelete]
-        [Route("Eliminar/{id}")]
-        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)
+        [HttpPut]
+        [Route("EliminarCuadrilla")]
+        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, Cuadrilla model)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -215,7 +242,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var result = _cuadrillServicio.EliminarCuadrilla(id, out message);
+                    var result = _cuadrillServicio.EliminarCuadrilla(model, out message);
                     if (result)
                     {
                         response = request.CreateResponse(HttpStatusCode.OK,message);

@@ -1,9 +1,16 @@
 <h2 mat-dialog-title>Asignación de cuadrilla</h2>
 <hr>
 <mat-dialog-content>
-    <div class="container-fluid">
+    <div *ngIf="!datosCargados()" class="container-fluid">
+        <div class="spinner-container">
+            <div class="spinner-border align-self-center" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="datosCargados()" class="container-fluid">
         <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
-        <app-mapa-reportes [datos]="datosReporte"></app-mapa-reportes>
+        <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
         <section id="imagenesReporte">
             <h3>Imágenes del reporte</h3>
             <hr>
@@ -15,8 +22,13 @@
                     <div class="card card-body">
                         <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
                         <ng-template #bloqueImgApertura>
-                            <div class="img-container">
-                                <img *ngFor="let img of imagenesApertura" class="img-reporte" [src]="'../../../../assets/img/' + img">
+                            <div *ngIf="imagenesApertura.length === 0" class="img-container">
+                                <div class="spinner-border align-self-center m-5" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div *ngIf="imagenesApertura.length !== 0" class="img-container">
+                                <img *ngFor="let path of imagenesApertura" class="img-reporte" [src]="path" onerror="src = 'http://localhost:50255/Photos/no-image.png'">
                             </div>
                         </ng-template>
                     </div>
@@ -32,11 +44,11 @@
                         <label class="lblForm col-md-auto col-form-label" for="cuadrillaSelector">Cuadrilla seleccionada </label>
                         <div class="col-lg-6 col-md-12">
                             <select class="custom-select" id="cuadrillaSelector" formControlName="cuadrilla">
-                                    <option selected>Todos</option>
-                                    <option value="1">Sector 1</option>
-                                    <option value="2">Sector 2</option>
-                                    <option value="3">Sector 3</option>
-                                </select>
+                                <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                                <option *ngFor ="let cuadrilla of listaCuadrillas" [ngValue] ="cuadrilla.ID_cuadrilla">
+                                    {{ cuadrilla.Nombre_cuadrilla }}
+                                </option>
+                            </select>
                             <div *ngIf="campoCuadrilla.errors && campoCuadrilla.touched">
                                 <p class="error" *ngIf="campoCuadrilla.hasError('required')">Campo requerido</p>
                             </div>
@@ -48,8 +60,8 @@
                         <label class="lblForm  col-md-auto col-form-label" for="fechaCierre">Fecha de cierre </label>
                         <div class="col-lg-7 col-md-12">
                             <input type="date" class="form-control" id="fechaCierre" formControlName="fechaCierre">
-                            <div *ngIf="campoFechaCierre.errors && campoFechaCierre.touched">
-                                <p class="error" *ngIf="campoFechaCierre.hasError('required')">Campo requerido</p>
+                            <div class="col-12">
+                                <small class="indicaciones">Fecha aproximada. No oficial</small>
                             </div>
                         </div>
                     </div>

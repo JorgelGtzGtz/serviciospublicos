@@ -111,6 +111,9 @@ button {
     #btn-nuevo {
         float: right;
     }
+    #btn-limpiar {
+        width: 150px;
+    }
     /* TABLA */
     .btn-proceso {
         width: 110px;

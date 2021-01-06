@@ -21,6 +21,9 @@ namespace ServiciosPublicos.Api.Controllers
 
         }
 
+        // Entrada: Http request y ID tipo de Usuario de tipo INT
+        // Salida: Lista de tipo permiso.
+        // Descripción: Obtiene la lista de permisos relacionados a un tipo de usuario.
         [HttpGet]
         [Route("GetPermisos/{idTipo}")]
         public async Task<HttpResponseMessage> getPermisos(HttpRequestMessage request,int idTipo)
@@ -48,6 +51,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: Http request y objeto de tipo Permiso
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Insertar un permiso en la base de datos.
         [HttpPost]
         [Route("insertPermiso/{permiso}/")]
         public async Task<HttpResponseMessage> insertPermiso(HttpRequestMessage request, Permiso model)
@@ -87,83 +93,6 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        [HttpPut]
-        [Route("actualizar")]
-        public async Task<HttpResponseMessage> actualizarPermiso(HttpRequestMessage request, Permiso model)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var result = _permisosService.ActualizarPermiso(model, out message);
-                    if (result)
-                    {
-                        response = request.CreateResponse(HttpStatusCode.OK);
-                    }
-                    else
-                    {
-                        response = request.CreateResponse(HttpStatusCode.BadRequest,
-                        new
-                        {
-                            error = "ERROR",
-                            message = message
-                        });
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        message = ex.Message
-                    });
-                }
-                return await Task.FromResult(response);
-            });
-        }
-
-        [HttpDelete]
-        [Route("Eliminar/{id}")]
-        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                try
-                {
-                    var result = _permisosService.EliminarPermiso(id, out message);
-                    if (result)
-                    {
-                        response = request.CreateResponse(HttpStatusCode.OK);
-                    }
-                    else
-                    {
-                        response = request.CreateResponse(HttpStatusCode.BadRequest,
-                        new
-                        {
-                            error = "ERROR",
-                            message = message
-                        });
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        message = ex.Message
-                    });
-                }
-
-                return await Task.FromResult(response);
-            });
-        }
+        
     }
 }

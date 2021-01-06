@@ -6,14 +6,16 @@ export class SectorM implements Sector{
         return new SectorM(
             obj['ID_sector'],
             obj['Descripcion_sector'],
-            obj['Estatus_sector']
+            obj['Estatus_sector'],
+            obj['Disponible']
         );
     }
 
     constructor(
         public ID_sector: number,
         public Descripcion_sector: string,
-        public Estatus_sector: boolean
+        public Estatus_sector: boolean,
+        public Disponible: boolean
     ){}
 
 }

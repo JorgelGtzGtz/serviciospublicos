@@ -112,6 +112,9 @@ button {
         width: 110px;
         margin-top: 10px;
     }
+    #btn-limpiar {
+        width: 150px;
+    }
     #btn-nuevo {
         float: right;
     }

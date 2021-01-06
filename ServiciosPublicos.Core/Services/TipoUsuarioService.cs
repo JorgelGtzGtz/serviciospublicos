@@ -17,7 +17,7 @@ namespace ServiciosPublicos.Core.Services
         List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado= null);
         bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message);
         bool InsertTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> permisosAsignados, out string Message);
-        bool EliminarTipoUsuario(int id, out string Message);
+        bool EliminarTipoUsuario(Tipo_usuario tipoUsuario, out string Message);
         int ObtenerIDRegistro(out string Message);
         List<Procesos_Permiso> GetPermisos();
         List<Permiso> GetPermisosTipoUsuario(int id, out string Message);
@@ -42,16 +42,24 @@ namespace ServiciosPublicos.Core.Services
             _usuarioReporsitory = usuarioRepository;
         }
 
+        // Entrada: valor tipo int del ID del tipo de usuario.
+        // Salida: tipo de usuario
+        // Descripción: Método para obtener un tipo de usuario por ID
         public Tipo_usuario GetTipoUsuario(int id) {
             return _tipoUsuarioRepository.Get(id);
         }
 
-        //REGRESA TODOS LOS TIPOS DE USUARIO SIN SUS PERMISOS
+        // Entrada: Ninguna
+        // Salida: lista de tipos de usuario.
+        // Descripción: REGRESA TODOS LOS TIPOS DE USUARIO SIN SUS PERMISOS
         public List<Tipo_usuario> GetTipoUsuarios() {
             return _tipoUsuarioRepository.GetAll("Tipo_usuario").ToList();
         }
 
-        //FILTRO DINAMICO PARA BUSCAR TIPOS DE USUARIO CON VARIOS CRITERIOS DE BUSQUEDA
+        // Entrada: valor string para ID o descripción de tipo de usuario y valor string de estado.
+        // Salida: Lista de tipo dynamic con los tipos de usuario encontrados.
+        // Descripción: Método para ejecutar un filtro dinámico para buscar tipos de usuario con varios 
+        // criterios de búsqueda.
         public List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado = null)
         {
             Message = string.Empty;
@@ -67,6 +75,9 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
+        // Entrada: Variable para mensaje de tipo string.
+        // Salida: valor int.
+        // Descripción: Método para obtener el próximo ID de tipo de usuario.
         public int ObtenerIDRegistro(out string Message)
         {
             Message = string.Empty;
@@ -81,7 +92,9 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        //Insertar nuevo tipo de usuario.
+        // Entrada: valor Tipo de Usuario y lista de tipo Procesos_permisos
+        // Salida: valor boolean.
+        // Descripción: Método para insertar nuevo tipo de usuario.
         //Recibe un modelo tipo de usuario, lo registra y obtiene el ID
         //Despues agrega cada permiso que le corresponde a ese tipo de usuario
         public bool InsertTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> permisosAsignados, out string Message)
@@ -116,20 +129,18 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        // ESTE SE LLAMA EN LA ACTUALIZACION DE NUEVOS TIPOS DE USUARIO
-        // ADEMAS DE CREAR O ACTUALIZAR EL TIPO DE USUARIO, TAMBIEN ACTUALIZA O AGREGA SUS PERMISOS
+        // Entrada: valor Tipo de Usuario y lista de tipo Procesos_permisos
+        // Salida: valor boolean.
+        // Descripción: Método para actualizar el tipo de usuario, así también sus procesos permitidos.
         public bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message)
         {
             Message = string.Empty;
             bool result = false;
             try
             {
-                var id = tipoUsuario.ID_tipoUsuario;
-                _tipoUsuarioRepository.Modify(tipoUsuario);                
-                Sql query = new Sql()
-                .Select("*").From("Permisos")
-                .Where("ID_tipoUsuario = @0", id);
-                List<Permiso> permisosActuales = _permisosRepository.GetByFilter(query);
+                int id = tipoUsuario.ID_tipoUsuario;
+                _tipoUsuarioRepository.Modify(tipoUsuario);
+                List<Permiso> permisosActuales = _permisosRepository.GetPermisosTipoUsuario(tipoUsuario.ID_tipoUsuario);
 
                 // Eliminar permisos que no existen en los actuales
                 foreach (var permiso in permisosActuales.Where(p => !nuevosPermisos.Any(p2 => p2.ID_ProcesosPermiso == p.ID_procesoPermisos)))
@@ -142,10 +153,7 @@ namespace ServiciosPublicos.Core.Services
                 // si ya existen en el tipo de usuario, si se regresa un null, los agrega.
                 foreach (var permiso in nuevosPermisos)
                 {
-                    query = new Sql()
-                    .Select("*").From("Permisos")
-                    .Where("ID_tipoUsuario = @0 and ID_procesoPermisos = @1", id, permiso.ID_ProcesosPermiso);
-                    Permiso permisoTipoUsuario = _permisosRepository.Get(query);
+                    Permiso permisoTipoUsuario = _permisosRepository.GetPermisoTipoUsuario(id, permiso.ID_ProcesosPermiso);
                     if (permisoTipoUsuario == null)
                     {
                         permisoTipoUsuario = new Permiso();
@@ -164,36 +172,23 @@ namespace ServiciosPublicos.Core.Services
             }
             return result;
         }
-        
-        //ELIMINA EL TIPO DE USUARIO
-        //PRIMERO VERIFICA QUE NO EXISTA ALGUN USUARIO CON ESTE TIPO DE USUARIO
-        //ELIMINA SUS PERMISOS Y LUEGO EL TIPO DE USUARIO
-        public bool EliminarTipoUsuario(int id, out string Message)
+
+        // Entrada: valor tipo int del ID del tipo de usuario
+        // Salida: valor boolean.
+        // Descripción: Elimina tipo de usuario al modificar su valor Diponible a falso.
+        // Esto se realiza solo si no tiene registros relacionados.
+        public bool EliminarTipoUsuario(Tipo_usuario tipoUsuario, out string Message)
         {
             Message = string.Empty;
             bool result = false;
             try
             {
-                //Obtener permisos del tipo de usuario
-                var tipoUsuario = _tipoUsuarioRepository.Get(id);
-                Sql query = new Sql()
-                .Select("*").From("Permisos")
-                .Where("ID_tipoUsuario = @0", tipoUsuario.ID_tipoUsuario);
-                var listaPermisos = _permisosRepository.GetByFilter(query);
-
                 //VERIFICAR QUE NO EXISTAN REGISTROS CON ESTE TIPO DE USUARIO
-                Sql query2 = new Sql()
-                .Select("*").From("Usuario")
-                .Where("ID_tipoUsuario = @0", tipoUsuario.ID_tipoUsuario);
-                List<Usuario> usuario = _usuarioReporsitory.GetByFilter(query2);
+                List<Usuario> usuario = _usuarioReporsitory.GetUsuariosPorTipo(tipoUsuario.ID_tipoUsuario);
                 if (usuario.Count == 0)
                 {
-                    foreach (var permiso in listaPermisos)
-                    {
-                        _permisosRepository.Remove(permiso);
-                    }
-
-                    _tipoUsuarioRepository.Remove(tipoUsuario);
+                    tipoUsuario.Disponible = false;
+                    _tipoUsuarioRepository.Modify(tipoUsuario);
                     Message = "Tipo Usuario  " + tipoUsuario.Descripcion_tipoUsuario + " eliminado con exito";
                     result = true;
                 }
@@ -205,7 +200,7 @@ namespace ServiciosPublicos.Core.Services
             }
             catch (Exception ex)
             {
-                Message = "Usuario No pudo ser eliminado Error: " + ex.Message;
+                Message = "Tipo de Usuario No pudo ser eliminado Error: " + ex.Message;
             }
             return result;
         }
@@ -217,7 +212,9 @@ namespace ServiciosPublicos.Core.Services
             return _procesosPermisosRepository.GetProcesosPermisos();
         }
 
-        //DEVUELVE LOS PERMISOS QUE EL TIPO DE USUARIO TIENE ASIGNADO
+        // Entrada: valor tipo int del ID del tipo de usuario
+        // Salida: lista de tipo Permiso.
+        // Descripción: Devuelve todos los permisos que el tipo de usuario tiene asignado.
         public List<Permiso> GetPermisosTipoUsuario(int id, out string Message)
         {
             Message = string.Empty;

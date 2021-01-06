@@ -41,9 +41,9 @@ export class PagesComponent implements OnInit {
   }
 
   generarNombreSeccion(urlActual: string): void {
-    let urlArray = urlActual.split('/');
-    let longitud = urlArray.length;
-    let lugar = urlArray[longitud - 1];
+    const urlArray = urlActual.split('/');
+    const longitud = urlArray.length;
+    const lugar = urlArray[longitud - 1];
     switch (lugar) {
       case 'tiposDeUsuarios':
         this.seccion = 'Tipos de usuarios';
@@ -65,6 +65,16 @@ export class PagesComponent implements OnInit {
         break;
       case 'cierreDeReportes':
         this.seccion = 'Cierre de reportes';
+        break;
+      case 'tiposDeReportes':
+        this.seccion = 'Tipos de reportes';
+        break;
+      case 'reportadorDeInformes':
+        this.seccion = 'Reportador de informes';
+        break;
+      case 'inicio':
+        const usuario = this.usuarioService.obtenerUsuarioLogueado();
+        this.seccion = 'Bienvenido ' + usuario.Nombre_usuario;
         break;
       default:
         this.seccion = '';

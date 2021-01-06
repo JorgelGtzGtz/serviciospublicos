@@ -24,6 +24,10 @@ namespace ServiciosPublicos.Core.Repository
         {
         }
 
+        // Entrada: ID de ticket de tipo INT y ID de reporte de tipo INT
+        // Salida: vacío.
+        // Descripción: Crea un objeto de tipo Reporte_Ticket y asigna los valores de ID's correspondientes
+        // para después insertarlos en la base de datos.
         public void Insert(int idTicket, int idReporte)
         {
             Reporte_Ticket reporteTicket = new Reporte_Ticket();
@@ -32,8 +36,10 @@ namespace ServiciosPublicos.Core.Repository
             this.Add<int>(reporteTicket);
         }
 
-        //Devuelve una lista con los registro reporte-ticket 
-        //relacionados al id del reporte
+        // Entrada: ID de reporte de tipo INT
+        // Salida: Lista de tipo Reporte_Ticket.
+        // Descripción: realiza una consulta para obtener una lista con los registro reporte-ticket 
+        //relacionados al id del reporte.
         public List<Reporte_Ticket> GetReporteTickets(int idReporte)
         {
             var query = new Sql()
@@ -46,8 +52,9 @@ namespace ServiciosPublicos.Core.Repository
             return ticketsReporte;
         }
 
-
-        //Devuelve solo el registro que coincida con el folio.
+        // Entrada: folio Reporte_Ticket de tipo INT.
+        // Salida: Objeto de tipo Reporte_Ticket.
+        // Descripción: Query para obtener el registro de tabla Reporte_Ticket que coincide con el folio.
         public Reporte_Ticket GetReporteTicket(int folio)
         {
             var query = new Sql()
@@ -60,7 +67,9 @@ namespace ServiciosPublicos.Core.Repository
             return ticketReporte;
         }
 
-        //Devuelve todos los registros de la tabla
+        // Entrada: Ninguna
+        // Salida: Vacío.
+        // Descripción: Query para obtener todos los registros de la tabla Reporte_Ticket
         public List<Reporte_Ticket> GetAllReporteTicket()
         {
             var query = new Sql()

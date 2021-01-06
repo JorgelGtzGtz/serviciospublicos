@@ -133,6 +133,9 @@ button {
         width: 120px;
         margin-top: 10px;
     }
+    #btn-limpiar {
+        width: 150px;
+    }
     /* TABLA */
     .btn-proceso {
         width: 110px;

@@ -1,6 +1,6 @@
 import { Component, ElementRef, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { ProcesoPermisoService } from '../../../services/proceso-permiso.service';
@@ -47,7 +47,24 @@ export class DialogVerEditarNuevoComponent implements OnInit {
      this.obtenerProcesosSistema();
     }
 
-  // Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
+// Entrada: ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que la información del formulario
+// se encuentre lista para poder mostrarla al usuario.
+  datosCargados(): boolean{
+    let cargado: boolean;
+    if ((this.procesosYpermisos && this.idListo) && this.accion === 'nuevo' ||
+        this.procesosYpermisos && this.accion !== 'nuevo'){
+        cargado = true;
+    }else{
+        cargado = false;
+    }
+    return cargado;
+    }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
   private buildForm(): void{
     this.form = this.formBuilder.group({
       id: [0],
@@ -65,6 +82,9 @@ export class DialogVerEditarNuevoComponent implements OnInit {
     });
   }
 
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para inicializar los campos del formulario.
   inicializarCampos(): void{
     if (this.accion !== 'nuevo'){
       this.campoId.setValue( this.tipoUsuario.ID_tipoUsuario);
@@ -76,70 +96,25 @@ export class DialogVerEditarNuevoComponent implements OnInit {
     }
   }
 
-  get campoId(){
+  // Entrada: Ninguna
+  // Salida: control de tipo AbstractControl.
+  // Descripción: Métodos para obtener acceso a los controles que se encuentran relacionados
+  // al formulario.
+  get campoId(): AbstractControl{
     return this.form.get('id');
   }
 
-  get campoDescripcion(){
+  get campoDescripcion(): AbstractControl{
     return this.form.get('descripcion');
   }
 
-  get campoEstado(){
+  get campoEstado(): AbstractControl{
     return this.form.get('estado');
   }
 
-  obtenerIDNuevo(): void{
-    this.tipoService.obtenerIDRegistro().subscribe( (id: number) => {
-      this.campoId.setValue(id);
-      this.idListo = true;
-      console.log('ID a asignar:', id);
-    });
-  }
-
-  // Obtener procesos del sistema
-  obtenerProcesosSistema(): void{
-    this.procesoServicio.obtenerProcesosLista().subscribe( procesos => {
-      this.procesosSistema = procesos;
-      if (this.accion !== 'nuevo'){
-        this.obtenerPermisosActuales(procesos);
-      }else {
-        this.obtenerProcesosNuevoRegistro(procesos);
-        this.procesosYpermisos = true;
-      }
-    });
-  }
-
-  // Inicializa la lista listaProcesos, cuando se hace un nuevo registro de tipo de usuario
-  // Recibe una lista de todos los procesos del sistema y los agrega a la listaProcesos
-  obtenerProcesosNuevoRegistro(procesos: ProcesoPermiso[]): void{
-      procesos.forEach(proceso => {
-        this.listaProcesos.push(proceso);
-      });
-  }
-
-  // Método para inicializar la lista de procesos
-  // Según si es una actualización o nuevo registro
-   obtenerProcesosDisponibles(procesos: ProcesoPermiso[]): void{
-     this.listaProcesos = this.procesoServicio.procesosDisponibles(procesos, this.listaProcTipo );
-     this.procesosYpermisos = true;
-   }
-
-   // Método para obtener los permisos actuales del tipo Usuario
-   obtenerPermisosActuales(procesos: ProcesoPermiso[]): void{
-       this.permisoService.obtenerPermisosTipo(this.tipoUsuario.ID_tipoUsuario).subscribe( permisos => {
-         this.listaProcTipo = this.procesoServicio.descripcionPermiso(procesos, permisos);
-         this.obtenerProcesosDisponibles(procesos);
-       },
-       err => {
-         console.error(err);
-         alert('Hubo un error al conseguir los permisos.');
-       });
-   }
-
- // Este método habilita o deshabilita el formulario según lo que se quiera hacer en el
-//  ya sea ver información, crear nuevo registro o editar.
-//  En "ver" todos los campos aparecen deshabilitados y en "nuevo" el único deshabilitado
-//  es "activar"
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Este método habilita o deshabilita el formulario según lo que se quiera hacer en el.
 tipoFormularioAccion(): void{
   switch (this.accion){
     case 'ver':
@@ -157,11 +132,75 @@ tipoFormularioAccion(): void{
   }
 }
 
- // Devuelve true si el usuario interactuó con el formulario o false si no.
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para obtener el ID del nuevo registro.
+  obtenerIDNuevo(): void{
+    this.tipoService.obtenerIDRegistro().subscribe( (id: number) => {
+      this.campoId.setValue(id);
+      this.idListo = true;
+      console.log('ID a asignar:', id);
+    });
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción:Método para obtener los procesos del sistema
+  obtenerProcesosSistema(): void{
+    this.procesoServicio.obtenerProcesosLista().subscribe( procesos => {
+      this.procesosSistema = procesos;
+      if (this.accion !== 'nuevo'){
+        this.obtenerPermisosActuales(procesos);
+      }else {
+        this.obtenerProcesosNuevoRegistro(procesos);
+        this.procesosYpermisos = true;
+      }
+    });
+  }
+
+  // Entrada: lista de tipo ProcesoPermiso
+  // Salida: vacío.
+  // Descripción: Inicializa la lista listaProcesos para un nuevo registro.
+  // en esta se encuentran todos los procesos del sistema en general.
+  obtenerProcesosNuevoRegistro(procesos: ProcesoPermiso[]): void{
+      procesos.forEach(proceso => {
+        this.listaProcesos.push(proceso);
+      });
+  }
+
+  // Entrada: Lista de tipo ProcesoPermiso.
+  // Salida: Vacío.
+  // Descripción: Método para inicializar la lista de procesos. En esta lista se
+  // encuentran los procesos que quedan sin seleccionar para el tipo de usuario.
+   obtenerProcesosDisponibles(procesos: ProcesoPermiso[]): void{
+     this.listaProcesos = this.procesoServicio.procesosDisponibles(procesos, this.listaProcTipo );
+     this.procesosYpermisos = true;
+   }
+
+  // Entrada: Lista de tipo ProcesoPermiso.
+  // Salida: vacío.
+  // Descripción: Método para obtener los permisos actuales del tipo Usuario
+   obtenerPermisosActuales(procesos: ProcesoPermiso[]): void{
+       this.permisoService.obtenerPermisosTipo(this.tipoUsuario.ID_tipoUsuario).subscribe( permisos => {
+         this.listaProcTipo = this.procesoServicio.descripcionPermiso(procesos, permisos);
+         this.obtenerProcesosDisponibles(procesos);
+       },
+       err => {
+         console.error(err);
+         alert('Se ha generado un problema al cargar el tipo de usuario. Intente de nuevo o solicite asistencia.');
+       });
+   }
+
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: Devuelve true si el usuario interactuó con el formulario o false si no.
  obtenerEstadoFormulario(): boolean{
   return this.modificado;
 }
 
+// Entrada: Ninguna.
+// Salida: vacío.
+// Descripción: Método que verifica si se han asignado procesos a tipo de usuario.
 listaTienePermisos(): void{
   if (this.listaProcTipo.length === 0){
     this.errorListas = true;
@@ -170,7 +209,10 @@ listaTienePermisos(): void{
   }
 }
 
-// Función para recibir el item que fué seleccionado en una de las listas
+// Entrada: Evento.
+// Salida: vacío.
+// Descripción: Función para recibir el item que fue seleccionado en una de las listas
+// Le agrega una clase CSS para cambiar apariencia y recupera los datos del proceso seleccionado.
   itemSeleccionado(e: Event): void{
     this.cambiarAspectoLista();
     const ELEMENT  = (e.target as Element);
@@ -178,8 +220,10 @@ listaTienePermisos(): void{
     this.elementoLista = this.procesoServicio.obtenerProceso(ELEMENT.innerHTML, this.procesosSistema);
   }
 
-  // Cambia el aspecto de los elementos de la lista. Al seleccionar uno nuevo, quita la clase
-  // .item-selected de aquellos elementos que lo tenían
+  // Entrada: Lista de tipo ProcesoPermiso.
+  // Salida: vacío.
+  // Descripción: Cambia el aspecto de los elementos de la lista.
+  // Al seleccionar uno nuevo, quita la clase .item-selected de aquellos elementos que lo tenían
   cambiarAspectoLista(): void{
     const coincidenciasQuery = this.elementoReferencia.nativeElement.querySelectorAll('li.item-selected');
     if (coincidenciasQuery.lenght !== null){
@@ -189,12 +233,11 @@ listaTienePermisos(): void{
     }
   }
 
-  // FUNCION QUE VERIFICA SI EL ELEMENTO SELECCIONADO SE ENCUENTRA EN LA LISTA DE ORIGEN
-  // CON EL FIN, POR EJEMPLO,DE QUE SI SE SELECCIONA ELEMENTO DE "LISTA A" Y SE DA CLICK EN BOTON
-  // QUE TRANSFIERE DE "LISTA B" A "LISTA A" LE INDIQUE ERROR,  PUESTO QUE DICHO ELEMENTO
-  // NO PERTENECE A LA LISTA DE ORIGEN Y YA EXISTE EN LA DE DESTINO.
-
-  existenciaEnLista(listaOrigen: ProcesoPermiso[], listaDestino: ProcesoPermiso[]): boolean{
+  // Entrada: Lista de tipo ProcesoPermiso.
+  // Salida: valor boolean.
+  // Descripción: Función que verifica que el elemento de la lista seleccionado,
+  // se quiera transferir a la lista contraria.
+  existenciaEnLista(listaOrigen: ProcesoPermiso[]): boolean{
     let validacionExistencia: boolean;
     if (listaOrigen.includes(this.elementoLista)){
       validacionExistencia =  true;
@@ -205,9 +248,11 @@ listaTienePermisos(): void{
     return validacionExistencia;
   }
 
-  // FUNCION QUE SE LLAMA PARA TRANFERIR ELEMENTO DE "LISTA A" A "LISTA B"
+  // Entrada: Ninguna.
+  // Salida: vacío.
+  // Descripción: Método para transferir un elemento de lista A a lista B.
   cambiarListAListB(): void{
-    const validacion = this.existenciaEnLista(this.listaProcesos, this.listaProcTipo);
+    const validacion = this.existenciaEnLista(this.listaProcesos);
     if (validacion){
         this.modificarListas(this.listaProcesos, this.listaProcTipo);
         this.listaTienePermisos();
@@ -215,9 +260,11 @@ listaTienePermisos(): void{
       }
   }
 
-  // FUNCION QUE SE LLAMA PARA TRANFERIR ELEMENTO DE "LISTA B" A "LISTA A"
+  // Entrada: Ninguna.
+  // Salida: vacío.
+  // Descripción: Método para transferir un elemento de lista B a lista A.
   cambiarListBListA(): void{
-    const validacion = this.existenciaEnLista(this.listaProcTipo, this.listaProcesos);
+    const validacion = this.existenciaEnLista(this.listaProcTipo);
     if (validacion){
       this.modificarListas(this.listaProcTipo, this.listaProcesos);
       this.listaTienePermisos();
@@ -225,17 +272,20 @@ listaTienePermisos(): void{
       }
   }
 
-  // Modificación de las listas cambiando el elemento de la lista de origen hacia
-  // lista destino. Se verifica previamente existen de elemento en lista con función
-  // existenciaEnLista(listaOrigen,listaDestino)
+  // Entrada: Ninguna.
+  // Salida: vacío.
+  // Descripción: Método para ejecutar los procesos de cambio del elemento de la lista
+  // origen a la lista destino
   modificarListas(listaOrigen: ProcesoPermiso[], listaDestino: ProcesoPermiso[]): void{
     listaDestino.push(this.elementoLista);
     const index: number = listaOrigen.indexOf(this.elementoLista);
     listaOrigen.splice(index, 1);
   }
 
-  // Guarda las modificaciones o acciones hechas en el dialog
-guardar() {
+  // Entrada: Ninguna.
+  // Salida: vacío.
+  // Descripción: Método que guarda las modificaciones o acciones hechas en el dialog
+guardar(): void {
   // event.preventDefault();
   this.listaTienePermisos();
   if (this.form.valid && !this.errorListas){
@@ -248,17 +298,25 @@ guardar() {
   }
 }
 
-generarTipo(){
+// Entrada: Ninguna.
+// Salida: objeto Tipo usuario.
+// Descripción: Método para generar un nuevo objeto de Tipo Usuario
+// con los datos de los campos del formulario.
+generarTipo(): TipoUsuarioM{
   const estado = !this.campoEstado.value;
   return new TipoUsuarioM(
     this.campoId.value,
     this.campoDescripcion.value,
-    estado
+    estado,
+    true
   );
 }
 
-// Método para saber si se actualizará o registrará un nuevo usuario
-accionGuardar(tipo: TipoUsuario){
+// Entrada: Objeto Tipo Usuario.
+// Salida: vacío.
+// Descripción: Método para ejecutar los procesos pertinentes a actualización
+// o registro de un Tipo de Usuario.
+accionGuardar(tipo: TipoUsuario): void{
   if (this.accion === 'nuevo'){
       this.tipoService.insertarTipoUsuario(tipo, this.listaProcTipo).subscribe( res => {
         alert('Tipo de usuario registrado exitosamente');
@@ -274,8 +332,9 @@ accionGuardar(tipo: TipoUsuario){
   }
 }
 
-
-// Método que a través del método "verificarCambios" del servicio de DialogService
+// Entrada: Ninguna.
+// Salida: vacío.
+// Descripción: Método que a través del método "verificarCambios" del servicio de DialogService
 // verifica si el usuario interactuó con el formulario.
 // Si la interacción sucedió se despliega un mensaje de confirmación.
 cerrarDialog(): void{

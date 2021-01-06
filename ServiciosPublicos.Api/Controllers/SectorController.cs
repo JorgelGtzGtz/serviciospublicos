@@ -20,6 +20,9 @@ namespace ServiciosPublicos.Api.Controllers
             _sectorService = sectorService;
         }
 
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Sector
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Inserta el Sector en base de datos.
         [HttpPost]
         [Route("Insertar")]
         public async Task<HttpResponseMessage> InsertSector(HttpRequestMessage request, Sector model)
@@ -58,6 +61,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Sector
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Actualiza un registro Sector de la base de datos.
         [HttpPut]
         [Route("Actualizar")]
         public async Task<HttpResponseMessage> UpdateSector(HttpRequestMessage request, Sector model)
@@ -96,6 +102,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage y ID de sector de tipo INT
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de tipo Sector.
+        // Descripción: Obtiene el registro de sector que coincide con el ID proporcionado.
         [HttpGet]
         [Route("GetSector/{id}/")]        
         public async Task<HttpResponseMessage> GetSector(HttpRequestMessage request, int id)
@@ -124,6 +133,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage.
+        // Salida: respuesta de tipo HttpResponseMessage y lista de tipo Sector
+        // Descripción: Obtiene la lista de sectores existentes.
         [HttpGet]
         [Route("GetSectorList")]
         public async Task<HttpResponseMessage> GetSectorList(HttpRequestMessage request)
@@ -146,6 +158,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage, string para texto de búsqueda y string para estado.
+        // Salida: lista de tipo Sector.
+        // Descripción: Obtiene lista de los sectores que cumplen con los filtros de búsqueda.
         [HttpGet]
         [Route("filtrarSectores")]
         public async Task<HttpResponseMessage> GetSectoresFiltro(HttpRequestMessage request, string textoB = null, string estado = null)
@@ -173,6 +188,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage
+        // Salida: respuesta de tipo HttpResponseMessage y ID de tipo INT para nuevo registro.
+        // Descripción: Obtiene el ID del nuevo registro.
         [HttpGet]
         [Route("ObtenerID")]
         public async Task<HttpResponseMessage> GetIDRegistro(HttpRequestMessage request)
@@ -199,9 +217,12 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        [HttpDelete]
-        [Route("Eliminar/{id}")]
-        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, int id)
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Sector.
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Efectúa eliminación lógica de sector.
+        [HttpPut]
+        [Route("EliminarSector")]
+        public async Task<HttpResponseMessage> Eliminar(HttpRequestMessage request, Sector model)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -209,7 +230,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var result = _sectorService.EliminarSector(id, out message);
+                    var result = _sectorService.EliminarSector(model, out message);
                     if (result)
                     {
                         response = request.CreateResponse(HttpStatusCode.OK, message);

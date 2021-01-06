@@ -22,6 +22,10 @@ namespace ServiciosPublicos.Api.Controllers
             _usuarioservice = usuarioservice;
         }
 
+        // Entrada: request de tipo HttpRequestMessage
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de tipo Usuario.
+        // Descripción: Revisa la autenticidad de los datos del usuario y busca el objeto Usuario
+        // que coincide con el usuario y contraseña proporcionados.
         [HttpPost]
         [Route("Login")]
         public async Task<HttpResponseMessage> Authenticate(HttpRequestMessage request)
@@ -59,6 +63,10 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage, string de texto de búsqueda, string de estado de usuario, string de tipo de usuario
+        //          string de tipo de usuario y string para reportes activos.
+        // Salida: respuesta de tipo HttpResponseMessage y lista de tipo dynamic con los registros de usuario.
+        // Descripción: Busca los registros de usuario que cumplan con los filtros de búsqueda.
         [HttpGet]
         [Route("ListaBusqueda")]
         public async Task<HttpResponseMessage> GetUsuariosFiltro(HttpRequestMessage request, string textoB = null, string estado = null, string tipoU = null, string repActivos = null)
@@ -86,6 +94,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage y ID de Usuario de tipo INT
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de tipo Usuario.
+        // Descripción: Obtiene el objeto Usuario que coioncida con el ID proporcionado.
         [Route("GetUsuario/{id:int}/")]
         [HttpGet]
         public async Task<HttpResponseMessage> GetUsuario(HttpRequestMessage request, int id)
@@ -113,6 +124,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage
+        // Salida: respuesta de tipo HttpResponseMessage y lista de tipo Usuario.
+        // Descripción: Busca los usuarios cuyo tipo de usuario sea de jefes de cuadrilla.
         [Route("GetJefesCuadrilla")]
         [HttpGet]
         public async Task<HttpResponseMessage> GetUsuariosJefes(HttpRequestMessage request)
@@ -140,7 +154,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Usuario
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Registra o inserta un nuevo Usuario.
         [HttpPost]
         [Route("Registrar")]
         public async Task<HttpResponseMessage> Registrar(HttpRequestMessage request, Usuario model)
@@ -179,6 +195,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Usuario.
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Actualiza el registro del Usuario en la base de datos con el objeto Usuario proporcionado.
         [HttpPut]
         [Route("Actualizar")]
         public async Task<HttpResponseMessage> ActualizarUsuario(HttpRequestMessage request, Usuario model)
@@ -217,10 +236,12 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        
-        [HttpDelete]
-        [Route("Eliminar/{id:int}")]
-        public async Task<HttpResponseMessage> EliminarUsuario(HttpRequestMessage request, int id)
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Usuario.
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Efectúa eliminación lógica del objeto Usuario proporcionado.
+        [HttpPut]
+        [Route("EliminarUsuario")]
+        public async Task<HttpResponseMessage> EliminarUsuario(HttpRequestMessage request, Usuario model)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -228,7 +249,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var result = _usuarioservice.EliminarUsuario(id, out message);
+                    var result = _usuarioservice.EliminarUsuario(model, out message);
                     if (result)
                     {
                         response = request.CreateResponse(HttpStatusCode.OK, message);
@@ -256,7 +277,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
-        //Obtener ID para registro nuevo
+        // Entrada: request de tipo HttpRequestMessage
+        // Salida: respuesta de tipo HttpResponseMessage y ID de tipo INT
+        // Descripción: Obtener ID para registro nuevo
         [HttpGet]
         [Route("ObtenerID")]
         public async Task<HttpResponseMessage> GetIDRegistro(HttpRequestMessage request)

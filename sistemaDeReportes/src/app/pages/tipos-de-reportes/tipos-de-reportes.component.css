@@ -1,0 +1,19 @@
+p {
+    color: #636262;
+}
+
+div#container-fluid {
+    position: relative;
+}
+
+div#contenedor-texto {
+    text-align: center;
+    width: 40%;
+    height: 15%;
+    margin: 10rem auto;
+    /* position: absolute;
+    top: 50%;
+    left: 60%;
+    transform: translate(-50%, -50%);
+    padding: 10px; */
+}

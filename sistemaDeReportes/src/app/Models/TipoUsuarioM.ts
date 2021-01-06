@@ -6,14 +6,16 @@ export class TipoUsuarioM implements TipoUsuario{
         return new TipoUsuarioM(
             obj['ID_tipoUsuario'],
             obj['Descripcion_tipoUsuario'],
-            obj['Estatus_tipoUsuario']
+            obj['Estatus_tipoUsuario'],
+            obj['Disponible']
         );
     }
 
     constructor(
         public ID_tipoUsuario: number,
         public Descripcion_tipoUsuario: string,
-        public Estatus_tipoUsuario: boolean ){
+        public Estatus_tipoUsuario: boolean,
+        public Disponible: boolean ){
 
     }
 

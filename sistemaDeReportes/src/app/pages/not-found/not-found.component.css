@@ -1,0 +1,17 @@
+h1 {
+    color: #d11c1c;
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+a {
+    font-weight: 900;
+}
+
+div.center {
+    text-align: center;
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+}

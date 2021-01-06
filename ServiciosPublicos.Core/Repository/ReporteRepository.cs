@@ -17,8 +17,8 @@ namespace ServiciosPublicos.Core.Repository
         Reporte VerificarExistenciaReporte(Ticket ticket);
         int InsertarReporte(Ticket ticket);
         void ModificarNoTickets(Reporte reporte);
-        List<dynamic> GetReporteCuadrilla(int idCuadrilla);
-        List<dynamic> GetAllReportes(string textoBusqueda = null);
+        List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla);
+        List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
         List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus);
@@ -31,8 +31,10 @@ namespace ServiciosPublicos.Core.Repository
         public ReporteRepository(IDbFactory dbFactory) : base(dbFactory)
         {
         }
-        //G: CORREGIDO EL BUG DE NO CREAR MAS REPORTES SI EL ANTERIOR ESTA CERRADO
-        //verificar si existe reporte usando la direccion y tipo de reporte
+
+        // Entrada: objeto de tipo Ticket
+        // Salida: objeto de tipo Reporte
+        // Descripción: query para verificar si existe reporte usando la direccion y tipo de reporte
         public Reporte VerificarExistenciaReporte(Ticket ticket)
         {
             Sql query = new Sql(
@@ -45,19 +47,30 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.SingleOrDefault<Reporte>(query);
         }
 
-        public List<dynamic> GetReporteCuadrilla(int idCuadrilla)
+        // Entrada: id de cuadrilla de tipo string
+        // Salida: lista de tipo dynamic con los registros de la consulta.
+        // Descripción: query para hacer una búsqueda dinámica de reportes. Como filtro se toma el id de cuadrilla.
+        public List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla)
         {
+            string filter = " WHERE ";
+            bool operacion = false;
+
+            if (!string.IsNullOrEmpty(idCuadrilla))
+            {
+                filter += string.Format("reporte.ID_cuadrilla LIKE '%{0}%'", idCuadrilla);
+                operacion = true;
+            }
+
             Sql query = new Sql(
-                @"SELECT reporte.*, sector.Descripcion_sector AS sector, cuadrilla.Nombre_cuadrilla AS cuadrilla 
+                @"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion 
                   FROM hiram74_residencias.Reporte AS reporte
-                  INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector
-                  INNER JOIN Cuadrilla AS cuadrilla ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla 
-                  WHERE ID_cuadrilla= @0",
-                idCuadrilla);
+                  INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector" + (operacion ? filter : ""));
             return this.Context.Fetch<dynamic>(query);
         }
 
-        //Se crea un reporte con las caracteristicas del ticket
+        // Entrada: Objeto de tipo Ticket
+        // Salida: Id del reporte creado de tipo int.
+        // Descripción: Se crea un reporte con las caracteristicas del ticket
         // NoTickets de reporte es 1, porque es la primera vez que se hace un ticket de este reporte
         // estatus_reporte es 1, porque es abierto
         public int InsertarReporte(Ticket ticket)
@@ -80,33 +93,86 @@ namespace ServiciosPublicos.Core.Repository
             reporte.Origen = ticket.Origen;
             return this.Add<int>(reporte);
         }
-        
-        //Modifica el contador de tickets del reporte.
+
+        // Entrada: Objeto de tipo Reporte
+        // Salida: Ninguna.
+        // Descripción: al numero de tickets del reporte, incrementa en 1 y actualiza el reporte en la base de datos.
         public void ModificarNoTickets(Reporte reporte)
         {
             reporte.NoTickets_reporte = reporte.NoTickets_reporte + 1;
             this.Modify(reporte);
         }
 
-        public List<dynamic> GetAllReportes(string textoBusqueda = null)
+
+        // Entrada: valores string para tipo reporte, estado, sector, origen, fecha inicial y fecha final
+        // Salida: lista de tipo dynamic, con los registros que coincidieron.
+        // Descripción: Ejecuta un query cuya estructura se crea segun los valores que tienen datos
+        // con el fin de buscar registros que cumplan determinados filtros.
+        public List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
          {
-             string filter = " Where ";
+             string filter = " WHERE ";
+            bool operacion = false;
 
-             if (!string.IsNullOrEmpty(textoBusqueda))
+             if (!string.IsNullOrEmpty(tipoR))
              {
-                 filter += string.Format("reporte.ID_cuadrilla like '%{0}%' or " +
-                                         "reporte.ID_sector like '%{0}%' or " +
-                                         "reporte.Origen like '%{0}%' or " +
-                                         "reporte.Estatus_reporte like '%{0}%'", textoBusqueda);
+                 filter += string.Format("reporte.ID_tipoReporte LIKE '%{0}%'", tipoR);
+                operacion = true;
              }
-            
 
-             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion 
-                                FROM hiram74_residencias.Reporte AS reporte
-                                INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector" + (!string.IsNullOrEmpty(textoBusqueda) ? filter : ""));
+            if (!string.IsNullOrEmpty(cuadrilla))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.ID_cuadrilla LIKE '%{0}%'", cuadrilla);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(estado))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.Estatus_reporte LIKE '%{0}%'", estado);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(sector))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.ID_sector LIKE '%{0}%'", sector);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(origen))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("reporte.Origen LIKE '%{0}%'", origen);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(fechaIni))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte >= '{0}' OR reporte.FechaCierre_reporte >= '{0}')", fechaIni);
+                operacion = true;
+            }
+
+            if (!string.IsNullOrEmpty(fechaF))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte <= '{0}' OR reporte.FechaCierre_reporte <= '{0}')", fechaF);
+                operacion = true;
+            }
+
+           /* if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF))
+            {
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte BETWEEN '%{0}%' AND '%{1}%' OR " +
+                                                                       "reporte.FechaCierre_reporte BETWEEN '%{0}%' AND '%{1}%')", fechaIni,fechaF);
+                operacion = true;
+            }
+           */
+            Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion
+                                  FROM [hiram74_residencias].[Reporte] reporte
+                                  INNER JOIN [hiram74_residencias].[Sector] sector
+                                  ON sector.ID_sector = reporte.ID_sector" + (operacion ? filter : ""));
              return this.Context.Fetch<dynamic>(query);
          }
 
+        // Entrada: id de cuadrilla de tipo Int
+        // Salida: lista de tipo Reporte.
+        // Descripción: query que se llama desde la eliminación de cuadrilla, para verificar que
+        // la cuadrilla no tenga reportes relacionados.
         public List<Reporte> ReportesPorCuadrilla(int idCuadrilla)
         {
             Sql query = new Sql()
@@ -116,6 +182,9 @@ namespace ServiciosPublicos.Core.Repository
 
         }
 
+        // Entrada: Ninguna.
+        // Salida: id de reporte de tipo int.
+        // Descripción: query que obtiene el último ID de reporte registrado en la base de datos.
         public int ObtenerUltimoID()
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Reporte')");

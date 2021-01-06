@@ -19,51 +19,10 @@ namespace ServiciosPublicos.Api.Controllers
         {
             _ticketService = ticketService;
         }
-   /*     
-        [HttpPost]
-        [Route("Registrar")]
-        public async Task<HttpResponseMessage> InsertTicket(HttpRequestMessage request, [FromBody] JObject data)
-        {
-            return await CreateHttpResponseAsync(request, async () =>
-            {
-                HttpResponseMessage response = null;
-                string message = String.Empty;
-                var imagenes = new List<Imagen>();
-                try
-                {
-                    var ticket = data["ticket"].ToObject<Ticket>();
-                    var value = data["imagenes"].HasValues;
-                    if (value)
-                    {
-                        imagenes = data["imagenes"].ToObject<List<Imagen>>();
-                    }                    
-                    var idTicket = _ticketService.InsertarTicket(ticket, out message);
-                    var nuevoTicket = _ticketService.GetTicket(idTicket);
-                    var result = _ticketService.VerificarExistenciaReporte(nuevoTicket, imagenes, out message); 
 
-                    if (result)
-                    {
-                        response = request.CreateResponse(HttpStatusCode.OK, message);
-                    }
-                    else
-                    {
-                        response = request.CreateResponse(HttpStatusCode.BadRequest,message);
-                    }                   
-                }
-                catch (Exception ex)
-                {
-                    response = request.CreateResponse(HttpStatusCode.BadRequest,
-                    new
-                    {
-                        error = "ERROR",
-                        exception = ex.Message
-                    });
-                }
-                return await Task.FromResult(response);
-            });
-        }
-   */
-
+        // Entrada: request de tipo HttpRequestMessage y ID de ticket de tipo INT
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de tipo Ticket.
+        // Descripción: Obtiene el Ticket que coincide con el ID proporcionado.
         [HttpGet]
         [Route("GetTicket/{id}/")]
         public async Task<HttpResponseMessage> GetTicket(HttpRequestMessage request, int id)
@@ -90,6 +49,9 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage
+        // Salida: respuesta de tipo HttpResponseMessage y lista de tipo Ticket.
+        // Descripción: Obtiene los registros de tickets de la base de datos.
         [HttpGet]
         [Route("GetTicketsLista")]
         public async Task<HttpResponseMessage> GetTicketsLista(HttpRequestMessage request)
@@ -150,6 +112,9 @@ namespace ServiciosPublicos.Api.Controllers
 
         }
 
+        // Entrada: request de tipo HttpRequestMessage y objeto de tipo Ticket
+        // Salida: respuesta de tipo HttpResponseMessage.
+        // Descripción: Actualiza la información de un registro de ticket de la base de datos.
         [HttpPut]
         [Route("ActualizarTicket")]
         public async Task<HttpResponseMessage> ActualizarTicket(HttpRequestMessage request, Ticket model)
