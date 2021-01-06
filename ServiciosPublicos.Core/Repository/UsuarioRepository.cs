@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EASendMail;
 
 namespace ServiciosPublicos.Core.Repository
 {
@@ -15,10 +16,13 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetByDynamicFilter(Sql sql);
         Usuario GetUsuario(string usr, string password);
         Usuario GetUsuario(string usr);
+        Usuario GetUsuarioByEmail(string email);
+        Usuario GetUsuarioByPhone(string telefono);
         List<Usuario> GetUsuariosPorTipo(int tipoUsuario);
         List<Usuario> GetUsuarioJefeDisponible(int idTipoJefe);
         List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
         int GetUltimoID();
+        string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo);
     }
 
     public class UsuarioRepository : RepositoryBase<Usuario>, IUsuarioRepository
@@ -42,11 +46,42 @@ namespace ServiciosPublicos.Core.Repository
 
             return user;
         }
+        //G: METODO PARA ENVIAR CORREO
+        //USA UN CORREO ESPECIFICAMENTE CREADO PARA ESTO EL CUAL ES EL UE SE ENCARGA DE ENVIAR CORREOS A LOS DESTINATARIOS
+        //TODA LA INFORMACION DEL CORREO ESTA EN EL METODO
+        public string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo)
+        {
+            string mensaje = "Error al enviar correo.";
 
-        // Entrada: valor string para usuario.
-        // Salida: objeto de tipo Usuario.
-        // Descripción: Query para obtener un Usuario que cuyo valor de Login_usuario
-        // coincida con el proporcionado.
+            try
+            {
+                SmtpMail objetoCorreo = new SmtpMail("TryIt");
+
+                objetoCorreo.From = "publicosservicios745@gmail.com";
+                objetoCorreo.To = correoDestino;
+                objetoCorreo.Subject = asunto;
+                objetoCorreo.TextBody = mensajeCorreo;
+
+                SmtpServer objetoServidor = new SmtpServer("smtp.gmail.com");
+
+                objetoServidor.User = "publicosservicios745@gmail.com";
+                objetoServidor.Password = "public329";
+                objetoServidor.Port = 587;
+                objetoServidor.ConnectType = SmtpConnectType.ConnectSSLAuto;
+
+                SmtpClient objetoCliente = new SmtpClient();
+                objetoCliente.SendMail(objetoServidor, objetoCorreo);
+                mensaje = "Correo Enviado Correctamente.";
+
+
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al enviar correo." + ex.Message;
+            }
+            return mensaje;
+        }
+
         public Usuario GetUsuario(string usr)
         {
             var query = new Sql()
@@ -58,7 +93,31 @@ namespace ServiciosPublicos.Core.Repository
 
             return user;
         }
-       
+
+        public Usuario GetUsuarioByEmail(string email)
+        {
+            var query = new Sql()
+                .Select("*")
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Correo_usuario) = @0", email.ToLower());
+
+            var user = this.Context.SingleOrDefault<Usuario>(query);
+
+            return user;
+        }
+
+        public Usuario GetUsuarioByPhone(string telefono)
+        {
+            var query = new Sql()
+                .Select("*")
+                .From("hiram74_residencias.Usuario")
+                .Where("lower(Telefono_usuario) = @0", telefono.ToLower());
+
+            var user = this.Context.SingleOrDefault<Usuario>(query);
+
+            return user;
+        }
+
         public List<dynamic> GetByDynamicFilter(Sql sql)
         {
             return this.Context.Fetch<dynamic>(sql);

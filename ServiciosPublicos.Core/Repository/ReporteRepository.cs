@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EASendMail;
+using System.Net;
+using System.IO;
 
 namespace ServiciosPublicos.Core.Repository
 {
@@ -18,6 +21,9 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
+        List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus);
+        string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo, List<Imagen> listaImagenes, string path);
+        string EnviarSMS(string numeroDestino, string mensajeSMS);
 
     }
     public class ReporteRepository : RepositoryBase<Reporte>, IReporteRepository
@@ -37,7 +43,7 @@ namespace ServiciosPublicos.Core.Repository
                + cos(Latitud_reporte * 0.0175) * cos(@0 * 0.0175) *    
                  cos((@1 * 0.0175) - (Longitud_reporte * 0.0175))
               ) * 3959 <= 0.16
-      ) AND ID_tipoReporte = @2", ticket.Latitud_ticket, ticket.Longitud_ticket, ticket.ID_tipoReporte);
+      ) AND ID_tipoReporte = @2 AND Estatus_reporte != 2", ticket.Latitud_ticket, ticket.Longitud_ticket, ticket.ID_tipoReporte);
             return this.Context.SingleOrDefault<Reporte>(query);
         }
 
@@ -183,6 +189,77 @@ namespace ServiciosPublicos.Core.Repository
         {
             Sql query = new Sql(@"SELECT IDENT_CURRENT('Reporte')");
             return this.Context.SingleOrDefault<int>(query);
+        }
+
+        public List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus)
+        {
+            Sql query = new Sql(@"SELECT reporte.*, cuadrilla.ID_JefeCuadrilla AS jefeAsignado
+                                FROM [hiram74_residencias].[Reporte] reporte
+                                INNER JOIN [hiram74_residencias].[Cuadrilla] cuadrilla 
+                                ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla WHERE cuadrilla.ID_JefeCuadrilla = @0"+
+                                (idTipo != 0 ? " AND reporte.ID_tipoReporte = @1" : "") +
+                                (idEstatus != 0 ? " AND reporte.Estatus_reporte = @2" : ""),id_jefe, idTipo, idEstatus);
+            return this.Context.Fetch<dynamic>(query);
+        }
+        //G:METODO PARA ENVIAR CORREO CON IMAGENES DE CIERRE, SE ENVIA AL USUARIO CON IMAGENES ADJUNTAS
+        public string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo, List<Imagen> listaImagenes, string path)
+        {
+            string mensaje = "Error al enviar correo.";
+            string html = String.Empty;
+
+            try
+            {
+                SmtpMail objetoCorreo = new SmtpMail("TryIt");
+
+                objetoCorreo.From = "publicosservicios745@gmail.com";
+                objetoCorreo.To = correoDestino;
+                objetoCorreo.Subject = asunto;
+                html += "<h4>El problema fue solucionado correctamente</h4>";
+                html += "<h3>A continuacion te anexamos las pruebas solicitadas por ti...</h3>";
+
+                foreach (var imagen in listaImagenes) {
+                    objetoCorreo.AddAttachment(path + imagen.Path_imagen.Replace("/", @"\"));
+                }
+                objetoCorreo.HtmlBody = html;
+               
+                SmtpServer objetoServidor = new SmtpServer("smtp.gmail.com");
+
+                objetoServidor.User = "publicosservicios745@gmail.com";
+                objetoServidor.Password = "public329";
+                objetoServidor.Port = 587;
+                objetoServidor.ConnectType = SmtpConnectType.ConnectSSLAuto;
+
+                SmtpClient objetoCliente = new SmtpClient();
+                objetoCliente.SendMail(objetoServidor, objetoCorreo);
+                mensaje = "Correo Enviado Correctamente.";
+
+
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al enviar correo." + ex.Message;
+            }
+            return mensaje;
+        }
+
+        //G: METODO PARA ENVIAR SMS
+        public string EnviarSMS(string numeroDestino, string mensajeSMS)
+        {
+            string mensaje = "Error al enviar el SMS.";
+
+            try
+            {
+                WebClient client = new WebClient();
+                Stream s = client.OpenRead(string.Format("https://platform.clickatell.com/messages/http/send?apiKey=&to={0}&content={1}", numeroDestino, mensajeSMS));
+                StreamReader reader = new StreamReader(s);
+                string result = reader.ReadToEnd();
+                mensaje = "SMS Enviado Correctamente.";
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al enviar SMS." + ex.Message;
+            }
+            return mensaje;
         }
 
     }

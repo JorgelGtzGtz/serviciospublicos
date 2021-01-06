@@ -14,6 +14,8 @@ namespace ServiciosPublicos.Core.Services
     {
         Usuario GetUsuario(int id);
         Usuario GetUsuario(string usr);
+        Usuario GetUsuarioEmail(string email);
+        Usuario GetUsuarioTel(string telefono);
         Usuario GetUsuario(string usr, string password);
         List<Usuario> GetUsuarios();
         List<dynamic> GetUsuariosFiltro(string textoB, string estado, string tipoU, string repActivos);
@@ -22,6 +24,7 @@ namespace ServiciosPublicos.Core.Services
         bool InsertarUsuario(Usuario Usuario, out string Message);
         bool EliminarUsuario(Usuario usuario, out string Message);
         int ObtenerIDRegistro(out string Message);
+        string SendMail(Usuario user, out string Message, int code);
     }
 
     public class UsuarioService : IUsuarioService
@@ -56,6 +59,16 @@ namespace ServiciosPublicos.Core.Services
         public Usuario GetUsuario(string usr)
         {
             return _usuarioRepository.GetUsuario(usr);
+        }
+
+        public Usuario GetUsuarioEmail(string email)
+        {
+            return _usuarioRepository.GetUsuarioByEmail(email);
+        }
+
+        public Usuario GetUsuarioTel(string telefono)
+        {
+            return _usuarioRepository.GetUsuarioByPhone(telefono);
         }
 
         // Entrada: Ninguna.
@@ -98,7 +111,6 @@ namespace ServiciosPublicos.Core.Services
             {
                 usuario.Disponible = true;
                 _usuarioRepository.Add<int>(usuario);
-
                 Message = "Usuario " + usuario.Login_usuario + " registrado con exito";
                 result = true;
             }
@@ -177,6 +189,12 @@ namespace ServiciosPublicos.Core.Services
                 Message = "Error al obtener ID de registro actual. Error: " + ex.Message;
             }
             return result;
+        }
+        //G: LLAMA DIRECTO AL METODO DE ENVIAR CORREO ENVIANDO CODIGO DE CONFIRMACION Y MENSAJE POR PARAMETROS
+        public string SendMail(Usuario user, out string Message, int code)
+        {
+            Message = _usuarioRepository.EnviarCorreo(user.Correo_usuario, "Confirma tu correo", "Tu código de verificación es: "+code);
+            return Message;
         }
     }
 }

@@ -15,7 +15,9 @@ namespace ServiciosPublicos.Core.Services
         List<Ticket> GetTickets();
         int InsertarTicket(Ticket ticket, out string Message);
         bool ActualizarTicket(Ticket ticket, out string Message);
-       
+        List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus);
+
+        List<Imagen> GetImagenesByTicket(string idTicket, out string Message);
     }
     public class TicketService : ITicketService
     {
@@ -50,9 +52,11 @@ namespace ServiciosPublicos.Core.Services
             return _ticketRepository.GetAll("hiram74_residencias.Ticket").ToList();
         }
 
-        // Entrada: Objeto de tipo Ticket y mensaje de tipo String
-        // Salida: valor tipo INT con el ID del ticket registrado.
-        // Descripción: Inserta un nuevo ticket en la base de datos.
+        public List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus)
+        {
+            return _ticketRepository.ticketsPorUsuario(id, id_tipo, id_estatus);
+        }
+
         public int InsertarTicket(Ticket ticket, out string Message)
         {
             Message = string.Empty;
@@ -90,6 +94,21 @@ namespace ServiciosPublicos.Core.Services
             }
             return result;
         }
- 
+        public List<Imagen> GetImagenesByTicket(string idTicket,out string Message)
+        {
+            Message = string.Empty;
+            List<Imagen> listaImagenes = new List<Imagen>();
+            try
+            {
+                var idTic = Int32.Parse(idTicket);
+                listaImagenes = _imagenRepository.GetImagenTickets(idTic);
+                Message = "Imágenes encontradas con exito";
+            }
+            catch (Exception ex)
+            {
+                Message = "No fué posible obtener imágenes del reporte. " + ex;
+            }
+            return listaImagenes;
+        }
     }
 }

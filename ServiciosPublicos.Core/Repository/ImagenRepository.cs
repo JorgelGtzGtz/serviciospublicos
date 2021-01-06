@@ -14,6 +14,7 @@ namespace ServiciosPublicos.Core.Repository
         List<Imagen> GetImagen(int idReporte, int tipoImagen);
         void InsertarImagen(int idReporte, Imagen imagen, int idTicket = 0);
         // void InsertarImagenCierre(int idReporte, Imagen imagen);
+        List<Imagen> GetImagenTickets(int idTicket);
     }
     public class ImagenRepository : RepositoryBase<Imagen>, IImagenRepository
     {
@@ -28,6 +29,13 @@ namespace ServiciosPublicos.Core.Repository
         {
             Sql query = new Sql(@"SELECT * FROM Imagen 
                                 WHERE ID_reporte = @0 AND Tipo_imagen = @1", idReporte, tipoImagen);
+            return this.Context.Fetch<Imagen>(query);
+        }
+        //G: METODO PARA OBTENER LAS IMAGENES DE TICKET ESTO PARA VERLAS EN LA APP DE LADO PUBLICO
+        public List<Imagen> GetImagenTickets(int idTicket)
+        {
+            Sql query = new Sql(@"SELECT * FROM Imagen 
+                                WHERE ID_ticket = @0 AND Tipo_imagen = 1", idTicket);
             return this.Context.Fetch<Imagen>(query);
         }
 
