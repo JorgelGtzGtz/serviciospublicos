@@ -2,7 +2,8 @@
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0 text-dark">{{ seccion }}</h1>
+                <h1 *ngIf="seccion!='Inicio'" class="m-0 text-dark">{{ seccion }}</h1>
+                <h1 *ngIf="seccion ==='Inicio'">{{ saludoUsuario }}</h1>
             </div>
             <!-- /.col -->
             <div class="col-sm-6">
