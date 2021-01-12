@@ -8,6 +8,7 @@ import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { UsuarioM } from '../../../Models/UsuarioM';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
+import { debounce, debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-usuario',
@@ -19,6 +20,9 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
   datosUsuario: Usuario;
   tiposUsuario: any = [];
   modificado: boolean;
+  existeCorreo: boolean;
+  existeLoginUsuario: boolean;
+  passwordInvalido: boolean;
   idListo: boolean;
   tiposUListos: boolean;
   form: FormGroup;
@@ -77,6 +81,17 @@ datosCargados(): boolean{
       usuario: ['', [Validators.required]],
       password: ['', [Validators.required]]
     });
+    this.verificarCambiosFormulario();
+    this.verificarCambiosCorreo();
+    this.verificarCambiosLogin();  
+    this.verificarPasswordValido(); 
+  }
+
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el formulario en general.
+  verificarCambiosFormulario(){
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
         console.log('se interactuo');
@@ -84,6 +99,36 @@ datosCargados(): boolean{
       }else{
         this.modificado = false;
       }
+    });
+  }
+
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el input correo.
+  verificarCambiosCorreo(){
+    this.campoCorreo.valueChanges.pipe(debounceTime(500)).subscribe(correo => {
+      this.verificarExistenciaEmail(correo);
+    });
+  }
+
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el input usuario.
+  verificarCambiosLogin(){
+    this.campoUsuario.valueChanges.pipe(debounceTime(500)).subscribe(loginUsuario => {
+      this.verificarExistenciaUsuario(loginUsuario);
+    });
+  }
+
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el input password.
+  verificarPasswordValido(){
+    this.campoPassword.valueChanges.pipe(debounceTime(500)).subscribe( password => {
+      this.verificarPassword(password);
     });
   }
 
@@ -242,6 +287,64 @@ buscarTipo(descripcion: string): number{
      }
   });
   return idTipoUsuario;
+}
+
+// Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si el Email no pertenece a algun otro usuario.
+verificarExistenciaEmail(correo: string){
+  if(correo.length > 0){
+    this.usuarioService.obtenerUsuarioPorCorreo(correo).subscribe( res => {
+      if (res !== null){
+        this.existeCorreo = true;
+      }else{
+        this.existeCorreo = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de correo.' + error.message);
+    });
+  }else {
+    this.existeCorreo = false;
+  }
+}
+
+// Entrada: valor string
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si el login_usuario no pertenece a algun otro usuario.
+verificarExistenciaUsuario(loginUsuario: string){
+  if(loginUsuario.length > 0){
+    this.usuarioService.obtenerUsuarioPorNombreLogin(loginUsuario).subscribe( res => {
+      if (res !== null){
+        this.existeLoginUsuario = true;
+      }else{
+        this.existeLoginUsuario = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de login usuario.' + error.message);
+    });
+  }else {
+    this.existeLoginUsuario = false;
+  }
+}
+
+// Entrada: valor string.
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la contraseña tiene el formato correcto.
+verificarPassword(password: string){
+  if(password.length > 0){
+    const passwordVerificada = this.usuarioService.verificarFormatoPassword(password);
+    console.log('respuesta:', passwordVerificada);
+      if (passwordVerificada !== null){
+        this.passwordInvalido = false ;
+      }else{
+        this.passwordInvalido = true;
+      }
+  }else {
+    this.passwordInvalido = false;
+  }
 }
 
 // Entrada: Ninguna.

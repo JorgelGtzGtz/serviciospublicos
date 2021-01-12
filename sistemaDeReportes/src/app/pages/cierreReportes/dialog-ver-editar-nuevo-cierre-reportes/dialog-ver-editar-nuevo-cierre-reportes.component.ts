@@ -186,8 +186,8 @@ cargarImagenesReporte(): void{
         alert('Surgió un error al subir imágenes de cierre de reporte. Inténtelo más tarde o verifique las imágenes');
         console.log('Imágenes de cierre no pudieron ser procesadas.', error.message);
       });
-    }
-    // actualizar reporte
+      
+      // actualizar reporte
     this.reporteSevice.actualizarReporte(this.reporte). subscribe( respuesta => {
       alert('¡Cierre de reporte exitoso!');
       this.dialogRef.close();
@@ -195,8 +195,9 @@ cargarImagenesReporte(): void{
       alert('¡Lo sentimos! El cierre no se ha podido efectuar. Verifique que los datos sean correctos o solicite ayuda. ');
       console.log('Error al efectuar actualización para cierre de reporte.', error.message);
     });
-
-
+    }else{
+      alert('¡Debe subir imágenes de cierre para poder cerrar el reporte!');      
+    }
   }
 
   // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.

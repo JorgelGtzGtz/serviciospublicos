@@ -53,6 +53,9 @@
                             <p class="error" *ngIf="campoCorreo.hasError('required')">Campo requerido</p>
                             <p class="error" *ngIf="campoCorreo.hasError('email')">Ingrese un correo válido</p>
                         </div>
+                        <div *ngIf="existeCorreo">
+                            <p class="error">Ya existen una cuenta asociada a este correo. Intente con otro.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- TERMINA FILA CORREO -->
@@ -120,6 +123,9 @@
                                 <div *ngIf="campoUsuario.errors && campoUsuario.touched">
                                     <p class="error" *ngIf="campoUsuario.hasError('required')">Campo requerido</p>
                                 </div>
+                                <div *ngIf="existeLoginUsuario">
+                                    <p class="error">Ya existen una cuenta con este usuario. Intente otra.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -127,9 +133,15 @@
                         <div class="row form-group row-input-group">
                             <label id="lblContrasena" class="col-form-label col-md-auto" for="password">Contraseña: </label>
                             <div class="col p-0">
-                                <input type="password" class="form-control" id="password" formControlName="password">
+                                <input type="password" class="form-control" id="password" maxlength="8" formControlName="password">
                                 <div *ngIf="campoPassword.errors && campoPassword.touched">
                                     <p class="error" *ngIf="campoPassword.hasError('required')">Campo requerido</p>
+                                </div>
+                                <div *ngIf="passwordInvalido">
+                                    <p class="error">La contraseña debe estar compuesta por:</p>
+                                    <p class="error">▪ Al menos una letra mayúscula.</p>
+                                    <p class="error">▪ Al menos un valor numérico entre 0-9</p>
+                                    <p class="error">▪ Longitud de 8 caracteres.</p>
                                 </div>
                             </div>
                         </div>

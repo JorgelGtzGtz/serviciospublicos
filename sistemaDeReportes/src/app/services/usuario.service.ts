@@ -27,10 +27,9 @@ export class UsuarioService {
 
   // Entrada: ninguna
   // Salida: vacío.
-  // Descripción: Método para eliminar la información de usuario almacenada en el localStorgae
+  // Descripción: Método para eliminar la información de usuario almacenada en el sessionStorgae
   logOut(): void{
-    localStorage.removeItem('usuario');
-    localStorage.removeItem('datosLogin');
+    sessionStorage.clear();
   }
 
   // Entrada: valor tipo string para cada parámetro de filtro de búsqueda.
@@ -71,6 +70,24 @@ export class UsuarioService {
   // Descripción: método para obtener un Usuario por su ID mediante una petición http GET
   obtenerUsuario(idUsuario: number): Observable<Usuario>{
     return this.http.get<Usuario>(this.url + '/GetUsuario/' + idUsuario + '/');
+  }
+
+  // Entrada: valor tipo string.
+  // Salida: observable de tipo Usuario.
+  // Descripción: método para obtener un Usuario por su correo mediante una petición http GET
+  obtenerUsuarioPorCorreo(correo: string): Observable<Usuario>{
+    let params = new HttpParams();
+    params = params.append('correoUsuario', correo);
+    return this.http.get<Usuario>(this.url + '/GetUsuarioByEmail', {params});
+  }
+  
+  // Entrada: valor tipo string.
+  // Salida: observable de tipo Usuario.
+  // Descripción: método para obtener un Usuario por su username mediante una petición http GET
+  obtenerUsuarioPorNombreLogin(nombreLogin: string): Observable<Usuario>{
+    let params = new HttpParams();
+    params = params.append('loginUsuario', nombreLogin);
+    return this.http.get<Usuario>(this.url + '/GetUsuarioByLogin', {params});
   }
 
   // Entrada: ninguna.
@@ -115,33 +132,38 @@ export class UsuarioService {
 
   // Entrada: objeto tipo Usuario
   // Salida: vacío.
-  // Descripción: Método para guardar el objeto de tipo Usuario en el local storage
+  // Descripción: Método para guardar el objeto de tipo Usuario en el session storage
   almacenarUsuarioLog(usuario: Usuario): void{
-    localStorage.setItem('usuario', JSON.stringify( usuario));
+    usuario.Password_usuario = '';
+    usuario.Login_usuario = '';
+    usuario.Telefono_usuario = '';
+    usuario.Correo_usuario = '';
+    sessionStorage.setItem('usuario', JSON.stringify(usuario));
   }
 
   // Entrada: valor tipo string para usuario y valor tipo string para contraseña.
   // Salida: vacío.
   // Descripción: Al iniciar sesión, almacena temporalmente el usuario
   // y contraseña para los headers en el interceptor
-  almacenarDatosLogin(usuarioLogin: string, password: string): void{
-    const datosLogin = [usuarioLogin, password];
-    localStorage.setItem('datosLogin', JSON.stringify(datosLogin));
+  almacenarClaveLogin(usuarioLogin: string, password: string): void{
+    const datosLogin = btoa(usuarioLogin + ':' + password);
+    sessionStorage.setItem('claveLogin', JSON.stringify(datosLogin));
   }
 
   // Entrada: Ninguna
   // Salida: lista de tipo string.
   // Descripción: Obtener los datos usuario y contraseña ingresados en el login.
-  obtenerDatosLogin(): string []{
-    const datosLogin: string [] = JSON.parse(localStorage.getItem('datosLogin'));
-    return datosLogin;
+  obtenerClaveLogin(): string{
+    const claveLogin: string  = JSON.parse(sessionStorage.getItem('claveLogin'));
+    return claveLogin;
   }
 
   // Entrada: Ninguna
   // Salida: objeto tipo Usuario.
   // Descripción: Método para obtener el usuario que inicio de sesión del local storage.
   obtenerUsuarioLogueado(): Usuario{
-    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
+    // const usuario = JSON.parse(localStorage.getItem('usuario'));
     return usuario;
   }
 
@@ -150,8 +172,8 @@ export class UsuarioService {
   // Descripción: Eliminar el item en el local storage que tenía los datos usuario
   //  y contraseña ingresados en el login
   eliminarDatosLogin(): void{
-    console.log('BORRA DATOS LOGIN;', localStorage.getItem('datosLogin'));
-    localStorage.removeItem('datosLogin');
+    sessionStorage.removeItem('datosLogin');
+    // localStorage.removeItem('datosLogin');
   }
 
   // Entrada: objeto JSON con datos de usuario.
@@ -161,6 +183,13 @@ export class UsuarioService {
     return UsuarioM.usuarioDesdeJson(datosUsuario);
   }
 
+  // Entrada: valor string.
+  // Salida: Lista de tipo String con las coincidencias.
+  // Descripción: verifica que la contraseña cumpla con un determinado formato.
+  verificarFormatoPassword(password: string): string[]{
+    const reg = new RegExp( /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)([A-Za-z\d]|[^ ]){8}$/);
+    return reg.exec(password);    
+  }
 
 
 }

@@ -59,7 +59,7 @@ export class LoginComponent implements OnInit {
   // En este se almacenan los datos ingresados del usuario y contraseña en el localStorage 
   // y se redirecciona a inicio.
   ingresar(): void{
-    this.usuarioServicio.almacenarDatosLogin(this.campoUsuario.value, this.passwordForm.value);
+    this.usuarioServicio.almacenarClaveLogin(this.campoUsuario.value, this.passwordForm.value);
     this.router.navigate(['../inicio']);
   }
 

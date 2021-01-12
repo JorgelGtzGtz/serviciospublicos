@@ -8,7 +8,7 @@ import { UsuarioService } from '../services/usuario.service';
   providedIn: 'root'
 })
 export class InterceptorService implements HttpInterceptor {
-  datosLogin: string [];
+  claveLogin: string;
   constructor(private usuarioService: UsuarioService) {
    }
 
@@ -17,7 +17,7 @@ export class InterceptorService implements HttpInterceptor {
   // Descripción: Método de interceptor que interviene en las peticiones Http
   // Agrega los headers si es necesario.
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    this.datosLogin = this.usuarioService.obtenerDatosLogin();
+    this.claveLogin = this.usuarioService.obtenerClaveLogin();
 
     if (req.url.indexOf('http://localhost:50255/api') === -1) {
       return next.handle(req).pipe(
@@ -25,7 +25,7 @@ export class InterceptorService implements HttpInterceptor {
       );
     }else{
       const headers = new HttpHeaders({
-        Authorization : 'Basic ' + btoa(this.datosLogin[0] + ':' + this.datosLogin[1])
+        Authorization : 'Basic ' + this.claveLogin
       });
       const reqClone = req.clone({
         headers

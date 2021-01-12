@@ -37,10 +37,10 @@ namespace ServiciosPublicos.Core.Repository
         // Descripción: Query para buscar Usuario por su usuario y contraseña.
         public Usuario GetUsuario(string usr, string password)
         {
-            var query = new Sql()
-                .Select("*")
-                .From("hiram74_residencias.Usuario")
-                .Where("lower(Login_usuario) = @0 and Password_usuario = @1", usr.ToLower(), password);
+            var query = new Sql(@"SELECT * FROM hiram74_residencias.Usuario 
+                                  WHERE Login_usuario = @0 
+                                  AND Password_usuario = @1 
+                                  AND Disponible = 1", usr.ToLower(), password);
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -84,10 +84,8 @@ namespace ServiciosPublicos.Core.Repository
 
         public Usuario GetUsuario(string usr)
         {
-            var query = new Sql()
-                .Select("*")
-                .From("hiram74_residencias.Usuario")
-                .Where("lower(Login_usuario) = @0", usr.ToLower());
+            var query = new Sql(@"SELECT * FROM hiram74_residencias.Usuario 
+                                  WHERE Login_usuario = @0 AND Disponible = 1", usr.ToLower());
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -96,10 +94,8 @@ namespace ServiciosPublicos.Core.Repository
 
         public Usuario GetUsuarioByEmail(string email)
         {
-            var query = new Sql()
-                .Select("*")
-                .From("hiram74_residencias.Usuario")
-                .Where("lower(Correo_usuario) = @0", email.ToLower());
+            var query = new Sql(@"SELECT * FROM hiram74_residencias.Usuario 
+                                  WHERE Correo_usuario = @0 AND Disponible = 1", email.ToLower());
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -172,7 +168,7 @@ namespace ServiciosPublicos.Core.Repository
             {
                 filter += string.Format(" AND 0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
                                          "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
-                                          "AND ticket.Estatus_ticket LIKE '%{0}%')", repActivos);
+                                          "AND (ticket.Estatus_ticket != 4 AND ticket.Estatus_ticket != 2))", repActivos);
                 operacion = true;
             }
 

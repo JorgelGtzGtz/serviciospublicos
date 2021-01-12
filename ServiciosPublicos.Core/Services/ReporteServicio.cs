@@ -109,11 +109,11 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        public bool ActualizarReporte(Reporte reporte, string path ,out string Message)
         // Entrada: Objeto de tipo Reporte y mensaje de tipo string
         // Salida: valor booleano.
         // Descripción: Actualiza el reporte pasado como argumento y los tickets relacionados
         // con este reporte.
+        public bool ActualizarReporte(Reporte reporte, string path ,out string Message)
         {
 
             Message = string.Empty;
@@ -222,7 +222,7 @@ namespace ServiciosPublicos.Core.Services
 
         public string SendSMS(out string Message)
         {
-            Message = _reporteRepository.EnviarSMS("526442513016", "voltea menso");
+            Message = _reporteRepository.EnviarSMS("526442513016", "Mensaje ejemplo");
             return Message;
         }
 
