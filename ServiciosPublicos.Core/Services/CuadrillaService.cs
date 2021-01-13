@@ -16,6 +16,7 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarCuadrilla(Cuadrilla cuadrilla, out string Message);
         int ObtenerIDRegistro();
         Cuadrilla GetCuadrilla(int id);
+        Cuadrilla GetCuadrillaPorNombre(string nombre);
         List<Cuadrilla> GetCuadrillaList();
         List<dynamic> GetCuadrillasConJefe();
         List<dynamic> FiltroCuadrillas(string textoB, string estado);
@@ -44,6 +45,15 @@ namespace ServiciosPublicos.Core.Services
         {
             var valor = _cuadrillaRepository.GetCuadrilla(id);
             return valor;
+        }
+
+        // Entrada: nombre de cuadrilla de tipo string
+        // Salida: Objeto de tipo Cuadrilla.
+        // Descripción: Llama al método del repositorio de cuadrilla para buscar una cuadrilla por nombre.
+        public Cuadrilla GetCuadrillaPorNombre(string nombre)
+        {
+            var cuadrilla = _cuadrillaRepository.GetCuadrillaPorNombre(nombre);
+            return cuadrilla;
         }
 
         // Entrada: Ninguna

@@ -9,6 +9,7 @@ import { ProcesoPermiso } from 'src/app/Interfaces/IProcesoPermiso';
 import { PermisoService } from '../../../services/permiso.service';
 import { TipoUsuarioM } from '../../../Models/TipoUsuarioM';
 import { HttpErrorResponse } from '@angular/common/http';
+import { debounceTime } from 'rxjs/operators';
 
 
 @Component({
@@ -25,6 +26,7 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   idListo: boolean;
   procesosYpermisos: boolean;
   modificado: boolean;
+  existeDescripcion: boolean;
   errorListas: boolean;
   form: FormGroup;
   tipoUsuario: TipoUsuario;
@@ -70,17 +72,56 @@ export class DialogVerEditarNuevoComponent implements OnInit {
       id: [0],
       descripcion: ['', [Validators.required]],
       estado: ['']
-    });
+    });    
+    this.verificarCambiosFormulario();
+    this.verificarCambiosDescripcion();
+  }
 
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosFormulario(){
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
       }
     });
   }
+  
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con campo descripción.
+  verificarCambiosDescripcion(){
+    this.campoDescripcion.valueChanges.pipe(debounceTime(500)).subscribe( descripcion => {
+      if (this.campoDescripcion.dirty){
+        this.verificarExistenciaTipo(descripcion);
+      }
+    });
+  }
+
+  
+// Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la descripción de Tipo ya existe.
+verificarExistenciaTipo(descripcion: string){
+  if(descripcion.length > 0){
+    this.tipoService.obtenerTipoUPorDesc(descripcion).subscribe( res => {
+      console.log('res:', res);
+      if (res !== null){
+        this.existeDescripcion = true;
+      }else{
+        this.existeDescripcion = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de tipo con descripción.' + error.message);
+    });
+  }else {
+    this.existeDescripcion = false;
+  }
+}
 
   // Entrada: Ninguna
   // Salida: vacío.
@@ -252,24 +293,32 @@ listaTienePermisos(): void{
   // Salida: vacío.
   // Descripción: Método para transferir un elemento de lista A a lista B.
   cambiarListAListB(): void{
-    const validacion = this.existenciaEnLista(this.listaProcesos);
-    if (validacion){
-        this.modificarListas(this.listaProcesos, this.listaProcTipo);
-        this.listaTienePermisos();
-        this.modificado = true;
-      }
+    if (this.elementoLista !== undefined){
+      const validacion = this.existenciaEnLista(this.listaProcesos);
+      if (validacion){
+          this.modificarListas(this.listaProcesos, this.listaProcTipo);
+          this.listaTienePermisos();
+          this.modificado = true;
+        }
+    }else{
+      alert('Debe seleccionar un proceso para poder asignarlo.');
+    }
   }
 
   // Entrada: Ninguna.
   // Salida: vacío.
   // Descripción: Método para transferir un elemento de lista B a lista A.
   cambiarListBListA(): void{
-    const validacion = this.existenciaEnLista(this.listaProcTipo);
-    if (validacion){
-      this.modificarListas(this.listaProcTipo, this.listaProcesos);
-      this.listaTienePermisos();
-      this.modificado = true;
-      }
+    if (this.elementoLista !== undefined){
+        const validacion = this.existenciaEnLista(this.listaProcTipo);
+        if (validacion){
+          this.modificarListas(this.listaProcTipo, this.listaProcesos);
+          this.listaTienePermisos();
+          this.modificado = true;
+          }
+    }else{
+      alert('Debe seleccionar un proceso para poder asignarlo.');
+    }
   }
 
   // Entrada: Ninguna.
@@ -280,7 +329,9 @@ listaTienePermisos(): void{
     listaDestino.push(this.elementoLista);
     const index: number = listaOrigen.indexOf(this.elementoLista);
     listaOrigen.splice(index, 1);
+    this.elementoLista = undefined;
   }
+
 
   // Entrada: Ninguna.
   // Salida: vacío.
@@ -288,14 +339,36 @@ listaTienePermisos(): void{
 guardar(): void {
   // event.preventDefault();
   this.listaTienePermisos();
-  if (this.form.valid && !this.errorListas){
+  if (this.camposValidos()){
     const tipo = this.generarTipo();
-    this.accionGuardar(tipo);
-    this.dialogRef.close();
+    this.accionGuardar(tipo);    
   }else{
-    this.form.markAllAsTouched();
-    this.errorListas = true;
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
+}
+
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){    
+    this.form.markAllAsTouched();
+    sonValidos = false;
+  }
+
+  // Verificar que se asignaron procesos
+  if (this.errorListas){   
+    sonValidos = false;
+  }
+
+  // Verificar que la descripción de Tipo de usuario no existe.
+  if (this.existeDescripcion){
+    sonValidos = false;
+  }  
+  return sonValidos;
 }
 
 // Entrada: Ninguna.
@@ -319,13 +392,15 @@ generarTipo(): TipoUsuarioM{
 accionGuardar(tipo: TipoUsuario): void{
   if (this.accion === 'nuevo'){
       this.tipoService.insertarTipoUsuario(tipo, this.listaProcTipo).subscribe( res => {
-        alert('Tipo de usuario registrado exitosamente');
+        alert('¡Tipo de usuario registrado exitosamente!');
+        this.dialogRef.close();
       }, (error: HttpErrorResponse) => {
         alert('El registro no pudo ser completado. Error:' + error.message);
       });
   }else if (this.accion === 'editar'){
       this.tipoService.actualizarTipoUsuario(tipo, this.listaProcTipo).subscribe(res => {
-        alert('Tipo de usuario actualizado exitosamente');
+        alert('¡Tipo de usuario actualizado exitosamente!');
+        this.dialogRef.close();
       }, (error: HttpErrorResponse) => {
         alert('Tipo de usuario no pudo ser actualizado. Error:' + error.message);
       });

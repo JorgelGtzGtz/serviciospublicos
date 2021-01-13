@@ -34,9 +34,12 @@
             <div class="row form-group form-sections row-input-group">
                 <label id="lbl-descripcion" class="col-form-label col-md-auto" for="descripcionTipoUsuario">Descripción: </label>
                 <div class="col-lg col-md-10 col-12 pl-1 pr-0">
-                    <input type="text" class="form-control" id="descripcionTipoUsuario" formControlName="descripcion">
+                    <input type="text" maxlength="40" class="form-control" id="descripcionTipoUsuario" formControlName="descripcion">
                     <div *ngIf="campoDescripcion.errors && campoDescripcion.touched">
                         <p class="error" *ngIf="campoDescripcion.hasError('required')">Campo requerido</p>
+                    </div>
+                    <div *ngIf="existeDescripcion">
+                        <p class="error">Ya existe un Tipo de Usuario con esta descripción.</p>
                     </div>
                 </div>
             </div>

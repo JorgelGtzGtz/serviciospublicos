@@ -12,6 +12,7 @@ namespace ServiciosPublicos.Core.Repository
     public interface ICuadrillaRepository : IRepositoryBase<Cuadrilla>
     {
         Cuadrilla GetCuadrilla(int id);
+        Cuadrilla GetCuadrillaPorNombre(string nombre);
         List<dynamic> GetCuadrillasConJefeQuery();
         List<dynamic> FiltroDinamicoCuadrillas(string textoB, string estado);
         int ObtenerUltimoID();
@@ -31,6 +32,17 @@ namespace ServiciosPublicos.Core.Repository
             .Select("*").From("Cuadrilla")
             .Where("cuadrilla.ID_cuadrilla =@0 ", id);
             return this.Context.SingleOrDefault<Cuadrilla>(query); 
+        }
+
+        // Entrada: valor string de nombre de cuadrilla.
+        // Salida: Objeto de tipo Cuadrilla.
+        // Descripción:Query para obtener cuadrilla por nombre
+        public Cuadrilla GetCuadrillaPorNombre(string nombre)
+        {
+            Sql query = new Sql(@"SELECT * FROM Cuadrilla 
+                                WHERE Nombre_cuadrilla = @0 AND Disponible = 1", nombre);
+            
+            return this.Context.SingleOrDefault<Cuadrilla>(query);
         }
 
         // Entrada: Ninguna.

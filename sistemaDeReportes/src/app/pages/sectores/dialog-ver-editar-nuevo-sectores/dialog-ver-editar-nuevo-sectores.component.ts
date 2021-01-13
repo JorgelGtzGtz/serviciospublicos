@@ -17,6 +17,7 @@ accion: string;
 form: FormGroup;
 modificado: boolean;
 idListo: boolean;
+existeSector: boolean;
 datosSectorCargados: boolean;
 sector: Sector;
 
@@ -60,15 +61,55 @@ sector: Sector;
       estado: [''],
       nombreS: ['', [Validators.required]]
     });
+    this.verificarCambiosFormulario();
+    this.verificarCambiosNombre();
+   
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosFormulario(){
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
       }
     });
   }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosNombre(){
+    this.campoNombreSector.valueChanges.subscribe(nombre => {
+      if (this.campoNombreSector.dirty){
+        this.verificarExistenciaSector(nombre);
+      }
+    });
+  }
+
+// Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la descripción de sector ya existe.
+verificarExistenciaSector(nombre: string){
+  if(nombre.length > 0){
+    this.sectorService.obtenerSectorPorNombre(nombre).subscribe( res => {
+      console.log('res:', res);
+      if (res !== null){
+        this.existeSector = true;
+      }else{
+        this.existeSector = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de sector con descripción.' + error.message);
+    });
+  }else {
+    this.existeSector = false;
+  }
+}
 
   // Entrada: Ninguna
   // Salida: control de tipo AbstractControl.
@@ -142,12 +183,30 @@ tipoFormularioAccion(): void{
 // método "accionGuardar" para ejecutar las acciones para guardar o actualizar.
 guardar(): void {
   // event.preventDefault();
-  if (this.form.valid){
-    this.accionGuardar();
-    this.dialogRef.close(this.data);
+  if (this.camposValidos()){
+    this.accionGuardar();    
   } else{
-    this.form.markAllAsTouched();
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
+}
+
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){    
+    this.form.markAllAsTouched();
+    sonValidos = false;
+  }
+
+  // Verificar nombre de sector
+  if (this.existeSector){   
+    sonValidos = false;
+  } 
+  return sonValidos;
 }
 
 // Entrada: Ninguna
@@ -159,6 +218,7 @@ accionGuardar(): void{
   if (this.accion !== 'nuevo'){
    this.sectorService.actualizarSector(sector).subscribe( res => {
     alert ('¡Sector ' + sector.Descripcion_sector + ' actualizado con éxito!');
+    this.dialogRef.close(this.data);
     }, (error: HttpErrorResponse) => {
       alert('¡Sector ' + sector.Descripcion_sector + ' no pudo ser actualizado! Verifique los datos o solicite asistencia.');
       console.log('Error al actualizar sector: ' + error.message);
@@ -166,6 +226,7 @@ accionGuardar(): void{
   } else{
     this.sectorService.insertarSector(sector).subscribe( res => {
       alert ('¡Sector ' + sector.Descripcion_sector + ' registrado con éxito!');
+      this.dialogRef.close(this.data);
     }, (error: HttpErrorResponse) => {
       alert ('¡Sector ' + sector.Descripcion_sector + ' no pudo ser guardado! Verifique los datos o solicite asistencia.');
       console.log('Error al registrar nuevo sector: ' + error.message);

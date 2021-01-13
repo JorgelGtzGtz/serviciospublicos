@@ -126,6 +126,36 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        //Entrada: request de tipo HttpRequestMessage y nombre de cuadrilla de tipo String
+        //Salida: respuesta con objeto cuadrilla. 
+        //Descripción: Obtener cuadrilla por nombre
+        [HttpGet]
+        [Route("GetCuadrillaPorNombre")]
+        public async Task<HttpResponseMessage> GetCuadrillaPorNombre(HttpRequestMessage request, string nombre)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var cuadrilla = _cuadrillServicio.GetCuadrillaPorNombre(nombre);
+
+                    response = request.CreateResponse(HttpStatusCode.OK, cuadrilla);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
         //Obtener una lista de cuadrillas existentes
         [HttpGet]
         [Route("GetCuadrillasConJefe")]        

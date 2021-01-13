@@ -8,6 +8,9 @@ import { UsuarioService } from '../../../services/usuario.service';
 import { Usuario } from '../../../Interfaces/IUsuario';
 import { CuadrillaM } from '../../../Models/CuadrillaM';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TipoCuadrillaM } from '../../../Models/TipoCuadrilla';
+import { TipoReporteService } from '../../../services/tipo-reporte.service';
+import { TipoReporte } from 'src/app/Interfaces/ITipoReporte';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-cuadrillas',
@@ -20,22 +23,26 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
   modificado: boolean;
   idListo: boolean;
   jefesCargados: boolean;
+  tiposCargados: boolean;
+  existeCuadrilla: boolean;
   cuadrilla: Cuadrilla;
   jefesCuadrillaDisp: Usuario[] = [];
-  tipoCuadrilla: any = [1, 2, 3, 4];
+  tiposCuadrilla: TipoReporte[];
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoCuadrillasComponent>,
               @Inject (MAT_DIALOG_DATA) private data,
               private dialogService: DialogService,
               private formBuilder: FormBuilder,
               private cuadrillaService: CuadrillaService,
-              private usuarioService: UsuarioService) {
+              private usuarioService: UsuarioService,
+              private tipoReporteService: TipoReporteService) {
                 dialogRef.disableClose = true;
                 this.buildForm();
                }
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.ObtenerTiposCuadrilla();    
     this.obtenerJefesCuadrilla();
     this.inicializarCampos();
     this.tipoFormularioAccion();
@@ -43,8 +50,8 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 
   datosCargados(): boolean{
     let cargado: boolean;
-    if ((this.jefesCargados && this.idListo) && this.accion === 'nuevo' ||
-        this.jefesCargados && this.accion !== 'nuevo' ){
+    if ((this.jefesCargados && this.idListo && this.tiposCargados) && this.accion === 'nuevo' ||
+        this.jefesCargados && this.tiposCargados && this.accion !== 'nuevo' ){
       cargado = true;
     } else{
       cargado = false;
@@ -65,15 +72,55 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
       encargado: ['', [Validators.required]],
       tipoCuadrilla: ['', [Validators.required]]
     });
+    this.verificarCambiosFormulario();
+    this.verificarCambiosNombre();
+    
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosFormulario(){
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
       }
     });
   }
+  
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosNombre(){
+    this.campoNombreCuadrilla.valueChanges.subscribe(nombre => {
+      if (this.campoNombreCuadrilla.dirty){
+        this.verificarExistenciaCuadrilla(nombre);
+      }
+    });
+  }
+
+// Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la descripción de cuadrilla ya existe.
+verificarExistenciaCuadrilla(nombre: string){
+  if(nombre.length > 0){
+    this.cuadrillaService.obtenerCuadrillaPorNombre(nombre).subscribe( res => {
+      console.log('res:', res);
+      if (res !== null){
+        this.existeCuadrilla = true;
+      }else{
+        this.existeCuadrilla = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de cuadrilla con descripción.' + error.message);
+    });
+  }else {
+    this.existeCuadrilla = false;
+  }
+}
 
 // Entrada: Ninguna
 // Salida: control de tipo AbstractControl.
@@ -164,6 +211,19 @@ tipoFormularioAccion(): void{
     });
   }
 
+//Entrada: Ninguna.
+//Salida: vacío.
+//Descripción: Llena la lista de Tipos de cuadrilla.
+ObtenerTiposCuadrilla(){
+  this.tipoReporteService.obtenerTiposReporte().subscribe(tipos => {
+    this.tiposCuadrilla = tipos;
+    this.tiposCargados = true;
+  },(error: HttpErrorResponse) => {
+    alert('Error al cargar ventana. Vuelva a cargar la página o solicite asistencia.');
+    console.log('Error al cargar tipos de reporte para tipos de cuadrilla. Error: ' + error.message);
+  });
+}
+
 // Entrada: Ninguna
 // Salida: vacío.
 // Descripción: Función para obtener la lista de los usuarios
@@ -221,11 +281,30 @@ obtenerEstadoFormulario(): boolean{
 // a guardar los datos de la cuadrilla.
 guardar(): void {
   // event.preventDefault();
-  if (this.form.valid){
+  if (this.camposValidos()){
     this.accionGuardar();
   } else{
-    this.form.markAllAsTouched();
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
+}
+
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){    
+    this.form.markAllAsTouched();
+    sonValidos = false;
+  }
+
+  // Verificar nombre de cuadrilla
+  if (this.existeCuadrilla){   
+    sonValidos = false;
+  } 
+  return sonValidos;
 }
 
 // Entrada: Ninguna

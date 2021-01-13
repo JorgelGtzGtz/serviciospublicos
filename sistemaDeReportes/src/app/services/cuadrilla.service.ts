@@ -33,7 +33,16 @@ export class CuadrillaService {
   obtenerCuadrilla(idCuadrilla: number): Observable<Cuadrilla>{
     return this.http.get<Cuadrilla>(this.url + '/GetCuadrilla/' + idCuadrilla);
   }
-
+  
+  // Entrada: valor tipo string con nombre de cuadrilla
+  // Salida: Observable de tipo Cuadrilla con respuesta de petición.
+  // Descripción: Método para recuperar una cuadrilla por su nombre, a través de una
+  // petición de tipo Http GET.
+  obtenerCuadrillaPorNombre(nombreCuadrilla: string): Observable<Cuadrilla>{
+    let params = new HttpParams();
+    params = params.append('nombre',nombreCuadrilla);
+    return this.http.get<Cuadrilla>(this.url + '/GetCuadrillaPorNombre', {params});
+  }
   // Entrada: Ninguna
   // Salida: Observable con lista de cuadrillas con sus jefes de cuadrilla.
   // Descripción: Método para obtener una lista de las cuadrillas con sus

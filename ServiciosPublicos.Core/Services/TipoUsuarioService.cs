@@ -13,6 +13,7 @@ namespace ServiciosPublicos.Core.Services
    public interface ITipoUsuarioService
     {
         Tipo_usuario GetTipoUsuario(int id);
+        Tipo_usuario GetTipoUsuarioDescripcion(string descripcion);
         List<Tipo_usuario> GetTipoUsuarios();
         List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado= null);
         bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message);
@@ -47,6 +48,14 @@ namespace ServiciosPublicos.Core.Services
         // Descripción: Método para obtener un tipo de usuario por ID
         public Tipo_usuario GetTipoUsuario(int id) {
             return _tipoUsuarioRepository.Get(id);
+        }
+
+        // Entrada: valor tipo string con la descripción del tipo de usuario.
+        // Salida: tipo de usuario
+        // Descripción: Método para obtener un tipo de usuario por su descripción.
+        public Tipo_usuario GetTipoUsuarioDescripcion(string descripcion)
+        {
+            return _tipoUsuarioRepository.GetTipo(descripcion);
         }
 
         // Entrada: Ninguna

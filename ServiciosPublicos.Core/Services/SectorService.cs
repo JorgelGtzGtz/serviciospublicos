@@ -14,6 +14,7 @@ namespace ServiciosPublicos.Core.Services
         bool UpdateSector(Sector sector, out string Message);
         bool EliminarSector(Sector sector, out string Message);
         Sector GetSector(int id);
+        Sector GetSectorPorNombre(string nombre);
         List<Sector> GetSectorList();
         List<Sector> FiltroSectores(string textoB, string estado);
         int ObtenerIDRegistro();
@@ -80,6 +81,15 @@ namespace ServiciosPublicos.Core.Services
         public Sector GetSector(int id)
         {
             return _SectorRepository.Get<int>(id);
+        }
+
+        // Entrada: nombre de sector de tipo string
+        // Salida: Objeto de tipo Sector
+        // Descripción: Llama al método del repositorio para obtener el Sector
+        // que coincide con el nombre proporcionado.
+        public Sector GetSectorPorNombre(string nombre)
+        {
+            return _SectorRepository.GetSectorPorNombre(nombre);
         }
 
         // Entrada: Ninguna.

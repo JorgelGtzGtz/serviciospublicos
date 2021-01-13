@@ -33,9 +33,12 @@
             <div class="row form-group form-sections row-input-group">
                 <label id="lblNombre" class="col-form-label col-md-auto" for="nombreCuadrilla">Nombre: </label>
                 <div class="col p-0">
-                    <input type="text" class="form-control" id="nombreCuadrilla" formControlName="nombreC">
+                    <input type="text" maxlength="25" class="form-control" id="nombreCuadrilla" formControlName="nombreC">
                     <div *ngIf="campoNombreCuadrilla.errors && campoNombreCuadrilla.touched">
                         <p class="error" *ngIf="campoNombreCuadrilla.hasError('required')">Campo requerido</p>
+                    </div>
+                    <div *ngIf="existeCuadrilla">
+                        <p class="error">Ya existe una Cuadrilla con este nombre. Intente otro.</p>
                     </div>
                 </div>
             </div>
@@ -66,9 +69,9 @@
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="tipoCuadrillaSelector" formControlName="tipoCuadrilla">
                         <option disabled hidden [ngValue]="0">Seleccionar</option>
-                        <option *ngIf="tipoCuadrilla.length === 0"> No hay opciones disponibles</option>
-                        <option *ngFor = "let tipo of tipoCuadrilla" [ngValue]="tipo">
-                             {{ tipo }} 
+                        <option *ngIf="tiposCuadrilla.length === 0"> No hay opciones disponibles</option>
+                        <option *ngFor = "let tipo of tiposCuadrilla" [ngValue]="tipo.ID_tipoReporte">
+                             {{ tipo.Descripcion_tipoReporte }} 
                             </option>
                     </select>
                     <div *ngIf="campoTipoCuadrilla.errors && campoTipoCuadrilla.touched">

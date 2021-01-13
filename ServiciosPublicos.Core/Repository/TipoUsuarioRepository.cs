@@ -25,7 +25,7 @@ namespace ServiciosPublicos.Core.Repository
         public Tipo_usuario GetTipo( string nombre)
         {
             Sql query = new Sql(@"SELECT * FROM Tipo_usuario WHERE
-                                    Descripcion_tipoUsuario = @0",nombre);
+                                    Descripcion_tipoUsuario = @0 AND Disponible = 1",nombre);
             return this.Context.SingleOrDefault<Tipo_usuario>(query);
 
         }

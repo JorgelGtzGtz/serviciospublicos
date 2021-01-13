@@ -44,6 +44,16 @@ export class SectorService {
     return this.http.get<Sector>(this.url + '/GetSector/' + idSector);
   }
 
+  // Entrada: valor tipo string con nombre de sector
+  // Salida: Observable de tipo Sector con respuesta de petición.
+  // Descripción: Método para recuperar un sector por su nombre, a través de una
+  // petición de tipo Http GET.
+  obtenerSectorPorNombre(nombreSector: string): Observable<Sector>{
+    let params = new HttpParams();
+    params = params.append('nombre',nombreSector);
+    return this.http.get<Sector>(this.url + '/GetSectorPorNombre', {params});
+  }
+
   // Entrada: Ninguna.
   // Salida: Observable de tipo lista de Sector con respuesta de petición.
   // Descripción: Función para realizar petición Http de tipo GET para obtener

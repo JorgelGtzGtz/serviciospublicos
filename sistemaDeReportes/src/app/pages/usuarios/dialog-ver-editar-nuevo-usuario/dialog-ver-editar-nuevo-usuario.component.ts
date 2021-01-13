@@ -108,7 +108,9 @@ datosCargados(): boolean{
 // para verificar si se interactuó con el input correo.
   verificarCambiosCorreo(){
     this.campoCorreo.valueChanges.pipe(debounceTime(500)).subscribe(correo => {
-      this.verificarExistenciaEmail(correo);
+     if (this.campoCorreo.touched){
+       this.verificarExistenciaEmail(correo);
+     }
     });
   }
 
@@ -118,7 +120,9 @@ datosCargados(): boolean{
 // para verificar si se interactuó con el input usuario.
   verificarCambiosLogin(){
     this.campoUsuario.valueChanges.pipe(debounceTime(500)).subscribe(loginUsuario => {
+      if (this.campoUsuario.touched){
       this.verificarExistenciaUsuario(loginUsuario);
+      }
     });
   }
 
@@ -128,9 +132,69 @@ datosCargados(): boolean{
 // para verificar si se interactuó con el input password.
   verificarPasswordValido(){
     this.campoPassword.valueChanges.pipe(debounceTime(500)).subscribe( password => {
+      if (this.campoPassword.touched){
       this.verificarPassword(password);
+      }
     });
   }
+
+  // Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si el Email no pertenece a algun otro usuario.
+verificarExistenciaEmail(correo: string){
+  if(correo.length > 0){
+    this.usuarioService.obtenerUsuarioPorCorreo(correo).subscribe( res => {
+      if (res !== null){
+        this.existeCorreo = true;
+      }else{
+        this.existeCorreo = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de correo.' + error.message);
+    });
+  }else {
+    this.existeCorreo = false;
+  }
+}
+
+// Entrada: valor string
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si el login_usuario no pertenece a algun otro usuario.
+verificarExistenciaUsuario(loginUsuario: string){
+  if(loginUsuario.length > 0){
+    this.usuarioService.obtenerUsuarioPorNombreLogin(loginUsuario).subscribe( res => {
+      if (res !== null){
+        this.existeLoginUsuario = true;
+      }else{
+        this.existeLoginUsuario = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de login usuario.' + error.message);
+    });
+  }else {
+    this.existeLoginUsuario = false;
+  }
+}
+
+// Entrada: valor string.
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la contraseña tiene el formato correcto.
+verificarPassword(password: string){
+  if(password.length > 0){
+    const passwordVerificada = this.usuarioService.verificarFormatoPassword(password);
+    console.log('respuesta:', passwordVerificada);
+      if (passwordVerificada !== null){
+        this.passwordInvalido = false ;
+      }else{
+        this.passwordInvalido = true;
+      }
+  }else {
+    this.passwordInvalido = false;
+  }
+}
 
 // Entrada: Ninguna
 // Salida: control del input que pertenece al formGroup, de tipo AbstractControl.
@@ -289,76 +353,44 @@ buscarTipo(descripcion: string): number{
   return idTipoUsuario;
 }
 
-// Entrada: string con el valor del input
-// Salida: vacío.
-// Descripción: Método que verifica si el campo ya interactuó con el usuario
-//  y si el Email no pertenece a algun otro usuario.
-verificarExistenciaEmail(correo: string){
-  if(correo.length > 0){
-    this.usuarioService.obtenerUsuarioPorCorreo(correo).subscribe( res => {
-      if (res !== null){
-        this.existeCorreo = true;
-      }else{
-        this.existeCorreo = false;
-      }
-    }, (error: HttpErrorResponse) => {
-      console.log('Error al verificar la existencia de correo.' + error.message);
-    });
-  }else {
-    this.existeCorreo = false;
-  }
-}
-
-// Entrada: valor string
-// Salida: vacío.
-// Descripción: Método que verifica si el campo ya interactuó con el usuario
-//  y si el login_usuario no pertenece a algun otro usuario.
-verificarExistenciaUsuario(loginUsuario: string){
-  if(loginUsuario.length > 0){
-    this.usuarioService.obtenerUsuarioPorNombreLogin(loginUsuario).subscribe( res => {
-      if (res !== null){
-        this.existeLoginUsuario = true;
-      }else{
-        this.existeLoginUsuario = false;
-      }
-    }, (error: HttpErrorResponse) => {
-      console.log('Error al verificar la existencia de login usuario.' + error.message);
-    });
-  }else {
-    this.existeLoginUsuario = false;
-  }
-}
-
-// Entrada: valor string.
-// Salida: vacío.
-// Descripción: Método que verifica si el campo ya interactuó con el usuario
-//  y si la contraseña tiene el formato correcto.
-verificarPassword(password: string){
-  if(password.length > 0){
-    const passwordVerificada = this.usuarioService.verificarFormatoPassword(password);
-    console.log('respuesta:', passwordVerificada);
-      if (passwordVerificada !== null){
-        this.passwordInvalido = false ;
-      }else{
-        this.passwordInvalido = true;
-      }
-  }else {
-    this.passwordInvalido = false;
-  }
-}
-
 // Entrada: Ninguna.
 // Salida: vacío.
 // Descripción: Método que se llama cuando se le da click en guardar en el formulario.
 guardar(): void {
   // event.preventDefault();
-  if (this.form.valid){
+  if (this.camposValidos()){
     const usuario = this.generarUsuario();
-    this.accionGuardar(usuario);
-    this.dialogRef.close(this.data);
+    this.accionGuardar(usuario);    
   } else{
-    this.form.markAllAsTouched();
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
+}
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){    
+    this.form.markAllAsTouched();
+    sonValidos = false;
+  }
+
+  // Verificar que la contraseña sea válida.
+  if (this.passwordInvalido){   
+    sonValidos = false;
+  }
+
+  // Verificar que no exista un usuario con este correo.
+  if (this.existeCorreo){
+    sonValidos = false;
+  }  
+  // Verificar que el login_usuario de usuario no existe.
+  if (this.existeLoginUsuario){
+    sonValidos = false;
+  }  
+  return sonValidos;
 }
 
 // Entrada: Objeto de tipo Usuario.
@@ -369,15 +401,15 @@ accionGuardar(usuario: Usuario): void{
   if (this.accion === 'nuevo'){
       this.usuarioService.registrarUsuario(usuario).subscribe( res => {
         alert(res);
+        this.dialogRef.close(this.data);
       }, (error: HttpErrorResponse) => {
         alert('El registro no pudo ser completado. Verifique que los datos sean correctos o solicite asistencia.');
         console.log('Error al registrar usuario. Mensaje de error: ', error.message);
       });
   }else if (this.accion === 'editar'){
-    // usuario.ID_usuario = this.datosUsuario.ID_usuario;
-    // usuario.ID_tipoUsuario = this.buscarTipo(this.campoTipoUsuario.value);
     this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
         alert(res);
+        this.dialogRef.close(this.data);
       }, (error: HttpErrorResponse) => {
         alert('Usuario no pudo ser actualizado. Verifique que los datos sean correctos o solicite asistencia.');
         console.log('Error al actualizar usuario. Mensaje de error: ', error.message);

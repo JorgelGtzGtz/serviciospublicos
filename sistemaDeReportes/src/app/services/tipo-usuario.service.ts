@@ -48,6 +48,16 @@ export class TipoUsuarioService {
         ));
   }
 
+  // Entrada: valor tipo string con descripción del Tipo de usuario a buscar.
+  // Salida: Observable de tipo Tipo de Usuario con respuesta de petición.
+  // Descripción: Función para realizar petición Http de tipo GET para obtener
+  // un Tipo de usuario.
+  obtenerTipoUPorDesc(descripcion: string): Observable<TipoUsuario>{
+    let params = new HttpParams();
+    params = params.append('descripcion', descripcion);
+    return this.http.get<TipoUsuario>(this.url + '/GetTipoUsuarioByDescripcion',{params})
+  }
+
   // Entrada: ninguna.
   // Salida: Observable de tipo number con respuesta de petición.
   // Descripción: Función para realizar petición Http de tipo GET para obtener

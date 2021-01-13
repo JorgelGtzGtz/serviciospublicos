@@ -84,6 +84,7 @@ export class UsuariosComponent implements OnInit {
       this.campoEstado.value, this.campoTipoUsuario.value, this.campoReportesActivos.value)
     .subscribe( datos => {
       this.usuarios = datos;
+      console.log(datos);
       this.usuariosListos = true;
     }, (error: HttpErrorResponse) => {
       alert('Existió un problema al cargar datos de página. Recargue página o solicite asistencia.');

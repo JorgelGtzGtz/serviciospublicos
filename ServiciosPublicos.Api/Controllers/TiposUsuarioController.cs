@@ -116,6 +116,36 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage y descripción de Tipo de Usuario de tipo string
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de Tipo de Usuario.
+        // Descripción: Obtiene el Tipo de Usuario que coincida con descripcion.
+        [HttpGet]
+        [Route("GetTipoUsuarioByDescripcion")]
+        public async Task<HttpResponseMessage> GetTipoUsuarioByDescripcion(HttpRequestMessage request, string descripcion)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var tipoUsuario = _tipoUsuarioService.GetTipoUsuarioDescripcion(descripcion);
+                    response = request.CreateResponse(HttpStatusCode.OK, tipoUsuario);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
         // Entrada: request de tipo HttpRequestMessage y objeto JSON con el Tipo de Usuario y lista de tipo Permisos
         // Salida: respuesta de tipo HttpResponseMessage.
         // Descripción: Insertar un nuevo tipo de usuario y sus permisos.
