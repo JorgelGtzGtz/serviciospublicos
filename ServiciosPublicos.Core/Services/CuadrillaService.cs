@@ -61,7 +61,7 @@ namespace ServiciosPublicos.Core.Services
         // Descripción: obtener lista de cuadrillas general
         public List<Cuadrilla> GetCuadrillaList()
         {
-            return _cuadrillaRepository.GetAll("Cuadrilla").ToList();
+            return _cuadrillaRepository.GetCuadrillasLista();
         }
 
         // Entrada: Ninguna.

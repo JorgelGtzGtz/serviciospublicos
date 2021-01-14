@@ -145,7 +145,7 @@
                 <div class="row form-group form-sections row-input-group">
                     <label id="lblDescripcion" class="col-form-label col-md-12" for="descripcion">Descripción del reporte</label>
                     <div class="col-md-12 p-0">
-                        <textarea type="text" class="form-control" id="descripcion" maxlength="130" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/40
+                        <textarea type="text" class="form-control" id="descripcion" maxlength="40" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/40
                         <div *ngIf="campoDescripcionReporte.errors && campoDescripcionReporte.touched">
                             <p class="error" *ngIf="campoDescripcionReporte.hasError('required')">Campo requerido</p>
                             <p class="error" *ngIf="campoDescripcionReporte.hasError('maxlength')"> Sobrepasado. La cantidad máxima de caracteres de 120</p>
@@ -235,6 +235,6 @@
 </div>
 
 <div matDialogActions align="end">
-    <button type="button" [disabled]="accion === 'ver' || estadoReporte === 4" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button type="button" [disabled]="!habilitarBtnGuardar()" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

@@ -158,6 +158,7 @@ export class ImagenService {
     const defaultPhotoName = 'no-image.png';
 
     imagenes.forEach(imagen => {
+      if (listaPath.length < 4){ // Solo se mostrarán 4 imágenes
         let path: string;
         const analisis: string [] = expresionRegular.exec(imagen.Path_imagen);
         if (analisis !== null){
@@ -166,6 +167,7 @@ export class ImagenService {
           path = this.urlParaFotos + 'Photos/' + defaultPhotoName;
         }
         listaPath.push(path);
+      }
       });
     return listaPath;
   }

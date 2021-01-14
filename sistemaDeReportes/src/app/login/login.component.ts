@@ -35,12 +35,6 @@ export class LoginComponent implements OnInit {
   formBuilder(): void{
     this.usuarioForm = new FormControl('');
     this.passwordForm = new FormControl('');
-    this.usuarioForm.valueChanges.subscribe(value => {
-      console.log('se interactuo busqueda:', value);
-    });
-    this.passwordForm.valueChanges.subscribe(value => {
-      console.log('se interactuo estado:', value);
-    });
   }
 
   // Entrada: Ninguna.

@@ -91,6 +91,21 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     });
   }
 
+  // Entrada: Ninguna.
+  // Salida: valor booleano
+  // Decripción: Se utiliza para verificar si el botón guardar debe
+  // estar habilitado o no.
+  habilitarBtnGuardar(): boolean{
+    let habilitar: boolean;
+    // Si se va a visualizar el reporte o si su estado es cancelado o cerrado.
+    if (this.accion === 'ver' || this.estadoReporte === 4 || this.estadoReporte === 2){
+      habilitar = false;
+    }else{
+      habilitar = true;
+    }
+    return habilitar;
+  }
+
   // Entrada: Ninguna
   // Salida: valor booleano.
   // Descripción: Método que verifica que los datos se encuentren cargados, con el fin de 
@@ -130,7 +145,6 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
         this.campoCalleSecundaria2.setValue(calles[1]);
         this.campoColonia.setValue(this.reporte.Colonia_reporte);
         this.campoDescripcionReporte.setValue(this.reporte.Observaciones_reporte);
-        console.log('SE CARGAN 1');
       }else{
         this.obtenerIDNuevo();
         this.imagenesApertura = [];
@@ -189,7 +203,6 @@ cargarImagenesReporte(): void{
   .subscribe( (imgApertura: Imagen[]) => {
     this.pathImgApertura = this.imagenService.llenarListaPathImagenes(imgApertura);
     this.inicializarContenedorImagenes();
-    console.log('SE CARGAN 2');
   }, (error: HttpErrorResponse) => {
     console.log('Error al obtener imágenes. ' + error);
   });
@@ -301,8 +314,8 @@ obtenerEstadoFormulario(): boolean{
         this.form.enable();
         this.campoId.disable();
     }
-
-    if (this.estadoReporte === 4){
+    // Inhabilita el reporte si tiene estado cerrado o cancelado.
+    if (!this.habilitarBtnGuardar()){
       this.form.disable();
     }
   }
@@ -458,7 +471,7 @@ obtenerEstadoFormulario(): boolean{
       } else{
         const ticket = this.generarNuevoTicket(coordenadas);
         this.reporteSevice.registrarReporte(ticket, this.imagenesApertura).subscribe( res => {
-            alert('¡Reporte creado con éxito!');
+            alert(res);
             this.dialogRef.close(this.data);
           }, (error: HttpErrorResponse) => {
             alert('¡Lo sentimos! El registro no pudo ser completado. Verifique que los datos sean correctos');

@@ -49,9 +49,6 @@ export class AsignacionDeTicketsComponent implements OnInit {
       fechaInicio: [''],
       fechaFinal: ['']
     });
-    this.form.valueChanges.subscribe(value => {
-      console.log('se interactuo:', value);
-    });
   }
 
   // Entrada: Ninguna
@@ -191,7 +188,6 @@ export class AsignacionDeTicketsComponent implements OnInit {
   // que coinciden con los parámetros de búsqueda (filtros).
   buscar(): void{
     this.actualizarTabla();
-    console.log('click buscar asignacion de tickets a cuadrillas', this.form.value);
   }
 
   // Entrada: ninguna.

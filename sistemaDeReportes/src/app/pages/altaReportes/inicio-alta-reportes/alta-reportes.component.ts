@@ -52,11 +52,44 @@ export class AltaReportesComponent implements OnInit {
       sector: ['Todos'],
       origen: ['Todos'],
       fechaInicio: [''],
-      fechaFinal: ['']
+      fechaFinal: [''],
+      tipoFecha: ['']
     });
-    this.form.valueChanges.subscribe(value => {
-      console.log('se interactuo:', value);
-    });
+  }
+
+    // Entrada: Ninguna
+  // Salida: control de tipo abstract control.
+  // Descripción: Métodos get para obtener acceso a los campos del formulario
+  get campoTipoReporte(): AbstractControl{
+    return this.form.get('tipoReporte');
+  }
+
+  get campoCuadrilla(): AbstractControl{
+    return this.form.get('cuadrilla');
+  }
+
+  get campoEstado(): AbstractControl{
+    return this.form.get('estado');
+  }
+
+  get campoSector(): AbstractControl{
+    return this.form.get('sector');
+  }
+
+  get campoOrigen(): AbstractControl{
+    return this.form.get('origen');
+  }
+
+  get campoFechaInicial(): AbstractControl{
+    return this.form.get('fechaInicio');
+  }
+
+  get campoFechaFinal(): AbstractControl{
+    return this.form.get('fechaFinal');
+  }
+
+  get campoTipoFecha(): AbstractControl{
+    return this.form.get('tipoFecha');
   }
 
   // Entrada: Ninguna
@@ -88,6 +121,7 @@ export class AltaReportesComponent implements OnInit {
     const origen: number =  this.campoOrigen.value;
     const fecha: string =  this.campoFechaInicial.value;
     const fechaAl: string =  this.campoFechaFinal.value;
+    const tipoFecha: string = this.campoTipoFecha.value;
     this.reporteService.buscarReportes(
       tipoR.toString(),
       cuadrilla.toString(),
@@ -95,7 +129,8 @@ export class AltaReportesComponent implements OnInit {
       sector.toString(),
       origen.toString(),
       fecha,
-      fechaAl).subscribe(reportes => {
+      fechaAl,
+      tipoFecha).subscribe(reportes => {
         this.listaReportes = reportes;
         this.ReportesCargados = true;
     });
@@ -133,43 +168,12 @@ export class AltaReportesComponent implements OnInit {
     }, error => {
       console.log('No fue posible obtener los sectores existentes. ' + error );
     });
-    this.cuadrillaService.obtenerCuadrillasConJefe().subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasGeneral().subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
       this.cuadrillasCargadas = true;
     }, error => {
       console.log('No fue posible obtener las cuadrillas existentes. ' + error );
     });
-  }
-
-  // Entrada: Ninguna
-  // Salida: control de tipo abstract control.
-  // Descripción: Métodos get para obtener acceso a los campos del formulario
-  get campoTipoReporte(): AbstractControl{
-    return this.form.get('tipoReporte');
-  }
-
-  get campoCuadrilla(): AbstractControl{
-    return this.form.get('cuadrilla');
-  }
-
-  get campoEstado(): AbstractControl{
-    return this.form.get('estado');
-  }
-
-  get campoSector(): AbstractControl{
-    return this.form.get('sector');
-  }
-
-  get campoOrigen(): AbstractControl{
-    return this.form.get('origen');
-  }
-
-  get campoFechaInicial(): AbstractControl{
-    return this.form.get('fechaInicio');
-  }
-
-  get campoFechaFinal(): AbstractControl{
-    return this.form.get('fechaFinal');
   }
 
   // Entrada: Ninguna
@@ -231,8 +235,15 @@ export class AltaReportesComponent implements OnInit {
 // Descripción: Método que se llama con el botón buscar para ejecutar una búsqueda
 // de registros mediante el método actualizarTabla()
   buscar(): void{
-    this.actualizarTabla();
+    if (this.reporteService.verificarFechas(this.campoFechaInicial.value, this.campoFechaFinal.value, this.campoTipoFecha.value)){
+      this.actualizarTabla();
+    }else{
+      alert('Verifique que los rangos de fecha y el tipo de fecha estén correctos.');
+    }
+    console.log(this.form.value);
   }
+
+
 
     // Entrada: ninguna.
   // Salida: vacío.
@@ -246,6 +257,7 @@ export class AltaReportesComponent implements OnInit {
     this.campoTipoReporte.setValue('Todos');
     this.campoFechaInicial.setValue('');
     this.campoFechaFinal.setValue('');
+    this.campoTipoFecha.setValue('');
     this.actualizarTabla();
    }
 

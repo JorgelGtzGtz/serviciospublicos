@@ -37,7 +37,7 @@ export class ReporteService {
   // Descripción: petición tipo GET para obtener registros de reporte que coincidad
   // con los filtros que se envían como parámetros.
   buscarReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
-                 origen: string, fecha: string, fechaAl: string): Observable<object[]>{
+                 origen: string, fecha: string, fechaAl: string, tipoFecha: string): Observable<object[]>{
     if (tipoR === undefined || tipoR === 'Todos'){
       tipoR = '';
    }
@@ -59,6 +59,9 @@ export class ReporteService {
     if (fechaAl === null){
     fechaAl = '';
    }
+    if (tipoFecha === null){
+      tipoFecha = '';
+   }
     let params = new HttpParams();
     params = params.append('tipoR', tipoR);
     params = params.append('cuadrilla', cuadrilla);
@@ -67,6 +70,7 @@ export class ReporteService {
     params = params.append('origen', origen);
     params = params.append('fechaIni', fecha);
     params = params.append('fechaF', fechaAl);
+    params = params.append('tipoFecha', tipoFecha);
     return this.http.get<object[]>(this.url + '/ListaBusqueda', {params});
   }
 
@@ -169,16 +173,36 @@ export class ReporteService {
   // incluya y de formato a las calles proporcionadas.
   formatoEntreCalles(calle1: string, calle2: string): string{
     let entreCalles: string;
-    if (calle1.length > 0 && calle2.length > 0){
-      entreCalles = calle1 + ' y ' + calle2;
-    } else if (calle1.length > 0 && calle2.length === 0){
-      entreCalles = calle1;
-    } else if (calle2.length > 0 && calle1.length === 0){
-      entreCalles = calle2;
-    }else{
+    if (!calle1 && !calle2){
       entreCalles = '';
+    } else if (calle1 && calle2){ // si se ingresaron las dos calles
+      entreCalles = calle1 + ' y ' + calle2;
+    } else if (calle1 && !calle2){ // si se ingresó solo la calle 1
+      entreCalles = calle1;
+    } else if (calle2 && !calle1){ // si se ingresó solo la calle 2
+      entreCalles = calle2;
     }
     return entreCalles;
   }
+
+// Entrada: valor string para fecha inicial, valor string para fecha final
+// valor string para tipo de fecha
+// Salida: valor boolean.
+// Descripción: Verifica si se ingresó una fecha, que se hayan ingresado
+// las dos fechas de rango y el tipo de fecha.
+verificarFechas(fechaInicial: string, fechaFinal: string, tipo: string ): boolean{
+  let fechasCorrectas: boolean;
+  if (fechaInicial && fechaFinal && tipo){
+    fechasCorrectas = true;
+  }else if (!fechaInicial && !fechaFinal && !tipo){
+    fechasCorrectas = true;
+  }else{
+    fechasCorrectas = false;
+  }
+  console.log('fecha incial:', fechaInicial, 'Fecha final:',
+  fechaFinal, ' Tipo:', tipo);
+  console.log('Fechas correctas:', fechasCorrectas);
+  return fechasCorrectas;
+}
 
 }

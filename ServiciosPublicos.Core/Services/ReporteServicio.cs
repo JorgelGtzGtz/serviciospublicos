@@ -12,7 +12,7 @@ namespace ServiciosPublicos.Core.Services
     {
         bool AltaReporte(Ticket ticket, List<Imagen> imagenes, out string Message);
         bool ActualizarReporte(Reporte reporte, string path ,out string Message);
-        List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
+        List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha);
         List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla);
         List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
@@ -42,9 +42,9 @@ namespace ServiciosPublicos.Core.Services
         // Salida: lista de tipo dynamic con los registros de reportes.
         // Descripción: Método para ejecutar el query que realiza una búsqueda dinámica de reportes
         // de acuerdo a los diversos filtros que se indican.
-        public List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
+        public List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha)
         {           
-            return this._reporteRepository.GetReportesFiltroDinamico(tipoR,cuadrilla,estado,sector,origen,fechaIni,fechaF);
+            return this._reporteRepository.GetReportesFiltroDinamico(tipoR,cuadrilla,estado,sector,origen,fechaIni,fechaF, tipoFecha);
         }
 
         // Entrada: id de cuadrilla de tipo string
@@ -82,11 +82,14 @@ namespace ServiciosPublicos.Core.Services
                 if (reporte == null)
                 {
                     idReporte = _reporteRepository.InsertarReporte(ticket);
+                    Message = "¡Registro de reporte exitoso! Refierase a este caso con la clave de reporte no. " + idReporte;
                 }
                 else
                 {
                     _reporteRepository.ModificarNoTickets(reporte);
                     idReporte = reporte.ID_reporte;
+                    Message = "¡Registro de reporte exitoso! El reporte se relacionó a un reporte ya existente. " +
+                              "Refierase a este caso con la clave de reporte no. " + idReporte;
                 }
                 //Insertar registro de relacion reporte - ticket
                 _reporteTicketRepository.Insert(ticket.ID_ticket, idReporte);
@@ -100,7 +103,7 @@ namespace ServiciosPublicos.Core.Services
                     }
                 }
                 result = true;
-                Message = "Registro de reporte exitoso";
+                
             }
             catch (Exception ex)
             {
@@ -166,6 +169,7 @@ namespace ServiciosPublicos.Core.Services
             ticket.Estatus_ticket = reporte.Estatus_reporte;
             ticket.ID_cuadrilla = reporte.ID_cuadrilla;
             ticket.TiempoEstimado_ticket = reporte.TiempoEstimado_reporte;
+            ticket.ID_tipoReporte = reporte.ID_tipoReporte;
             return ticket;
         }
 

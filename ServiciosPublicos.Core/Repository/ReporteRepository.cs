@@ -18,7 +18,7 @@ namespace ServiciosPublicos.Core.Repository
         int InsertarReporte(Ticket ticket);
         void ModificarNoTickets(Reporte reporte);
         List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla);
-        List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
+        List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
         List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus);
@@ -108,7 +108,7 @@ namespace ServiciosPublicos.Core.Repository
         // Salida: lista de tipo dynamic, con los registros que coincidieron.
         // Descripción: Ejecuta un query cuya estructura se crea segun los valores que tienen datos
         // con el fin de buscar registros que cumplan determinados filtros.
-        public List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
+        public List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha)
          {
              string filter = " WHERE ";
             bool operacion = false;
@@ -143,25 +143,18 @@ namespace ServiciosPublicos.Core.Repository
                 operacion = true;
             }
 
-            if (!string.IsNullOrEmpty(fechaIni))
+            if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF) && tipoFecha.Equals("a"))
             {
-                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte >= '{0}' OR reporte.FechaCierre_reporte >= '{0}')", fechaIni);
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte BETWEEN '{0}' AND '{1}')", fechaIni, fechaF);
                 operacion = true;
             }
 
-            if (!string.IsNullOrEmpty(fechaF))
+            if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF) && tipoFecha.Equals("c"))
             {
-                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte <= '{0}' OR reporte.FechaCierre_reporte <= '{0}')", fechaF);
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaCierre_reporte BETWEEN '{0}' AND '{1}') AND reporte.Estatus_reporte = 2", fechaIni, fechaF);
                 operacion = true;
             }
 
-           /* if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF))
-            {
-                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte BETWEEN '%{0}%' AND '%{1}%' OR " +
-                                                                       "reporte.FechaCierre_reporte BETWEEN '%{0}%' AND '%{1}%')", fechaIni,fechaF);
-                operacion = true;
-            }
-           */
             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion
                                   FROM [hiram74_residencias].[Reporte] reporte
                                   INNER JOIN [hiram74_residencias].[Sector] sector
