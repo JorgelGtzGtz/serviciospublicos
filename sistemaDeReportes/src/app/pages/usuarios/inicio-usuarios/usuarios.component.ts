@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,AfterViewInit, ViewChild } from '@angular/core';
+import {MatPaginator} from '@angular/material/paginator';
+import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoUsuarioComponent } from '../dialog-ver-editar-nuevo-usuario/dialog-ver-editar-nuevo-usuario.component';
 import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
@@ -6,6 +8,13 @@ import { UsuarioService } from '../../../services/usuario.service';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
+/*EJEMPLO TABLA */
+export interface PeriodicElement {
+  name: string;
+  position: number;
+  weight: number;
+  symbol: string;
+}
 
 
 @Component({
@@ -17,7 +26,7 @@ export class UsuariosComponent implements OnInit {
   form: FormGroup;
   nombreSeccion = 'Usuarios';
   headersTabla: string [];
-  usuarios: any = [];
+  usuarios: JSON[] = [];
   tiposUsuario: any = [];
   tiposListos: boolean;
   usuariosListos: boolean;
@@ -33,7 +42,7 @@ export class UsuariosComponent implements OnInit {
     this.inicializarTabla();
     this.obtenerTiposUsuario();
   }
-
+  
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
@@ -84,7 +93,6 @@ export class UsuariosComponent implements OnInit {
       this.campoEstado.value, this.campoTipoUsuario.value, this.campoReportesActivos.value)
     .subscribe( datos => {
       this.usuarios = datos;
-      console.log(datos);
       this.usuariosListos = true;
     }, (error: HttpErrorResponse) => {
       alert('Existió un problema al cargar datos de página. Recargue página o solicite asistencia.');

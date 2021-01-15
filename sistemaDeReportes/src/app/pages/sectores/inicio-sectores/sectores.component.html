@@ -55,7 +55,7 @@
         </div>
         <div class="content-card">
             <div class="table-wrapper">
-                <table class="table table-bordered">
+                <table class="table table-bordered mb-0">
                     <thead>
                         <tr>
                             <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
@@ -75,6 +75,9 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sin-resultados-texto" *ngIf="sectores.length===0">
+                    No se encontraron coincidencias.
+                </div>
             </div>
             <!-- <app-tabla [modeloTabla]="datosSectores" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
         </div>

@@ -56,7 +56,7 @@
         <div class="content-card">
             <!-- SECCION DE TABLA -->
             <div class="table-wrapper">
-                <table class="table table-bordered">
+                <table class="table table-bordered mb-0">
                     <thead>
                         <tr>
                             <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
@@ -76,6 +76,9 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sin-resultados-texto" *ngIf="tiposUsuario.length===0">
+                    No se encontraron coincidencias.
+                </div>
             </div>
             <!-- <app-tabla [modeloTabla]="datosTipoUsuario" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
             <!-- TERMINA SECCION TABLA -->

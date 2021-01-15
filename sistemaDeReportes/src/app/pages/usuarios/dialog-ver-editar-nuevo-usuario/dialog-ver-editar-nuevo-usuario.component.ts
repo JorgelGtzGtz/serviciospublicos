@@ -73,18 +73,18 @@ datosCargados(): boolean{
     this.form = this.formBuilder.group({
       id: [''],
       estado: [''],
-      nombre: ['', [Validators.required]],
+      nombre: ['', [Validators.required, Validators.pattern('[a-zA-Z ]*')]],
       correo: ['', [Validators.required, Validators.email]],
-      telefono: ['', [Validators.required]],
+      telefono: ['', [Validators.required, Validators.pattern('[0-9]{10,16}')]],
       genero: ['', [Validators.required]],
       tipoUsuario: ['', [Validators.required]],
       usuario: ['', [Validators.required]],
-      password: ['', [Validators.required]]
+      password: ['', [Validators.required, Validators.pattern('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])([A-Za-z0-9]|[^ ]){8}')]]
     });
     this.verificarCambiosFormulario();
     this.verificarCambiosCorreo();
     this.verificarCambiosLogin();  
-    this.verificarPasswordValido(); 
+    // this.verificarPasswordValido(); 
   }
 
 // Entrada: Ninguna

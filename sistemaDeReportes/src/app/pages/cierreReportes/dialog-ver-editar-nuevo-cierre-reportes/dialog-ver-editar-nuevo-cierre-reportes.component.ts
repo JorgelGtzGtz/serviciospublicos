@@ -22,7 +22,10 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
   uploadedImg: string [] = [];
   mostrarImgApertura: boolean;
   mostrarImgCierre: boolean;
+  imagenesCargadas: boolean;
   modificado: boolean;
+  habilitarBoton: boolean;
+  imagenesValidas: boolean;
   form: FormGroup;
   reporte: Reporte;
 
@@ -41,6 +44,7 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
   ngOnInit(): void {
     this.obtenerObjetoReporte();
     this.inicializarFormulario();
+    this.tipoFormularioAccion();
     this.cargarImagenesReporte();
   }
 
@@ -95,6 +99,32 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
     }
   }
 
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Este método habilita o deshabilita el formulario según el estado del reporte.
+tipoFormularioAccion(): void{
+  const estadoReporte = this.reporte.Estatus_reporte;
+  if(estadoReporte === 2 || estadoReporte === 4){
+    this.form.disable();
+  }
+}
+
+// Entrada: Ninguna.
+// Salida: boolean
+// Descripción: Genera mensaje para informar al usuario que el reporte tiene estado cancelado o cerrado.
+mensajeEstado(): boolean{
+  let mostrarMensaje: boolean;
+  const estadoReporte = this.reporte.Estatus_reporte;
+  if(estadoReporte === 2 || estadoReporte === 4){
+    mostrarMensaje = true;
+    this.habilitarBoton = true;
+  }else{
+    mostrarMensaje = false;
+    this.habilitarBoton = false;
+  }
+  return mostrarMensaje;
+}
+
   // Entrada: Ninguna
   // Salida: valor boolean.
   // Descripción: Método que devuelve true si el usuario interactuó con el formulario o false si no.
@@ -112,7 +142,7 @@ cargarImagenesReporte(): void{
   .subscribe( (imgApertura: Imagen[]) => {
     this.pathImgApertura = this.imagenService.llenarListaPathImagenes(imgApertura);
     this.inicializarContenedorImagenes();
-    console.log('SE CARGAN 2');
+    this.imagenesCargadas = true;
   }, (error: HttpErrorResponse) => {
     console.log('Error al obtener imágenes. ' + error);
   });
@@ -122,6 +152,7 @@ cargarImagenesReporte(): void{
   .subscribe( (imgCierre: Imagen[]) => {
     this.pathImgCierre = this.imagenService.llenarListaPathImagenes(imgCierre);
     this.inicializarContenedorImagenes();
+    this.imagenesCargadas = true;
   }, (error: HttpErrorResponse) => {
     console.log('Error al obtener imágenes de cierre. ' + error);
   });
@@ -160,9 +191,9 @@ cargarImagenesReporte(): void{
    obtenerImagenesSubidas(event): void{
     const photosList = event.target.files;
     this.imagenService.setListaImagenesSel(photosList);
-    this.uploadedImg = this.imagenService.readThis(photosList);
+    this.uploadedImg = this.imagenService.readThis(photosList);    
   }
-
+  
   // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
   // Salida: vacío.
   // Descripción: Método que recibe el evento que se genera al seleccionar imagenes en input

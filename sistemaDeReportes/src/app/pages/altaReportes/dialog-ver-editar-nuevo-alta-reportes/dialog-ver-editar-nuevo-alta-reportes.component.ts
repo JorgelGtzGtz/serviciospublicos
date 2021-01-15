@@ -91,17 +91,65 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     });
   }
 
+  // Entrada: Ninguna
+  // Salida: control de tipo AbstractControl, .
+  // Descripción: Método para obtener acceso a los controles del formulario
+  // que pertenecen al FormGroup
+  get campoId(): AbstractControl{
+    return this.form.get('id');
+  }
+
+  get campoTipoReporte(): AbstractControl{
+    return this.form.get('tipoReporte');
+  }
+
+  get campoSector(): AbstractControl{
+    return this.form.get('sector');
+  }
+
+  get campoFechaInicio(): AbstractControl{
+    return this.form.get('fechaInicio');
+  }
+
+  get campoFechaCierre(): AbstractControl{
+    return this.form.get('fechaCierre');
+  }
+
+  get campoCallePrincipal(): AbstractControl{
+    return this.form.get('calleP');
+  }
+
+  get campoReferencia(): AbstractControl{
+    return this.form.get('referencia');
+  }
+
+  get campoCalleSecundaria1(): AbstractControl{
+    return this.form.get('calleS1');
+  }
+
+  get campoCalleSecundaria2(): AbstractControl{
+    return this.form.get('calleS2');
+  }
+
+  get campoColonia(): AbstractControl{
+    return this.form.get('colonia');
+  }
+
+  get campoDescripcionReporte(): AbstractControl{
+    return this.form.get('descripcionR');
+  }
+
   // Entrada: Ninguna.
   // Salida: valor booleano
   // Decripción: Se utiliza para verificar si el botón guardar debe
   // estar habilitado o no.
-  habilitarBtnGuardar(): boolean{
+  habilitarBoton(): boolean{
     let habilitar: boolean;
     // Si se va a visualizar el reporte o si su estado es cancelado o cerrado.
     if (this.accion === 'ver' || this.estadoReporte === 4 || this.estadoReporte === 2){
-      habilitar = false;
-    }else{
       habilitar = true;
+    }else{
+      habilitar = false;
     }
     return habilitar;
   }
@@ -217,13 +265,6 @@ cargarImagenesReporte(): void{
   });
 }
 
-// manejoErroresImg(): string{
-  // 'http://localhost:50255/Photos/no-image.png'
-  // const imgList = this.elementReference.nativeElement.querySelectorAll('img.img-reporte');
-  // console.log('IMAGENES ELEMENT', imgList);
-  // return 'src =' + this.imagenSevice.generarSrcAlterno();
-// }
-
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para indicar, mediante las variables "mostrarImgApertura" y "mostrarImgCierre"
@@ -239,55 +280,7 @@ cargarImagenesReporte(): void{
     }else{
       this.mostrarImgCierre = false;
     }
-  }
-
-  // Entrada: Ninguna
-  // Salida: control de tipo AbstractControl, .
-  // Descripción: Método para obtener acceso a los controles del formulario
-  // que pertenecen al FormGroup
-  get campoId(): AbstractControl{
-    return this.form.get('id');
-  }
-
-  get campoTipoReporte(): AbstractControl{
-    return this.form.get('tipoReporte');
-  }
-
-  get campoSector(): AbstractControl{
-    return this.form.get('sector');
-  }
-
-  get campoFechaInicio(): AbstractControl{
-    return this.form.get('fechaInicio');
-  }
-
-  get campoFechaCierre(): AbstractControl{
-    return this.form.get('fechaCierre');
-  }
-
-  get campoCallePrincipal(): AbstractControl{
-    return this.form.get('calleP');
-  }
-
-  get campoReferencia(): AbstractControl{
-    return this.form.get('referencia');
-  }
-
-  get campoCalleSecundaria1(): AbstractControl{
-    return this.form.get('calleS1');
-  }
-
-  get campoCalleSecundaria2(): AbstractControl{
-    return this.form.get('calleS2');
-  }
-
-  get campoColonia(): AbstractControl{
-    return this.form.get('colonia');
-  }
-
-  get campoDescripcionReporte(): AbstractControl{
-    return this.form.get('descripcionR');
-  }
+  } 
 
   // Entrada: Ninguna
   // Salida: valor booleano.
@@ -311,13 +304,15 @@ obtenerEstadoFormulario(): boolean{
         this.campoId.disable();
         break;
       default:
-        this.form.enable();
-        this.campoId.disable();
+        const estado = this.reporte.Estatus_reporte;
+        if( estado === 2 || estado === 4){
+          this.form.disable();
+        }else{
+          this.form.enable();
+          this.campoId.disable();
+        }
     }
-    // Inhabilita el reporte si tiene estado cerrado o cancelado.
-    if (!this.habilitarBtnGuardar()){
-      this.form.disable();
-    }
+    
   }
 
   // Entrada: Ninguna
@@ -369,6 +364,20 @@ obtenerEstadoFormulario(): boolean{
     this.uploadedImg = this.imagenService.readThis(photosList);
   }
 
+// Entrada: Ninguna.
+// Salida: boolean
+// Descripción: Genera mensaje para informar al usuario que el reporte tiene estado cancelado o cerrado.
+mensajeEstado(): boolean{
+  let mostrarMensaje = false;
+  if(this.accion !== 'nuevo'){
+    const estadoReporte = this.reporte.Estatus_reporte;
+    if(estadoReporte === 2 || estadoReporte === 4){
+      mostrarMensaje = true;
+    }    
+  }
+  return mostrarMensaje;
+}
+
   // Entrada: Ninguna
   // Salida:  promesa de tipo lista de numeros.
   // Descripción: Método para generar las coordenadas de la dirección ingresada en formulario
@@ -377,7 +386,6 @@ obtenerEstadoFormulario(): boolean{
     const calleNumero = this.campoCallePrincipal.value;
     const colonia = this.campoColonia.value;
     const direccion = this.mapService.generarDireccionCompleta(calleNumero, colonia);
-    // let latLng: number[] = [];
     const latLng = await this.mapService.obtenerLatLng(direccion).toPromise()
     .then((respuesta: any) => {
       const direcciones = respuesta.results[0];
@@ -413,7 +421,6 @@ obtenerEstadoFormulario(): boolean{
      this.reporte.Poblado_reporte = this.campoColonia.value;
      this.reporte.Observaciones_reporte = this.campoDescripcionReporte.value;
      this.reporte.Estatus_reporte = this.estadoReporte;
-     console.log('REPORTE:', this.reporte);
   }
 
   // Entrada: lista de tipo number
@@ -446,7 +453,6 @@ obtenerEstadoFormulario(): boolean{
       this.campoDescripcionReporte.value,
       2
     );
-    console.log('NUEVO TICKET:', ticket);
     return ticket;
   }
 

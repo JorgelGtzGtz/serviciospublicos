@@ -141,7 +141,7 @@
         <div class="content-card">
             <!-- <app-tabla [modeloTabla]="datosAltaReportes" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
             <div class="table-wrapper">
-                <table class="table table-bordered">
+                <table class="table table-bordered mb-0">
                     <thead>
                         <tr>
                             <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
@@ -165,6 +165,9 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sin-resultados-texto" *ngIf="listaReportes.length===0">
+                    No se encontraron coincidencias.
+                </div>
             </div>
         </div>
     </div>

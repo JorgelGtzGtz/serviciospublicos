@@ -81,7 +81,7 @@
         </div>
         <div class="content-card">
             <div class="table-wrapper">
-                <table class="table table-bordered">
+                <table class="table mb-0 table-bordered">
                     <thead>
                         <tr>
                             <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">
@@ -104,6 +104,9 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sin-resultados-texto" *ngIf="usuarios.length===0">
+                    No se encontraron coincidencias.
+                </div>
             </div>
             <!-- <app-tabla [modeloTabla]="datosUsuario" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
         </div>

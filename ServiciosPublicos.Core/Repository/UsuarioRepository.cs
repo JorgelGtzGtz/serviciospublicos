@@ -139,7 +139,6 @@ namespace ServiciosPublicos.Core.Repository
         public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
         {
             string filter = " WHERE ";
-            bool operacion = false;
 
 
             filter += "usuario.Disponible = 1 ";
@@ -149,19 +148,19 @@ namespace ServiciosPublicos.Core.Repository
                                         "usuario.Login_usuario like '%{0}%' or " +
                                         "usuario.ID_usuario like '%{0}%' or " +
                                         "tipoUsuario.Descripcion_tipoUsuario like '%{0}%')", textoBusqueda);
-                operacion = true;
+                
             }
 
             if (!string.IsNullOrEmpty(estado))
             {
                 filter += string.Format(" AND Estatus_usuario LIKE '%{0}%'", estado);
-                operacion = true;
+                
             }
 
             if (!string.IsNullOrEmpty(tipoU))
             {
                 filter += string.Format(" AND usuario.ID_tipoUsuario LIKE '%{0}%'", tipoU);
-                operacion = true;
+                
             }
 
             if (!string.IsNullOrEmpty(repActivos))
@@ -169,7 +168,7 @@ namespace ServiciosPublicos.Core.Repository
                 filter += string.Format(" AND 0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
                                          "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
                                           "AND (ticket.Estatus_ticket != 4 AND ticket.Estatus_ticket != 2))", repActivos);
-                operacion = true;
+                
             }
 
             Sql query = new Sql(@"SELECT usuario.*, tipoUsuario.Descripcion_tipoUsuario AS NombreTipo

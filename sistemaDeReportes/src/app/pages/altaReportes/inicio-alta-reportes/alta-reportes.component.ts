@@ -240,7 +240,6 @@ export class AltaReportesComponent implements OnInit {
     }else{
       alert('Verifique que los rangos de fecha y el tipo de fecha estén correctos.');
     }
-    console.log(this.form.value);
   }
 
 

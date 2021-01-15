@@ -43,6 +43,7 @@ export class DialogAsignacionTicketsComponent implements OnInit {
     this.obtenerCuadrillasList();
     this.obtenerObjetoReporte();
     this.inicializarFormulario();
+    this.tipoFormularioAccion();
     this.cargarImagenesReporte();
   }
 
@@ -108,6 +109,30 @@ get campoTiempo(): AbstractControl{
       this.campoTiempo.setValue(this.reporte.TiempoEstimado_reporte);
     }
   }
+
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Este método habilita o deshabilita el formulario según el estado del reporte.
+tipoFormularioAccion(): void{
+  const estadoReporte = this.reporte.Estatus_reporte;
+  if(estadoReporte === 2 || estadoReporte === 4){
+    this.form.disable();
+  }
+}
+
+// Entrada: Ninguna.
+// Salida: boolean
+// Descripción: Genera mensaje para informar al usuario que el reporte tiene estado cancelado o cerrado.
+mensajeEstado(): boolean{
+  let mostrarMensaje: boolean;
+  const estadoReporte = this.reporte.Estatus_reporte;
+  if(estadoReporte === 2 || estadoReporte === 4){
+    mostrarMensaje = true;
+  }else{
+    mostrarMensaje = false;
+  }
+  return mostrarMensaje;
+}
 
   // Entrada: Ninguna
   // Salida: vacío.
@@ -182,7 +207,7 @@ cargarImagenesReporte(): void{
       alert('¡ Reporte asignado con éxito ! ');
       this.dialogRef.close();
     }, (error: HttpErrorResponse) => {
-      alert('¡Lo sentimos! No ha sido posible asignar la cudrilla. Verifique que los datos sean correctos o consulte ayuda.');
+      alert('¡Lo sentimos! No ha sido posible asignar la cudrilla. Verifique que los datos sean correctos o solicite asistencia.');
       console.log('Error al asignar cuadrilla a reporte:', error.message);
     });
   }

@@ -35,8 +35,7 @@ export class UsuarioService {
   // Entrada: valor tipo string para cada parámetro de filtro de búsqueda.
   // Salida: observable con la respuesta de la petición.
   // Descripción: Obtener lista de usuarios utilizando parametros medinate petición http GET
-  obtenerListaUsuarios(textoB?: string, estadoUsuario?: string, tipoU?: string, repActi?: boolean): Observable<object>{
-    console.log('Se recibe en servicio:', textoB, estadoUsuario, tipoU, repActi);
+  obtenerListaUsuarios(textoB?: string, estadoUsuario?: string, tipoU?: string, repActi?: boolean): Observable<JSON[]>{
     let reportesActivos: string;
     if (textoB === undefined){
       textoB = '';
@@ -60,7 +59,7 @@ export class UsuarioService {
     params = params.append('estado', estadoUsuario);
     params = params.append('tipoU', tipoU);
     params = params.append('repActivos', reportesActivos);
-    return this.http.get(this.url + '/ListaBusqueda', {
+    return this.http.get<JSON[]>(this.url + '/ListaBusqueda', {
       params
       });
   }

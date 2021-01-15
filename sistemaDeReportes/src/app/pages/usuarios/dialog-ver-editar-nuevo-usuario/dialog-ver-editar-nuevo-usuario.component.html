@@ -38,7 +38,12 @@
                     <div class="col p-0">
                         <input type="text" maxlength="40" class="form-control" id="nombre" formControlName="nombre">
                         <div *ngIf="campoNombre.errors && campoNombre.touched">
-                            <p class="error" *ngIf="campoNombre.hasError('required')">Campo requerido</p>
+                            <p class="error" *ngIf="campoNombre.hasError('required')">
+                                Campo requerido
+                            </p>
+                            <p class="error" *ngIf="campoNombre.hasError('pattern')">
+                                Incluya solo letras mayúsculas y minúsculas.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -66,9 +71,14 @@
                         <div class="row form-group row-input-group">
                             <label id="lblTelefono" class="col-form-label col-md-auto" for="telefono">Teléfono: </label>
                             <div class="col p-0">
-                                <input type="text" maxlength="16" class="form-control" id="telefono" formControlName="telefono">
+                                <input type="tel" maxlength="16" class="form-control" id="telefono" formControlName="telefono">
                                 <div *ngIf="campoTelefono.errors && campoTelefono.touched">
-                                    <p class="error" *ngIf="campoTelefono.hasError('required')">Campo requerido</p>
+                                    <p class="error" *ngIf="campoTelefono.hasError('required')">
+                                        Campo requerido
+                                    </p>
+                                    <p class="error" *ngIf="campoTelefono.hasError('pattern')">
+                                        El teléfono debe formarse entre 10 a 16 números entre 0-9
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -136,13 +146,14 @@
                                 <input type="password" class="form-control" id="password" maxlength="8" formControlName="password">
                                 <div *ngIf="campoPassword.errors && campoPassword.touched">
                                     <p class="error" *ngIf="campoPassword.hasError('required')">Campo requerido</p>
+                                    <div *ngIf="campoPassword.hasError('pattern')">
+                                        <p class="error">La contraseña debe estar compuesta por:</p>
+                                        <p class="error">▪ Al menos una letra mayúscula.</p>
+                                        <p class="error">▪ Al menos un valor numérico entre 0-9</p>
+                                        <p class="error">▪ Longitud de 8 caracteres.</p>
+                                    </div>
                                 </div>
-                                <div *ngIf="passwordInvalido">
-                                    <p class="error">La contraseña debe estar compuesta por:</p>
-                                    <p class="error">▪ Al menos una letra mayúscula.</p>
-                                    <p class="error">▪ Al menos un valor numérico entre 0-9</p>
-                                    <p class="error">▪ Longitud de 8 caracteres.</p>
-                                </div>
+
                             </div>
                         </div>
                     </div>

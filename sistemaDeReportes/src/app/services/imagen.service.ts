@@ -102,12 +102,14 @@ export class ImagenService {
   //  en el input tipo file, para que el usuario visualize las imágenes que eligió.
   readThis(file: File[]): string[] {
     const urlImage: string[] = [];
-    for (let i = 0; i < file.length ; i++){
-      const myReader: FileReader = new FileReader();
-      myReader.readAsDataURL(file[i]);
-      myReader.onload = (event: any) => {
-        urlImage.push( event.target.result);
-      };
+    for (let i = 0; i < file.length ; i++){     
+      if (file[i].type === 'image/jpeg' || file[i].type === 'image/png'){
+          const myReader: FileReader = new FileReader();
+          myReader.readAsDataURL(file[i]);
+          myReader.onload = (event: any) => {
+            urlImage.push( event.target.result);
+        };
+      }
     }
     return urlImage;
   }
@@ -120,7 +122,6 @@ export class ImagenService {
     return new Promise((resolved, reject) => {
       this.obtenerPathImagen(formData).toPromise()
       .then((path: string) => {
-        console.log('path exitoso:', path);
         resolved(path);
       })
       .catch(error => {

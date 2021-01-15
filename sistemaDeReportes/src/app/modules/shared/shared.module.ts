@@ -6,6 +6,7 @@ import { HeaderComponent } from '../../shared/header/header.component';
 import { MapaReportesComponent } from '../../shared/mapa-reportes/mapa-reportes.component';
 import { NavbarComponent } from '../../shared/navbar/navbar.component';
 import { SidebarComponent } from '../../shared/sidebar/sidebar.component';
+import { FooterComponent } from '../../shared/footer/footer.component'
 import { TablaComponent } from '../../shared/tabla/tabla.component';
 
 // PIPES
@@ -32,6 +33,7 @@ import { environment } from '../../../environments/environment';
     MapaReportesComponent,
     NavbarComponent,
     SidebarComponent,
+    FooterComponent,
     TablaComponent,
     CapitalizadoPipe,
     CustomDate,
@@ -54,7 +56,8 @@ import { environment } from '../../../environments/environment';
     TablaComponent,
     CapitalizadoPipe,
     CustomDate,
-    EstadoReporte
+    EstadoReporte,
+    FooterComponent
   ],
   providers: [
     DialogService

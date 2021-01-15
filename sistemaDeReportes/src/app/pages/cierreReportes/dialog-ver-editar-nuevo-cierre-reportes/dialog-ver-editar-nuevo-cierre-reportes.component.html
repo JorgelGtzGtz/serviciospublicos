@@ -2,6 +2,14 @@
 <hr>
 <mat-dialog-content>
     <div class="container-fluid">
+        <div *ngIf="mensajeEstado()">
+            <div *ngIf="reporte.Estatus_reporte === 2" class="alert alert-danger" role="alert">
+                Este reporte ya ha sido cerrado.
+            </div>
+            <div *ngIf="reporte.Estatus_reporte === 4" class="alert alert-danger" role="alert">
+                No es posible cerrar este reporte debido a que fue cancelado.
+            </div>
+        </div>
         <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
         <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
 
@@ -82,23 +90,22 @@
 
             </div>
             <div class="row mb-3">
-                <!-- <div class="col-lg-6 col-md-6 col-12"> -->
-                <div class="row form-group">
+                <div class="col-lg-6 col-md-6 col-12">
                     <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
-                    <button id="btn-subirImg" mat-raised-button (click)="abrirVentanaImagenes()">Subir imágenes</button>
+                    <button id="btn-subirImg" mat-raised-button [disabled]="habilitarBoton" (click)="abrirVentanaImagenes()">Subir imágenes</button>
                     <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
+                    <div><small>Las imágenes deben ser de tipo .jpeg .jpg ó .png</small></div>
                     <div>
                         <div class="img-container" *ngIf="uploadedImg.length > 0">
                             <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
                         </div>
                     </div>
                 </div>
-                <!-- </div> -->
             </div>
         </form>
     </div>
 </mat-dialog-content>
 <div matDialogActions align="end" class="mb-2">
-    <button type="button" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button type="button" mat-raised-button color="primary" [disabled]="habilitarBoton" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

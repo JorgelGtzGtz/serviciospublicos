@@ -9,6 +9,14 @@
         </div>
     </div>
     <div *ngIf="datosCargados()" class="container-fluid">
+        <div *ngIf="mensajeEstado()">
+            <div *ngIf="reporte.Estatus_reporte === 2" class="alert alert-danger" role="alert">
+                Este reporte ha sido cerrado. No se permite la asignación de cuadrilla.
+            </div>
+            <div *ngIf="reporte.Estatus_reporte === 4" class="alert alert-danger" role="alert">
+                Este reporte ha sido cancelado. No se permite la asignación de cuadrilla.
+            </div>
+        </div>
         <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
         <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
         <section id="imagenesReporte">

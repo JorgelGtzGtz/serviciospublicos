@@ -8,6 +8,14 @@
             </div>
         </div>
         <form *ngIf="datosCargados()" [formGroup]="form">
+            <div *ngIf="mensajeEstado()">
+                <div *ngIf="reporte.Estatus_reporte === 2" class="alert alert-danger" role="alert">
+                    Este reporte ha sido cerrado.
+                </div>
+                <div *ngIf="reporte.Estatus_reporte === 4" class="alert alert-danger" role="alert">
+                    Este reporte ha sido cancelado.
+                </div>
+            </div>
             <div class="row form-sections mb-3">
                 <div class="col-sm-6 col-12">
                     <div class="row mb-2 form-group justify-content-start row-input-group">
@@ -158,9 +166,12 @@
                 <h3>Imágenes del reporte</h3>
                 <hr>
                 <div class="form-group form-sections row" *ngIf="accion === 'nuevo'">
-                    <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
-                    <button id="btn-subirImg" mat-raised-button (click)="abrirVentanaImagenes()">Subir imágenes</button>
-                    <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
+                    <div class="col-12">
+                        <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
+                        <button id="btn-subirImg" mat-raised-button [disabled]="habilitarBoton()" (click)="abrirVentanaImagenes()">Subir imágenes</button>
+                        <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
+                    </div>
+                    <div class="col-12"><small>Las imágenes deben ser de tipo .jpeg .jpg ó .png</small></div>
                     <div>
                         <div class="img-container" *ngIf="uploadedImg.length > 0">
                             <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
@@ -235,6 +246,6 @@
 </div>
 
 <div matDialogActions align="end">
-    <button type="button" [disabled]="!habilitarBtnGuardar()" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button type="button" [disabled]="habilitarBoton()" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

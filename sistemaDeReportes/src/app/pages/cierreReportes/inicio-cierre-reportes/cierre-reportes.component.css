@@ -1,15 +1,16 @@
-/* GENERAL */
+/*ESTILO BOTONES*/
 
-button {
-    outline: none;
+.btn-header {
+    margin: 20px 0;
+    width: 100%;
 }
 
+#btn-limpiar {
+    width: 100%;
+}
 
-/* ESTILO PARA ICONO DE LOS BOTONES */
-
-.mat-icon {
-    font-size: 18px;
-    padding-top: 2px;
+#btn-buscar {
+    width: 100%;
 }
 
 
@@ -19,94 +20,37 @@ button {
     padding-top: 6px;
 }
 
-.content-wrapper {
-    padding: 0 0 10px 0;
-}
-
 .row {
     margin-top: 10px;
 }
 
-.sinMargen {
-    margin: 0;
-}
 
-.card {
-    padding: 0 15px;
-    /* height: calc(100vh - (100vh / 4)); */
-    height: calc(100vh + (100vh * 0.1));
-}
-
-.content-card {
-    box-sizing: border-box;
-    padding-bottom: 10px;
-    /* height: calc(100vh - (100vh / 3)); */
-    height: calc(100vh - (100vh * 0.35));
-}
-
-.btn-header {
-    margin: 20px 0;
-    width: 100%;
-}
-
-
-/* TABLA */
-
-.btn-proceso {
-    width: 100px;
-    margin: 5px 0;
-    background-color: #ececf0;
-}
-
-
-/* Para tablets */
+/* ESTILO PARA TABLETS*/
 
 @media only screen and (min-width:600px) {
-    /* CONTENEDOR CARD */
-    div.content-card {
-        /* height: calc(100vh - (100vh * 0.35)); */
-        height: 65%;
-    }
-    .card {
-        height: calc(100vh + (100vh * 0.10));
-    }
+    /*ESTILO PARA BOTONES*/
     .btn-header {
-        width: 120px;
         margin-top: 10px;
+        width: 120px;
     }
-    /* TABLA */
-    .btn-proceso {
-        width: 100px;
-        margin: 5px 0;
+    #btn-limpiar {
+        width: 100%;
     }
 }
 
 
-/* Para computadoras */
+/* ESTILO PARA COMPUTADORAS */
 
 @media only screen and (min-width: 992px) {
-    /* CONTENEDOR CARD */
-    div.content-card {
-        /* height: calc(100vh - (100vh * 0.55)); */
-        height: 75%;
-    }
-    .card {
-        /* height: calc(100vh - (100vh * 0.20)); */
-        height: calc(100vh - (100vh / 4));
-    }
-    /* BOTONES */
+    /* ESTILO PARA BOTONES */
     .btn-header {
-        width: 120px;
         margin-top: 10px;
+        width: 120px;
     }
     #btn-limpiar {
         width: 150px;
     }
-    /* TABLA */
-    .btn-proceso {
-        width: 110px;
-        margin: 5px 10px;
-        line-height: 30px;
-        padding: 0 12px;
+    #btn-buscar {
+        width: 120px;
     }
 }

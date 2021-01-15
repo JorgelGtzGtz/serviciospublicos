@@ -47,8 +47,36 @@ export class AsignacionDeTicketsComponent implements OnInit {
       estado: ['Todos'],
       tipoReporte: ['Todos'],
       fechaInicio: [''],
-      fechaFinal: ['']
+      fechaFinal: [''],
+      tipoFecha: ['']
     });
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Métodos get para obtener acceso a los controladores de los campos del formulario
+  get campoSector(): AbstractControl{
+    return this.form.get('sector');
+  }
+
+  get campoEstado(): AbstractControl{
+    return this.form.get('estado');
+  }
+
+  get campoTipoReporte(): AbstractControl{
+    return this.form.get('tipoReporte');
+  }
+
+  get campoFechaInicio(): AbstractControl{
+    return this.form.get('fechaInicio');
+  }
+
+  get campoFechaFinal(): AbstractControl{
+    return this.form.get('fechaFinal');
+  }
+
+  get campoTipoFecha(): AbstractControl{
+    return this.form.get('tipoFecha');
   }
 
   // Entrada: Ninguna
@@ -80,8 +108,9 @@ export class AsignacionDeTicketsComponent implements OnInit {
     const origen =  '';
     const fecha: string =  this.campoFechaInicio.value;
     const fechaAl: string =  this.campoFechaFinal.value;
+    const tipoFecha: string = this.campoTipoFecha.value;
     this.reporteService.buscarReportes(
-      tipoR, cuadrilla, estado, sector,  origen, fecha, fechaAl).subscribe(reportes => {
+      tipoR, cuadrilla, estado, sector,  origen, fecha, fechaAl, tipoFecha).subscribe(reportes => {
         this.listaReportes = reportes;
         this.ReportesCargados = true;
     });
@@ -118,29 +147,6 @@ export class AsignacionDeTicketsComponent implements OnInit {
         cargado = false;
     }
     return cargado;
-  }
-
-  // Entrada: Ninguna
-  // Salida: vacío.
-  // Descripción: Métodos get para obtener acceso a los controladores de los campos del formulario
-  get campoSector(): AbstractControl{
-    return this.form.get('sector');
-  }
-
-  get campoEstado(): AbstractControl{
-    return this.form.get('estado');
-  }
-
-  get campoTipoReporte(): AbstractControl{
-    return this.form.get('tipoReporte');
-  }
-
-  get campoFechaInicio(): AbstractControl{
-    return this.form.get('fechaInicio');
-  }
-
-  get campoFechaFinal(): AbstractControl{
-    return this.form.get('fechaFinal');
   }
 
   // Entrada: Titulo de encabezado de tipo string
@@ -187,7 +193,11 @@ export class AsignacionDeTicketsComponent implements OnInit {
   // Descripción: Ejecuta la función que obtiene los registros de reporte
   // que coinciden con los parámetros de búsqueda (filtros).
   buscar(): void{
-    this.actualizarTabla();
+    if (this.reporteService.verificarFechas(this.campoFechaInicio.value, this.campoFechaFinal.value, this.campoTipoFecha.value)){
+      this.actualizarTabla();
+    }else{
+      alert('Verifique que los rangos de fecha y el tipo de fecha estén correctos.');
+    }
   }
 
   // Entrada: ninguna.
@@ -200,6 +210,7 @@ export class AsignacionDeTicketsComponent implements OnInit {
     this.campoTipoReporte.setValue('Todos');
     this.campoFechaInicio.setValue('');
     this.campoFechaFinal.setValue('');
+    this.campoTipoFecha.setValue('');
     this.actualizarTabla();
    }
 
