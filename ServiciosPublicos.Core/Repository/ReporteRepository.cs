@@ -43,7 +43,7 @@ namespace ServiciosPublicos.Core.Repository
                + cos(Latitud_reporte * 0.0175) * cos(@0 * 0.0175) *    
                  cos((@1 * 0.0175) - (Longitud_reporte * 0.0175))
               ) * 3959 <= 0.16
-      ) AND ID_tipoReporte = @2 AND Estatus_reporte != 2", ticket.Latitud_ticket, ticket.Longitud_ticket, ticket.ID_tipoReporte);
+      ) AND ID_tipoReporte = @2 AND Estatus_reporte != 2 AND Estatus_reporte != 4", ticket.Latitud_ticket, ticket.Longitud_ticket, ticket.ID_tipoReporte);
             return this.Context.SingleOrDefault<Reporte>(query);
         }
 
@@ -193,10 +193,11 @@ namespace ServiciosPublicos.Core.Repository
 
         public List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus)
         {
-            Sql query = new Sql(@"SELECT reporte.*, cuadrilla.ID_JefeCuadrilla AS jefeAsignado
+            Sql query = new Sql(@"SELECT reporte.*, cuadrilla.ID_JefeCuadrilla AS jefeAsignado, tipoReporte.Descripcion_tipoReporte AS nombreTipo
                                 FROM [hiram74_residencias].[Reporte] reporte
                                 INNER JOIN [hiram74_residencias].[Cuadrilla] cuadrilla 
-                                ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla WHERE cuadrilla.ID_JefeCuadrilla = @0"+
+                                ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla INNER JOIN [hiram74_residencias].[Tipo_Reporte] tipoReporte 
+								ON tipoReporte.ID_tipoReporte = reporte.ID_tipoReporte WHERE cuadrilla.ID_JefeCuadrilla = @0" +
                                 (idTipo != 0 ? " AND reporte.ID_tipoReporte = @1" : "") +
                                 (idEstatus != 0 ? " AND reporte.Estatus_reporte = @2" : ""),id_jefe, idTipo, idEstatus);
             return this.Context.Fetch<dynamic>(query);
@@ -250,7 +251,7 @@ namespace ServiciosPublicos.Core.Repository
             try
             {
                 WebClient client = new WebClient();
-                Stream s = client.OpenRead(string.Format("https://platform.clickatell.com/messages/http/send?apiKey=&to={0}&content={1}", numeroDestino, mensajeSMS));
+                Stream s = client.OpenRead(string.Format("https://platform.clickatell.com/messages/http/send?apiKey=r1ELr7LbS4Gj3v9UIRQlEw==&to={0}&content={1}", numeroDestino, mensajeSMS));
                 StreamReader reader = new StreamReader(s);
                 string result = reader.ReadToEnd();
                 mensaje = "SMS Enviado Correctamente.";
