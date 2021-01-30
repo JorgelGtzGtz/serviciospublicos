@@ -21,7 +21,7 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
-        List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus);
+        List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus, int page, int results);
         string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo, List<Imagen> listaImagenes, string path);
         string EnviarSMS(string numeroDestino, string mensajeSMS);
 
@@ -191,7 +191,7 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.SingleOrDefault<int>(query);
         }
 
-        public List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus)
+        public List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus, int page, int results)
         {
             Sql query = new Sql(@"SELECT reporte.*, cuadrilla.ID_JefeCuadrilla AS jefeAsignado, tipoReporte.Descripcion_tipoReporte AS nombreTipo
                                 FROM [hiram74_residencias].[Reporte] reporte
@@ -199,7 +199,9 @@ namespace ServiciosPublicos.Core.Repository
                                 ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla INNER JOIN [hiram74_residencias].[Tipo_Reporte] tipoReporte 
 								ON tipoReporte.ID_tipoReporte = reporte.ID_tipoReporte WHERE cuadrilla.ID_JefeCuadrilla = @0" +
                                 (idTipo != 0 ? " AND reporte.ID_tipoReporte = @1" : "") +
-                                (idEstatus != 0 ? " AND reporte.Estatus_reporte = @2" : ""),id_jefe, idTipo, idEstatus);
+                                (idEstatus != 0 ? " AND reporte.Estatus_reporte = @2" : "")
+                                + " order by reporte.ID_reporte desc OFFSET @3 ROWS FETCH NEXT @4 ROWS ONLY"
+                                , id_jefe, idTipo, idEstatus, page, results);
             return this.Context.Fetch<dynamic>(query);
         }
         //G:METODO PARA ENVIAR CORREO CON IMAGENES DE CIERRE, SE ENVIA AL USUARIO CON IMAGENES ADJUNTAS

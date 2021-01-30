@@ -83,8 +83,8 @@ namespace ServiciosPublicos.Api.Controllers
         }
         //G: OBTENER TICKETS CREADOS POR USUARIO PARA LISTARLOS EN LA APP
         [HttpGet]
-        [Route("GetTicketsByUser/{id}/{id_tipo}/{id_estatus}")]
-        public async Task<HttpResponseMessage> GetTicketsByUser(HttpRequestMessage request, int id, int id_tipo, int id_estatus)
+        [Route("GetTicketsByUser/{id}/{id_tipo}/{id_estatus}/{page}/{results}")]
+        public async Task<HttpResponseMessage> GetTicketsByUser(HttpRequestMessage request, int id, int id_tipo, int id_estatus, int page, int results)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -92,7 +92,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var listaTickets = _ticketService.GetTicketsByUserID(id, id_tipo, id_estatus);
+                    var listaTickets = _ticketService.GetTicketsByUserID(id, id_tipo, id_estatus, page, results);
                     response = request.CreateResponse(HttpStatusCode.OK, listaTickets);
 
                 }

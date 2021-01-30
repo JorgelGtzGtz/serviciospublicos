@@ -17,7 +17,7 @@ namespace ServiciosPublicos.Core.Services
         List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
         int ObtenerIDRegistro();
-        List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus);
+        List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus, int page, int results);
         string SendSMS(out string Message);
     }
     public class ReporteServicio : IReporteServicio
@@ -220,9 +220,9 @@ namespace ServiciosPublicos.Core.Services
         }
 
 
-        public List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus)
+        public List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus, int page, int results)
         {
-            return this._reporteRepository.reportePorJefe(id_jefe, idTipo, idEstatus);
+            return this._reporteRepository.reportePorJefe(id_jefe, idTipo, idEstatus, page, results);
         }
 
         public string SendSMS(out string Message)
