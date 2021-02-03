@@ -70,9 +70,9 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   private buildForm(): void{
     this.form = this.formBuilder.group({
       id: [0],
-      descripcion: ['', [Validators.required]],
+      descripcion: ['', [Validators.required, Validators.pattern('[a-zA-ZÀ-ÿ\u00f1\u00d1 ]*')]],
       estado: ['']
-    });    
+    });
     this.verificarCambiosFormulario();
     this.verificarCambiosDescripcion();
   }
@@ -80,7 +80,7 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
-  verificarCambiosFormulario(){
+  verificarCambiosFormulario(): void{
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
         this.modificado = true;
@@ -89,11 +89,11 @@ export class DialogVerEditarNuevoComponent implements OnInit {
       }
     });
   }
-  
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con campo descripción.
-  verificarCambiosDescripcion(){
+  verificarCambiosDescripcion(): void{
     this.campoDescripcion.valueChanges.pipe(debounceTime(500)).subscribe( descripcion => {
       if (this.campoDescripcion.dirty){
         this.verificarExistenciaTipo(descripcion);
@@ -101,17 +101,15 @@ export class DialogVerEditarNuevoComponent implements OnInit {
     });
   }
 
-  
 // Entrada: string con el valor del input
 // Salida: vacío.
 // Descripción: Método que verifica si el campo ya interactuó con el usuario
 //  y si la descripción de Tipo ya existe.
-verificarExistenciaTipo(descripcion: string){
-  if(descripcion.length > 0){
+verificarExistenciaTipo(descripcion: string): void{
+  if (descripcion.length > 0){
     this.tipoService.obtenerTipoUPorDesc(descripcion).subscribe( res => {
-      console.log('res:', res);
       if (res !== null){
-        this.existeDescripcion = true;
+        this.existeDescripcion = this.esTipoDiferente(res);
       }else{
         this.existeDescripcion = false;
       }
@@ -121,6 +119,25 @@ verificarExistenciaTipo(descripcion: string){
   }else {
     this.existeDescripcion = false;
   }
+}
+
+// Entrada: Tipo de Usuario con el valor del resultado de la consulta GET
+// Salida: vacío.
+// Descripción" método para verificar si el nombre que se asigna pertenece al tipo de usuario actual.
+// con el propósito de evitar que al modificar y volver a escribirlo igual salga
+// el error de que ya existe.
+esTipoDiferente(tipoU: TipoUsuario): boolean{
+  let valor: boolean;
+  if (this.accion === 'editar'){
+    if (this.tipoUsuario.ID_tipoUsuario === tipoU.ID_tipoUsuario){
+      valor = false;
+    }else{
+      valor = true;
+    }
+  }else{
+    valor = true;
+  }
+  return valor;
 }
 
   // Entrada: Ninguna
@@ -341,7 +358,7 @@ guardar(): void {
   this.listaTienePermisos();
   if (this.camposValidos()){
     const tipo = this.generarTipo();
-    this.accionGuardar(tipo);    
+    this.accionGuardar(tipo);
   }else{
     alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
@@ -354,20 +371,20 @@ guardar(): void {
 camposValidos(): boolean{
   let sonValidos = true;
   // Verificar que se llenaron los campos del formulario.
-  if (!this.form.valid){    
+  if (!this.form.valid){
     this.form.markAllAsTouched();
     sonValidos = false;
   }
 
   // Verificar que se asignaron procesos
-  if (this.errorListas){   
+  if (this.errorListas){
     sonValidos = false;
   }
 
   // Verificar que la descripción de Tipo de usuario no existe.
   if (this.existeDescripcion){
     sonValidos = false;
-  }  
+  }
   return sonValidos;
 }
 

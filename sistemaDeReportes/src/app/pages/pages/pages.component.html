@@ -1,4 +1,3 @@
-<!-- <body class="hold-transition sidebar-mini"> -->
 <div class="wrapper">
     <!--BARRA SUPERIOR CON LEYENDA DEL SISTEMA-->
     <app-navbar></app-navbar>
@@ -8,15 +7,15 @@
 
     <div class="content-wrapper">
         <div class="content-header">
+            <!-- HEADER PARA MOSTRAR NOMBRE DE SECCION -->
             <app-header [seccion]="seccion"></app-header>
         </div>
-        <!-- /.content-header -->
 
-        <!-- Main content -->
+        <!-- Main content PARA MOSTRAR LOS MODULOS -->
         <div class="content">
             <router-outlet></router-outlet>
         </div>
     </div>
+    <!-- FOOTER -->
     <app-footer></app-footer>
 </div>
-<!-- </body> -->

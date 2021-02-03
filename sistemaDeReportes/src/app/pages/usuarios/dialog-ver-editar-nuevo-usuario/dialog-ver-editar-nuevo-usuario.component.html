@@ -3,16 +3,20 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
+        <!-- INICIA SPINNER -->
         <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
+        <!-- TERMINA SPINNER -->
 
+        <!-- INICIA FORMULARIO USUARIOS -->
         <form *ngIf="datosCargados()" [formGroup]="form">
             <section id="datosUsuario">
                 <div class="row form-sections">
 
+                    <!-- ID DE USUARIO -->
                     <div class="col-6" id="id-col">
                         <div class="form-group header-form-group row justify-content-start">
                             <label class="col-md-auto col-2 col-form-label col-form-label-sm" for="id">ID</label>
@@ -22,6 +26,7 @@
                         </div>
                     </div>
 
+                    <!-- ESTADO -->
                     <div class="col-6" id="inactivo-col">
                         <div class="form-check header-form-group justify-content-end">
                             <input class="form-check-input" type="checkbox" id="inactivo-checkbox" formControlName="estado">
@@ -67,6 +72,7 @@
 
                 <!-- FILA DE TELEFONO Y GENERO -->
                 <div class="row form-sections">
+                    <!-- TELEFONO -->
                     <div class="col-md-6">
                         <div class="row form-group row-input-group">
                             <label id="lblTelefono" class="col-form-label col-md-auto" for="telefono">Teléfono: </label>
@@ -84,6 +90,7 @@
                         </div>
                     </div>
 
+                    <!-- GENERO -->
                     <div class="col-md-6 align-self-center">
                         <div class="row justify-content-end row-input-group">
                             <label id="lblGenero" class="col-md-auto">Género: </label>
@@ -114,6 +121,7 @@
                                     >
                                 {{ tipo.Descripcion_tipoUsuario }}
                             </option>
+                            <option *ngIf="tiposUsuario.length === 0"> No hay opciones disponibles</option>
                         </select>
                         <div *ngIf="campoTipoUsuario.errors && campoTipoUsuario.touched">
                             <p class="error" *ngIf="campoTipoUsuario.hasError('required')">Campo requerido</p>
@@ -125,6 +133,7 @@
             <!-- FILA USUARIO Y CONTRASENA -->
             <section id="usuarioContrasena">
                 <div class="row form-sections justify-content-start ">
+                    <!-- USUARIO -->
                     <div class="col-md-5">
                         <div class="row form-group row-input-group">
                             <label id="lblUsuario" class="col-form-label col-md-auto" for="usuario">Usuario: </label>
@@ -132,6 +141,7 @@
                                 <input type="text" maxlength="15" class="form-control" id="usuario" formControlName="usuario">
                                 <div *ngIf="campoUsuario.errors && campoUsuario.touched">
                                     <p class="error" *ngIf="campoUsuario.hasError('required')">Campo requerido</p>
+                                    <p class="error" *ngIf="campoUsuario.hasError('pattern')">No se permiten espacios en blanco ni caracteres especiales a excepción de "-" ó "_".</p>
                                 </div>
                                 <div *ngIf="existeLoginUsuario">
                                     <p class="error">Ya existen una cuenta con este usuario. Intente otra.</p>
@@ -139,6 +149,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- PASSWORD -->
                     <div class="col-md-5">
                         <div class="row form-group row-input-group">
                             <label id="lblContrasena" class="col-form-label col-md-auto" for="password">Contraseña: </label>

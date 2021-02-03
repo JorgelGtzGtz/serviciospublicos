@@ -10,6 +10,7 @@ namespace ServiciosPublicos.Core.Repository
     {
         Tipo_usuario GetTipo(string nombre);
         List<dynamic> GetTipoUsuariosFiltroDinamico(string textoBusqueda = null, string estado = null);
+        List<Tipo_usuario> GetTipoUsuarioGeneral();
         int ObtenerUltimoID();
     }
 
@@ -29,6 +30,21 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.SingleOrDefault<Tipo_usuario>(query);
 
         }
+
+
+        // Entrada: valor string con la descripción del tipo de usuario
+        // Salida: Tipo de usuario.
+        // Descripción: Query para encontrar tipo de usuario que coincida con la descripción.
+        public List<Tipo_usuario> GetTipoUsuarioGeneral()
+        {
+            Sql query = new Sql()
+                .Select("*")
+                .From("Tipo_usuario")
+                .Where("Disponible = 1");
+            return this.Context.Fetch<Tipo_usuario>(query);
+
+        }
+
 
         // Entrada: valor string para ID o descripción de tipo de usuario, y valor string de estado.
         // Salida: Lista de tipos de usuario que cumplieron con los filtros.

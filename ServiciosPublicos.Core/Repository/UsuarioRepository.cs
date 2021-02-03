@@ -23,6 +23,7 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
         int GetUltimoID();
         string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo);
+        void cambiarPassword(string correo, string password);
     }
 
     public class UsuarioRepository : RepositoryBase<Usuario>, IUsuarioRepository
@@ -198,6 +199,16 @@ namespace ServiciosPublicos.Core.Repository
                 .Select("*").From("Usuario")
                 .Where("ID_tipoUsuario = @0", tipoUsuario);
             return this.Context.Fetch<Usuario>(query2);
+        }
+
+        // Entrada: string con correo, string con nuevo password
+        // Salida: ninguna
+        // Descripción: query para modificar la contraseña del usuario.
+        public void cambiarPassword(string correo, string password)
+        {
+            Sql query = new Sql("UPDATE Usuario SET Password_usuario = @0 " +
+                                    "WHERE Correo_usuario = @1 AND Disponible = 1", password, correo);
+            this.Context.Execute(query);
         }
     }
 }

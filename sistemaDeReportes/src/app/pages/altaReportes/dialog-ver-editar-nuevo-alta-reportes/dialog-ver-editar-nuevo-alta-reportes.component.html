@@ -2,12 +2,16 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
+        <!-- SPINNER  -->
         <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
+        <!-- TERMINA SPINNER -->
+
         <form *ngIf="datosCargados()" [formGroup]="form">
+            <!-- MENSAJES PARA REPORTES CANCELADOS O CERRADOS -->
             <div *ngIf="mensajeEstado()">
                 <div *ngIf="reporte.Estatus_reporte === 2" class="alert alert-danger" role="alert">
                     Este reporte ha sido cerrado.
@@ -16,20 +20,25 @@
                     Este reporte ha sido cancelado.
                 </div>
             </div>
+            <!-- TERMINA MENSAJES PARA REPORTES CANCELADOS O CERRADOS -->
+
             <div class="row form-sections mb-3">
                 <div class="col-sm-6 col-12">
+                    <!-- ID DEL REPORTE -->
                     <div class="row mb-2 form-group justify-content-start row-input-group">
                         <label class="col-md-auto col-12 col-form-label" for="idReporte">No. Reporte</label>
                         <div class="col-md-3 col-4 ">
-                            <input type="text" class="form-control" id="idReporte" value="1" formControlName="id">
+                            <input type="text" class="form-control" id="idReporte" formControlName="id">
                         </div>
                     </div>
 
+                    <!-- TIPO DE REPORTE -->
                     <div class="row input-group mb-2 row-input-group">
                         <label class="lblForm col-auto col-form-label" for="tipoReporteSelector">Tipo de reporte</label>
                         <div class="col-lg-8 col-md col-12">
                             <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
                                 <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                                <option *ngIf="listaTiposR.length === 0"> No hay opciones disponibles</option>
                                 <option  *ngFor = "let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte">
                                     {{ tipo.Descripcion_tipoReporte }}
                                 </option>
@@ -40,11 +49,13 @@
                         </div>
                     </div>
 
+                    <!-- SECTOR -->
                     <div class="row input-group mb-2 row-input-group">
                         <label class="lblForm col-md-auto col-form-label" for="sectorSelector">Sector</label>
                         <div class="col-md-8 col-12">
                             <select class="custom-select" id="sectorSelector" formControlName="sector">
                                 <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                                <option *ngIf="listaSectores.length === 0"> No hay opciones disponibles</option>
                                 <option *ngFor = "let sector of listaSectores" [ngValue] = "sector.ID_sector">
                                     {{ sector.Descripcion_sector }}
                                 </option>
@@ -57,6 +68,7 @@
                 </div>
 
                 <div class="col-sm-6 col-12">
+                    <!-- FECHA APERTURA -->
                     <div class="row input-group mb-2 row-fecha row-input-group">
                         <label class="lblForm col-md-auto col-12 col-form-label" for="fechaInicio">Fecha </label>
                         <div class="col-lg-8 col-md-9 col-12">
@@ -66,6 +78,8 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- FECHA CIERRE -->
                     <div class="row input-group mb-2 row-fecha row-input-group">
                         <label class="lblForm col-md-auto col-12 col-form-label" for="fechaFinal">Cierre </label>
                         <div class="col-lg-8 col-md-9 col-12">
@@ -133,7 +147,7 @@
 
                 </div>
                 <!-- TERMINA FILA DE CALLES SECUNDARIAS -->
-
+                <!-- INICIA FILA COLONIA -->
                 <div class="row form-sections">
                     <div class="col-md-6">
                         <div class="row form-group row-input-group">
@@ -147,8 +161,9 @@
                         </div>
                     </div>
                 </div>
+                <!-- TERMINA FILA COLONIA -->
             </section>
-
+            <!-- INICIA SECCION DESCRIPCION -->
             <section id="descripcionReporte">
                 <div class="row form-group form-sections row-input-group">
                     <label id="lblDescripcion" class="col-form-label col-md-12" for="descripcion">Descripción del reporte</label>
@@ -156,15 +171,17 @@
                         <textarea type="text" class="form-control" id="descripcion" maxlength="40" formControlName="descripcionR"></textarea> {{campoDescripcionReporte.value.length}}/40
                         <div *ngIf="campoDescripcionReporte.errors && campoDescripcionReporte.touched">
                             <p class="error" *ngIf="campoDescripcionReporte.hasError('required')">Campo requerido</p>
-                            <p class="error" *ngIf="campoDescripcionReporte.hasError('maxlength')"> Sobrepasado. La cantidad máxima de caracteres de 120</p>
+                            <p class="error" *ngIf="campoDescripcionReporte.hasError('maxlength')">Ha excedido el límite de 40 caracteres.</p>
                         </div>
                     </div>
                 </div>
             </section>
-
+            <!-- TERMINA SECCION DESCRIPCION -->
+            <!-- INICIA SECCION IMAGENES -->
             <section id="imagenesReporte" *ngIf="accion === 'nuevo' || accion === 'ver'">
                 <h3>Imágenes del reporte</h3>
                 <hr>
+                <!-- INICIA SECCION PARA SUBIR IMAGENES APERTURA -->
                 <div class="form-group form-sections row" *ngIf="accion === 'nuevo'">
                     <div class="col-12">
                         <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
@@ -178,7 +195,10 @@
                         </div>
                     </div>
                 </div>
+                <!-- TERMINA SECCION PARA SUBIR IMAGENES DE APERTURA -->
 
+                <!-- INICIA SECCION PARA VISUALIZAR IMAGENES -->
+                <!-- IMAGENES DE APERTURA -->
                 <div *ngIf="accion === 'ver'" class="row form-sections">
                     <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#apertura" aria-expanded="false" aria-controls="apertura">
                         Imágenes de apertura
@@ -199,6 +219,9 @@
                         </div>
                     </div>
                 </div>
+                <!-- TERMINA IMAGENES DE APERTURA -->
+
+                <!-- IMAGENES DE CIERRE -->
                 <div *ngIf="accion === 'ver'" class="row form-sections">
                     <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#cierre" aria-expanded="false" aria-controls="cierre">
                         Imágenes de cierre
@@ -219,8 +242,10 @@
                         </div>
                     </div>
                 </div>
+                <!-- TERMINA IMAGENES DE CIERRE -->
             </section>
-
+            <!-- TERMINA SECCION IMAGENES -->
+            <!-- INICIA SECCION CANCELACION -->
             <section id="cancelacionReporte" *ngIf="accion === 'editar'">
                 <h3>Cancelación de reporte</h3>
                 <hr>
@@ -239,8 +264,7 @@
                     </div>
                 </div>
             </section>
-
-            <!-- TERMINA SECCION PARA DATOS DE DIRECCION -->
+            <!-- TERMINA SECCION CANCELACION -->
         </form>
     </div>
 </div>

@@ -2,6 +2,7 @@
 <hr>
 <mat-dialog-content>
     <div class="container-fluid">
+        <!-- MENSAJE PARA REPORTES CERRADOS O CANCELADOS -->
         <div *ngIf="mensajeEstado()">
             <div *ngIf="reporte.Estatus_reporte === 2" class="alert alert-danger" role="alert">
                 Este reporte ya ha sido cerrado.
@@ -10,12 +11,17 @@
                 No es posible cerrar este reporte debido a que fue cancelado.
             </div>
         </div>
-        <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
-        <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
+        <!-- TERMINA MENSAJE PARA REPORTES CERRADOS O CANCELADOS -->
 
+        <!-- MAPA-->
+        <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
+        <!-- TERMINA MAPA -->
+
+        <!-- INICIA VISUALIZAR IMAGENES -->
         <section id="imagenesReporte">
             <h3>Imágenes del reporte</h3>
             <hr>
+            <!-- IMAGENES DE APERTURA -->
             <div class="row img-group">
                 <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#apertura" aria-expanded="false" aria-controls="apertura">
                     Imágenes de apertura
@@ -36,6 +42,8 @@
                     </div>
                 </div>
             </div>
+
+            <!-- IMAGENES DE CIERRE -->
             <div class="row img-group">
                 <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#cierre" aria-expanded="false" aria-controls="cierre">
                     Imágenes de cierre
@@ -56,13 +64,13 @@
                     </div>
                 </div>
             </div>
-
-
         </section>
+        <!-- TERMINA VISUALIZAR IMAGENES -->
 
         <hr>
         <form [formGroup]="form">
             <div class="row mb-3">
+                <!-- FECHA CIERRE -->
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="row form-group row-input-group">
                         <label class="lblForm col-md-auto col-form-label" for="fechaCierre">Fecha de cierre </label>
@@ -75,6 +83,7 @@
                     </div>
                 </div>
 
+                <!-- HORA DE CIERRE -->
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="row form-group row-input-group">
                         <label class="lblForm col-md-auto col-form-label" for="horaCierre">Hora</label>
@@ -86,10 +95,10 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
+
             <div class="row mb-3">
+                <!-- SUBIR IMAGENES DE CIERRE -->
                 <div class="col-lg-6 col-md-6 col-12">
                     <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
                     <button id="btn-subirImg" mat-raised-button [disabled]="habilitarBoton" (click)="abrirVentanaImagenes()">Subir imágenes</button>
@@ -101,6 +110,7 @@
                         </div>
                     </div>
                 </div>
+                <!-- TERMINA SUBIR IMAGENES DE CIERRE -->
             </div>
         </form>
     </div>

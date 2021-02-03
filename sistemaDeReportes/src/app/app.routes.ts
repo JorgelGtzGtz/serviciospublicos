@@ -21,6 +21,11 @@ export const ROUTES: Routes = [
         .then(mod => mod.NotFoundRoutingModule)
     },
     {
+        path: 'forgotPassword',
+        loadChildren: () => import('./modules/recuperar-password/recuperar-password.module')
+        .then(mod => mod.RecuperarPasswordModule)
+    },
+    {
         path: '',
         pathMatch: 'full',
         redirectTo: 'login'

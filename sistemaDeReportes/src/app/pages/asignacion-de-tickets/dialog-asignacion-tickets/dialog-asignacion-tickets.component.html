@@ -1,6 +1,7 @@
 <h2 mat-dialog-title>Asignación de cuadrilla</h2>
 <hr>
 <mat-dialog-content>
+    <!-- SPINNNER -->
     <div *ngIf="!datosCargados()" class="container-fluid">
         <div class="spinner-container">
             <div class="spinner-border align-self-center" role="status">
@@ -8,7 +9,10 @@
             </div>
         </div>
     </div>
+    <!-- TERMINA SPINNER -->
+
     <div *ngIf="datosCargados()" class="container-fluid">
+        <!-- MENSAJE PARA REPORTES CANCELADOS O CERRADOS -->
         <div *ngIf="mensajeEstado()">
             <div *ngIf="reporte.Estatus_reporte === 2" class="alert alert-danger" role="alert">
                 Este reporte ha sido cerrado. No se permite la asignación de cuadrilla.
@@ -17,8 +21,13 @@
                 Este reporte ha sido cancelado. No se permite la asignación de cuadrilla.
             </div>
         </div>
-        <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
+        <!-- MENSAJE PARA REPORTES CANCELADOS O CERRADOS -->
+
+        <!-- MAPA -->
         <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
+        <!-- TERMINA MAPA -->
+
+        <!-- IMAGENES -->
         <section id="imagenesReporte">
             <h3>Imágenes del reporte</h3>
             <hr>
@@ -43,16 +52,20 @@
                 </div>
             </div>
         </section>
+        <!-- TERMINA IMAGENES -->
 
         <hr>
+        <!-- INICIA FORMULARIO PARA ASIGNACION DE TICKETS A CUADRILLA -->
         <form [formGroup]="form">
             <div class="row mb-3">
+                <!-- CUADRILLA -->
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="row row-input-group">
                         <label class="lblForm col-md-auto col-form-label" for="cuadrillaSelector">Cuadrilla seleccionada </label>
                         <div class="col-lg-6 col-md-12">
                             <select class="custom-select" id="cuadrillaSelector" formControlName="cuadrilla">
                                 <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                                <option *ngIf="listaCuadrillas.length === 0"> No hay opciones disponibles</option>
                                 <option *ngFor ="let cuadrilla of listaCuadrillas" [ngValue] ="cuadrilla.ID_cuadrilla">
                                     {{ cuadrilla.Nombre_cuadrilla }}
                                 </option>
@@ -63,6 +76,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- FECHA CIERRE -->
                 <div class="col-lg-6 col-md-6 col-12">
                     <div class="row form-group row-input-group" id="fecha-cierre-container">
                         <label class="lblForm  col-md-auto col-form-label" for="fechaCierre">Fecha de cierre </label>
@@ -76,6 +91,7 @@
                 </div>
             </div>
             <div class="row">
+                <!-- TIEMPO ESTIMADO -->
                 <div class="col-12">
                     <div class="row form-group">
                         <label class="lblForm col-md-auto col-form-label" for="tiempoEstimado">Tiempo estimado </label>
@@ -96,6 +112,7 @@
                 </div>
             </div>
         </form>
+        <!-- TERMINA FORMULARIO PARA ASIGNACION DE TICKETS A CUADRILLA -->
     </div>
 
 

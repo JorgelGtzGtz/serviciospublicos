@@ -1,12 +1,11 @@
 import { Component, OnInit,AfterViewInit, ViewChild } from '@angular/core';
-import {MatPaginator} from '@angular/material/paginator';
-import {MatTableDataSource} from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoUsuarioComponent } from '../dialog-ver-editar-nuevo-usuario/dialog-ver-editar-nuevo-usuario.component';
 import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
 import { UsuarioService } from '../../../services/usuario.service';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
 
 /*EJEMPLO TABLA */
 export interface PeriodicElement {
@@ -26,8 +25,8 @@ export class UsuariosComponent implements OnInit {
   form: FormGroup;
   nombreSeccion = 'Usuarios';
   headersTabla: string [];
-  usuarios: JSON[] = [];
-  tiposUsuario: any = [];
+  usuarios: any[] = [];
+  tiposUsuario: TipoUsuario[] = [];
   tiposListos: boolean;
   usuariosListos: boolean;
 
@@ -42,7 +41,7 @@ export class UsuariosComponent implements OnInit {
     this.inicializarTabla();
     this.obtenerTiposUsuario();
   }
-  
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
@@ -105,7 +104,7 @@ export class UsuariosComponent implements OnInit {
   // Descripción: Método para obtener los registros de tipos de usuario para ser
   // cargados en una lista para ser mostrados en un select.
   obtenerTiposUsuario(): void{
-    this.tipoService.obtenerListaTipoU().subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario().subscribe( tipos => {
       this.tiposUsuario = tipos;
       this.tiposListos = true;
     });

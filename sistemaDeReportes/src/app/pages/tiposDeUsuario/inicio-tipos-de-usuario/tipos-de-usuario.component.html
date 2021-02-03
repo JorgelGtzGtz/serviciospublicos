@@ -1,16 +1,17 @@
-<!-- <div class="content-wrapper">
-    <app-header [seccion]="nombreSeccion"></app-header> -->
-
-<!-- <div class="content"> -->
 <div class="container-fluid">
+    <!-- INICIA SPINNER -->
     <div *ngIf="datos === false" class="card justify-content-center">
         <div class="spinner-border d-flex align-self-center m-5" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
+    <!-- TERMINA SPINNER -->
+
     <div *ngIf="datos" class="card">
         <div class="content-header">
+            <!-- INICIA FILTRO DE BUSQUEDA -->
             <form>
+                <!-- TEXTO DE BUSQUEDA -->
                 <div class="row">
                     <label id="lblBusqueda" class="lblForm col-md-auto col-sm-auto col-12" for="textoBusqueda">Búsqueda</label>
                     <div class="col-md-6 col-sm-8 col-12">
@@ -19,6 +20,7 @@
                 </div>
                 <div class="mb-3 row">
 
+                    <!-- ESTADO -->
                     <div class="col-lg-6 col-md-6 col-sm-12">
                         <div class="row input-group m-0">
                             <label id="lblEstado" class="lblForm col-auto" for="estadoTipoUsuario">Estado</label>
@@ -32,6 +34,7 @@
                         </div>
                     </div>
 
+                    <!-- INICIA BOTONES -->
                     <div class="col-lg-2 col-md-6">
                         <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
                                      Limpiar búsqueda
@@ -50,6 +53,7 @@
                                     Nuevo
                         </button>
                     </div>
+                    <!-- TERMINA BOTONES -->
                 </div>
             </form>
         </div>
@@ -80,11 +84,8 @@
                     No se encontraron coincidencias.
                 </div>
             </div>
-            <!-- <app-tabla [modeloTabla]="datosTipoUsuario" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
             <!-- TERMINA SECCION TABLA -->
         </div>
     </div>
 
 </div>
-<!-- </div> -->
-<!-- </div> -->

@@ -38,7 +38,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
   coordenadas: number[] = [];
-  uploadedImg: any [] = [];
+  uploadedImg: string[] = [];
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef <DialogVerEditarNuevoAltaReportesComponent>,
@@ -65,7 +65,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
 
   // Entrada: Ninguna
   // Salida: vacío.
-  // Descripción: Método que inicializa el objeto de tipo FormGroup para 
+  // Descripción: Método que inicializa el objeto de tipo FormGroup para
   // obtener y establecer información en el formulario.
   private buildForm(): void{
     this.form = this.formBuilder.group({
@@ -83,7 +83,6 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        // console.log('se interactuo:', value);
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -156,7 +155,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
 
   // Entrada: Ninguna
   // Salida: valor booleano.
-  // Descripción: Método que verifica que los datos se encuentren cargados, con el fin de 
+  // Descripción: Método que verifica que los datos se encuentren cargados, con el fin de
   // determinar en que momento mostrar el formulario o la animación de cargando.
   datosCargados(): boolean{
     let cargado: boolean;
@@ -204,7 +203,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
 
   // Entrada: Ninguna
   // Salida: vacío.
-  // Descripción: Método para obtener el último ID registrado en la base de datos para 
+  // Descripción: Método para obtener el último ID registrado en la base de datos para
   // posteriormente ser mostrado en formulario.
     obtenerIDNuevo(): void{
       this.reporteSevice.obtenerIDRegistro().subscribe( (id: number) => {
@@ -280,7 +279,7 @@ cargarImagenesReporte(): void{
     }else{
       this.mostrarImgCierre = false;
     }
-  } 
+  }
 
   // Entrada: Ninguna
   // Salida: valor booleano.
@@ -305,19 +304,18 @@ obtenerEstadoFormulario(): boolean{
         break;
       default:
         const estado = this.reporte.Estatus_reporte;
-        if( estado === 2 || estado === 4){
+        if ( estado === 2 || estado === 4){
           this.form.disable();
         }else{
           this.form.enable();
           this.campoId.disable();
         }
     }
-    
   }
 
   // Entrada: Ninguna
   // Salida: vacío.
-  // Descripción: Método que se llama al presionar el botón cancelar. 
+  // Descripción: Método que se llama al presionar el botón cancelar.
   // Esta cambiará el estado del reporte a "Cancelado" y actualizará este cambio en la base de datos.
   cancelarReporte(): void{
     const result = confirm('¿Seguro que desea cancelar el reporte? Esta operación es irreversible');
@@ -329,7 +327,7 @@ obtenerEstadoFormulario(): boolean{
         this.form.disable();
         this.dialogRef.close(this.data);
       }, (error: HttpErrorResponse) => {
-        alert('¡Lo sentimos! El reporte no pudo ser cancelado debido a problemas internos.' + 
+        alert('¡Lo sentimos! El reporte no pudo ser cancelado debido a problemas internos.' +
         'Comunique el problema al personal pertinente.');
         console.warn('Error:' + error.message);
         this.reporte.Estatus_reporte = auxEstado;
@@ -339,7 +337,7 @@ obtenerEstadoFormulario(): boolean{
 
   // Entrada: Ninguna
   // Salida: Objeto tipo UsuarioM.
-  // Descripción: Método para obtener el objeto usuario del usuario actual, el que inició sesión 
+  // Descripción: Método para obtener el objeto usuario del usuario actual, el que inició sesión
   // en el sistema.
   obtenerUsuarioActual(): UsuarioM{
     return this.usuarioService.obtenerUsuarioLogueado();
@@ -369,11 +367,11 @@ obtenerEstadoFormulario(): boolean{
 // Descripción: Genera mensaje para informar al usuario que el reporte tiene estado cancelado o cerrado.
 mensajeEstado(): boolean{
   let mostrarMensaje = false;
-  if(this.accion !== 'nuevo'){
+  if (this.accion !== 'nuevo'){
     const estadoReporte = this.reporte.Estatus_reporte;
-    if(estadoReporte === 2 || estadoReporte === 4){
+    if (estadoReporte === 2 || estadoReporte === 4){
       mostrarMensaje = true;
-    }    
+    }
   }
   return mostrarMensaje;
 }

@@ -17,7 +17,7 @@ export class CuadrillasComponent implements OnInit {
   busquedaForm: FormControl;
   estadoForm: FormControl;
   headersTabla: string [];
-  listaCuadrillas: any = [];
+  listaCuadrillas: any[] = [];
   cuadrillasListas: boolean;
 
   constructor(public dialog: MatDialog, private cuadrillaService: CuadrillaService) {
@@ -35,12 +35,6 @@ export class CuadrillasComponent implements OnInit {
   formBuilder(): void{
     this.busquedaForm = new FormControl('');
     this.estadoForm = new FormControl('Todos');
-    this.busquedaForm.valueChanges.subscribe(value => {
-      console.log('se interactuo busqueda:', value);
-    });
-    this.estadoForm.valueChanges.subscribe(value => {
-      console.log('se interactuo estado:', value);
-    });
   }
 
   // Entrada: Ninguna
@@ -140,8 +134,6 @@ export class CuadrillasComponent implements OnInit {
         alert('Existió un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' intente de nuevo o solicite asistencia.');
         console.log('Error al eliminar cuadrilla:' + error.message);
       });
-    }else{
-      console.log('no se elimina');
     }
   }
 
@@ -151,7 +143,6 @@ export class CuadrillasComponent implements OnInit {
   // valores que se establescan en los campos
  buscar(): void{
    this.actualizarTabla();
-   console.log('Click en buscar desde cuadrillas', this.campoBusqueda.value, this.campoEstado.value);
  }
 
   // Entrada: ninguna.

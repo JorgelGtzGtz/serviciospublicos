@@ -56,7 +56,7 @@ export class TiposDeUsuarioComponent implements OnInit {
   // Descripción: Método para obtener los registros existentes de Tipos de Usuario
   // de acuerdo a determinados filtros.
   actualizarTabla(): void{
-    this.tipoService.obtenerListaTipoU(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
       this.tiposUsuario = tipos;
       console.log( this.tiposUsuario);
       this.datos = true;
@@ -153,7 +153,7 @@ export class TiposDeUsuarioComponent implements OnInit {
   // Descripción: Método para buscar en la base de datos los registros que coincidan con los
   // valores que se establescan en los campos
   buscar(): void{
-    this.tipoService.obtenerListaTipoU(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
       this.tiposUsuario = tipos;
     }, (error: HttpErrorResponse) => {
       alert('No ha sido posible completar la búsqueda. Verifique los datos o solicite apoyo.');

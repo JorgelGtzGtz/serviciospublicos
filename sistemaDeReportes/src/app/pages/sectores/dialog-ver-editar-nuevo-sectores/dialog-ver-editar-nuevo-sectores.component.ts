@@ -59,17 +59,17 @@ sector: Sector;
     this.form = this.formBuilder.group({
       id: [''],
       estado: [''],
-      nombreS: ['', [Validators.required]]
+      nombreS: ['', [Validators.required, Validators.pattern('[a-zA-ZÀ-ÿ\u00f1\u00d1 ]*')]]
     });
     this.verificarCambiosFormulario();
     this.verificarCambiosNombre();
-   
+
   }
 
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
-  verificarCambiosFormulario(){
+  verificarCambiosFormulario(): void{
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
         this.modificado = true;
@@ -82,7 +82,7 @@ sector: Sector;
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
-  verificarCambiosNombre(){
+  verificarCambiosNombre(): void{
     this.campoNombreSector.valueChanges.subscribe(nombre => {
       if (this.campoNombreSector.dirty){
         this.verificarExistenciaSector(nombre);
@@ -94,12 +94,11 @@ sector: Sector;
 // Salida: vacío.
 // Descripción: Método que verifica si el campo ya interactuó con el usuario
 //  y si la descripción de sector ya existe.
-verificarExistenciaSector(nombre: string){
-  if(nombre.length > 0){
+verificarExistenciaSector(nombre: string): void{
+  if (nombre.length > 0){
     this.sectorService.obtenerSectorPorNombre(nombre).subscribe( res => {
-      console.log('res:', res);
       if (res !== null){
-        this.existeSector = true;
+        this.existeSector = this.esSectorDiferente(res);
       }else{
         this.existeSector = false;
       }
@@ -109,6 +108,24 @@ verificarExistenciaSector(nombre: string){
   }else {
     this.existeSector = false;
   }
+}
+
+// Entrada: sector con el valor del resultado de la consulta GET
+// Salida: valor booleano.
+// Descripción: método para verificar si los datos que se modificaron ya pertenecían al mismo sector
+// que se está editando.
+esSectorDiferente(sector: Sector): boolean{
+  let valor: boolean;
+  if (this.accion === 'editar'){
+    if (this.sector.ID_sector === sector.ID_sector){
+      valor = false;
+    }else{
+      valor = true;
+    }
+  }else{
+    valor = true;
+  }
+  return valor;
 }
 
   // Entrada: Ninguna
@@ -184,7 +201,7 @@ tipoFormularioAccion(): void{
 guardar(): void {
   // event.preventDefault();
   if (this.camposValidos()){
-    this.accionGuardar();    
+    this.accionGuardar();
   } else{
     alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
@@ -197,15 +214,15 @@ guardar(): void {
 camposValidos(): boolean{
   let sonValidos = true;
   // Verificar que se llenaron los campos del formulario.
-  if (!this.form.valid){    
+  if (!this.form.valid){
     this.form.markAllAsTouched();
     sonValidos = false;
   }
 
   // Verificar nombre de sector
-  if (this.existeSector){   
+  if (this.existeSector){
     sonValidos = false;
-  } 
+  }
   return sonValidos;
 }
 

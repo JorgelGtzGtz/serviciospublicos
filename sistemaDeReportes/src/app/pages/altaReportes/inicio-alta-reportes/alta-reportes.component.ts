@@ -8,6 +8,8 @@ import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
 import { Reporte } from '../../../Interfaces/IReporte';
 import { Sector } from '../../../Interfaces/ISector';
+import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
+import { TipoReporte } from '../../../Interfaces/ITipoReporte';
 
 @Component({
   selector: 'app-inicio-alta-reportes',
@@ -18,9 +20,9 @@ export class AltaReportesComponent implements OnInit {
   form: FormGroup;
   nombreSeccion = 'Alta de reportes';
   headersTabla: string [];
-  listaReportes: any = [];
-  listaCuadrillas: any = [];
-  listaTiposR: any = [];
+  listaReportes: any[] = [];
+  listaCuadrillas: Cuadrilla[] = [];
+  listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
   ReportesCargados: boolean;
   sectoresCargados: boolean;
@@ -122,7 +124,7 @@ export class AltaReportesComponent implements OnInit {
     const fecha: string =  this.campoFechaInicial.value;
     const fechaAl: string =  this.campoFechaFinal.value;
     const tipoFecha: string = this.campoTipoFecha.value;
-    this.reporteService.buscarReportes(
+    this.reporteService.filtroReportes(
       tipoR.toString(),
       cuadrilla.toString(),
       estado.toString(),

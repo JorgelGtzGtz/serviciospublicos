@@ -39,9 +39,6 @@ export class CierreReportesComponent implements OnInit {
   // Descripción: Inicializa los controladores del formulario
   formBuilder(): void{
     this.cuadrillaForm = new FormControl('Todos');
-    this.cuadrillaForm.valueChanges.subscribe(value => {
-      console.log('se interactuo:', value);
-    });
   }
 
   // Entrada: Ninguna

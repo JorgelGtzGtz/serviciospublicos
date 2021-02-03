@@ -42,7 +42,7 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 
   ngOnInit(): void {
     this.accion = this.data.accion;
-    this.ObtenerTiposCuadrilla();    
+    this.ObtenerTiposCuadrilla();
     this.obtenerJefesCuadrilla();
     this.inicializarCampos();
     this.tipoFormularioAccion();
@@ -68,19 +68,19 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
     this.form = this.formBuilder.group({
       id: [0, [Validators.required]],
       estado: [''],
-      nombreC: ['', [Validators.required]],
+      nombreC: ['', [Validators.required, Validators.pattern('[a-zA-ZÀ-ÿ\u00f1\u00d1 ]*')]],
       encargado: ['', [Validators.required]],
       tipoCuadrilla: ['', [Validators.required]]
     });
     this.verificarCambiosFormulario();
     this.verificarCambiosNombre();
-    
+
   }
 
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
-  verificarCambiosFormulario(){
+  verificarCambiosFormulario(): void{
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
         this.modificado = true;
@@ -89,11 +89,11 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
       }
     });
   }
-  
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
-  verificarCambiosNombre(){
+  verificarCambiosNombre(): void{
     this.campoNombreCuadrilla.valueChanges.subscribe(nombre => {
       if (this.campoNombreCuadrilla.dirty){
         this.verificarExistenciaCuadrilla(nombre);
@@ -105,12 +105,13 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 // Salida: vacío.
 // Descripción: Método que verifica si el campo ya interactuó con el usuario
 //  y si la descripción de cuadrilla ya existe.
-verificarExistenciaCuadrilla(nombre: string){
-  if(nombre.length > 0){
+verificarExistenciaCuadrilla(nombre: string): void{
+  if (nombre.length > 0){
     this.cuadrillaService.obtenerCuadrillaPorNombre(nombre).subscribe( res => {
-      console.log('res:', res);
+      console.log(res);
+      
       if (res !== null){
-        this.existeCuadrilla = true;
+        this.existeCuadrilla = this.esCuadrillaDiferente(res);
       }else{
         this.existeCuadrilla = false;
       }
@@ -120,6 +121,24 @@ verificarExistenciaCuadrilla(nombre: string){
   }else {
     this.existeCuadrilla = false;
   }
+}
+
+// Entrada: cuadrilla con el valor del resultado de la consulta GET
+// Salida: valor booleano.
+// Descripción: método para verificar si los datos que se modificaron ya pertenecían a la misma cuadrilla
+// que se está editando.
+esCuadrillaDiferente(cuadrilla: Cuadrilla): boolean{
+  let valor: boolean;
+  if (this.accion === 'editar'){
+    if (this.cuadrilla.ID_cuadrilla === cuadrilla.ID_cuadrilla){
+      valor = false;
+    }else{
+      valor = true;
+    }
+  }else{
+    valor = true;
+  }
+  return valor;
 }
 
 // Entrada: Ninguna
@@ -211,14 +230,14 @@ tipoFormularioAccion(): void{
     });
   }
 
-//Entrada: Ninguna.
-//Salida: vacío.
-//Descripción: Llena la lista de Tipos de cuadrilla.
-ObtenerTiposCuadrilla(){
+// Entrada: Ninguna.
+// Salida: vacío.
+// Descripción: Llena la lista de Tipos de cuadrilla.
+ObtenerTiposCuadrilla(): void{
   this.tipoReporteService.obtenerTiposReporte().subscribe(tipos => {
     this.tiposCuadrilla = tipos;
     this.tiposCargados = true;
-  },(error: HttpErrorResponse) => {
+  }, (error: HttpErrorResponse) => {
     alert('Error al cargar ventana. Vuelva a cargar la página o solicite asistencia.');
     console.log('Error al cargar tipos de reporte para tipos de cuadrilla. Error: ' + error.message);
   });
@@ -295,15 +314,15 @@ guardar(): void {
 camposValidos(): boolean{
   let sonValidos = true;
   // Verificar que se llenaron los campos del formulario.
-  if (!this.form.valid){    
+  if (!this.form.valid){
     this.form.markAllAsTouched();
     sonValidos = false;
   }
 
   // Verificar nombre de cuadrilla
-  if (this.existeCuadrilla){   
+  if (this.existeCuadrilla){
     sonValidos = false;
-  } 
+  }
   return sonValidos;
 }
 

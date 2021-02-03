@@ -1,24 +1,26 @@
-<!-- <div class="content-wrapper">
-    <app-header [seccion]="nombreSeccion"></app-header>
-
-    <div class="content"> -->
 <div class="container-fluid">
+    <!-- INICIA SPINNER -->
     <div *ngIf="!sectoresListos" class="card justify-content-center">
         <div class="spinner-border align-self-center m-5" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
+    <!-- TERMINA SPINNER -->
+
     <div *ngIf="sectoresListos" class="card">
         <div class="content-header">
+            <!-- INICIA FILTRO BUSQUEDA -->
             <form>
+                <!-- INICIA TEXTO BUSQUEDA -->
                 <div class="row">
                     <label id="lblBusqueda" class="lblForm col-md-auto col-sm-auto col-12" for="textoBusqueda">Búsqueda</label>
                     <div class="col-md-6 col-sm-8 col-12">
                         <input class="form-control" type="search" name="busqueda" id="textoBusqueda" [formControl]="busquedaForm">
                     </div>
                 </div>
+                <!-- TERMINA TEXTO BUSQUEDA -->
                 <div class="mb-3 row">
-
+                    <!-- ESTADO -->
                     <div class="col-lg-6 col-sm-12">
                         <div class="row input-group m-0">
                             <label id="lblEstado" class="lblForm col-auto" for="estadoSectores">Estado</label>
@@ -32,6 +34,7 @@
                         </div>
                     </div>
 
+                    <!-- BOTONES -->
                     <div class="col-md-2 col-sm-6">
                         <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
                                      Limpiar búsqueda
@@ -50,10 +53,12 @@
                                     Nuevo
                         </button>
                     </div>
+                    <!-- TERMINA BOTONES -->
                 </div>
             </form>
         </div>
         <div class="content-card">
+            <!-- INICIA TABLA -->
             <div class="table-wrapper">
                 <table class="table table-bordered mb-0">
                     <thead>
@@ -79,9 +84,7 @@
                     No se encontraron coincidencias.
                 </div>
             </div>
-            <!-- <app-tabla [modeloTabla]="datosSectores" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
+            <!-- TERMINA TABLA -->
         </div>
     </div>
 </div>
-<!-- </div>
-</div> -->

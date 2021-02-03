@@ -4,7 +4,6 @@ import { Reporte } from '../Interfaces/IReporte';
 import { Ticket } from '../Interfaces/ITicket';
 import { Imagen } from '../Interfaces/IImagen';
 import { ReporteM } from '../Models/ReporteM';
-import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -36,8 +35,8 @@ export class ReporteService {
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición tipo GET para obtener registros de reporte que coincidad
   // con los filtros que se envían como parámetros.
-  buscarReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
-                 origen: string, fecha: string, fechaAl: string, tipoFecha: string): Observable<object[]>{
+  filtroReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
+                 origen: string, fecha: string, fechaAl: string, tipoFecha: string): Observable<JSON[]>{
     if (tipoR === undefined || tipoR === 'Todos'){
       tipoR = '';
    }
@@ -71,20 +70,20 @@ export class ReporteService {
     params = params.append('fechaIni', fecha);
     params = params.append('fechaF', fechaAl);
     params = params.append('tipoFecha', tipoFecha);
-    return this.http.get<object[]>(this.url + '/ListaBusqueda', {params});
+    return this.http.get<JSON[]>(this.url + '/ListaBusqueda', {params});
   }
 
   // Entrada: ID de cuadrilla de tipo string.
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición de tipo GET para obtener los reportes que pertenecen a una determinada
   // cuadrilla.
-  obtenerReportesCuadrilla(idCuadrilla: string): Observable<object[]>{
+  obtenerReportesCuadrilla(idCuadrilla: string): Observable<Object[]>{
     if (idCuadrilla === 'Todos' || idCuadrilla === undefined){
         idCuadrilla = '';
     }
     let params = new HttpParams();
     params = params.append('idCuadrilla', idCuadrilla);
-    return this.http.get<object[]>(this.url + '/GetReportesCuadrillasFiltro', {params});
+    return this.http.get<Object[]>(this.url + '/GetReportesCuadrillasFiltro', {params});
   }
 
   // Entrada: ID del reporte de tipo number y el tipo de imagen (1: apertura, 2: cierre).

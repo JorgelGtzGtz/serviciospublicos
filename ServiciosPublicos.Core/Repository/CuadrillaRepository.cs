@@ -74,7 +74,6 @@ namespace ServiciosPublicos.Core.Repository
         public List<dynamic> FiltroDinamicoCuadrillas(string textoB, string estado)
         {
             string filter = " WHERE ";
-            bool operacion = false;
 
             filter += "cuadrilla.Disponible = 1 ";
             if (!string.IsNullOrEmpty(textoB))
@@ -82,13 +81,13 @@ namespace ServiciosPublicos.Core.Repository
                 filter += string.Format(" AND cuadrilla.Nombre_cuadrilla LIKE '%{0}%' OR " +
                                         "cuadrilla.ID_cuadrilla LIKE '%{0}%' OR " +
                                         "usuario.Nombre_usuario LIKE '%{0}%'", textoB);
-                operacion = true;
+                
             }
 
             if (! string.IsNullOrEmpty(estado))
             {
                 filter += string.Format(" AND cuadrilla.Estatus_cuadrilla LIKE '%{0}%'", estado);
-                operacion = true;
+                
             }
 
             Sql query = new Sql(@"SELECT cuadrilla.*, usuario.Nombre_usuario AS jefe

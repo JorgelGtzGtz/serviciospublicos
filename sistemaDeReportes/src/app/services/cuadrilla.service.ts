@@ -63,7 +63,7 @@ export class CuadrillaService {
   // Salida: Observable con respuesta de petición (lista).
   // Descripción: Método para obtener una lista de las cuadrillas
   // que coincidan con los filtros de búsqueda mediante una petición Http tipo GET.
-  obtenerCuadrillasFiltro(textoB?: string, estado?: string): Observable<object>{
+  obtenerCuadrillasFiltro(textoB?: string, estado?: string): Observable<Object[]>{
     console.log('Se recibió en servicio:', textoB, estado);
     if (textoB === undefined){
       textoB = '';
@@ -75,7 +75,7 @@ export class CuadrillaService {
     params = params.append('textoB', textoB);
     params = params.append('estado', estado);
 
-    return this.http.get(this.url + '/filtrarCuadrillas', {
+    return this.http.get<Object[]>(this.url + '/filtrarCuadrillas', {
       params
     });
   }

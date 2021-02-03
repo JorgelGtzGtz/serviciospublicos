@@ -32,10 +32,56 @@ export class UsuarioService {
     sessionStorage.clear();
   }
 
+  // Entrada: string con email.
+  // Salida: Observable de tipo string.
+  // Descripción: Método para solicitar link para reestablecer contraseña.
+  recuperarPassword(email: string): Observable<string>{
+    this.guardarEmailUsuario(email);
+    let params = new HttpParams();
+    params = params.append('email', email);
+    return this.http.post<string>(this.url + '/forgotPassword', null, {params});
+  }
+
+
+  // Entrada: valor string con correo del usuario.
+  // Salida: Ninguna
+  // Descripción: Guarda en localStorage el correo del usuario
+  guardarEmailUsuario(email: string): void {
+    localStorage.setItem('emailUsuario', email);
+  }
+
+  // Entrada: ninguna.
+  // Salida: string
+  // Descripción: Se recupera de localStorage el email del usuario.
+  recuperarEmailUsuario(): string {
+    const email = localStorage.getItem('emailUsuario');
+    localStorage.removeItem('emailUsuario');
+    return  email;
+  }
+  // Entrada: string con email.
+  // Salida: Observable de tipo string.
+  // Descripción: Método para solicitar link para reestablecer contraseña.
+  modificarPassword(password: string): Observable<string>{
+    const email = this.recuperarEmailUsuario();
+    let params = new HttpParams();
+    params = params.append('password', password);
+    params = params.append('correo', email);
+    return this.http.post<string>(this.url + '/modificarPassword', null, {params});
+  }
+
+  // Entrada: string con token
+  // Salida: Observable de tipo boolean.
+  // Descripción: Verifica que el token tenga menos de 24 hrs.
+  verificarToken(token: string): Observable<boolean>{
+    let params = new HttpParams();
+    params = params.append('token', token);
+    return this.http.post<boolean>(this.url + '/verificarToken', null, {params});
+
+  }
   // Entrada: valor tipo string para cada parámetro de filtro de búsqueda.
   // Salida: observable con la respuesta de la petición.
   // Descripción: Obtener lista de usuarios utilizando parametros medinate petición http GET
-  obtenerListaUsuarios(textoB?: string, estadoUsuario?: string, tipoU?: string, repActi?: boolean): Observable<JSON[]>{
+  obtenerListaUsuarios(textoB?: string, estadoUsuario?: string, tipoU?: string, repActi?: boolean): Observable<Object[]>{
     let reportesActivos: string;
     if (textoB === undefined){
       textoB = '';
@@ -59,7 +105,7 @@ export class UsuarioService {
     params = params.append('estado', estadoUsuario);
     params = params.append('tipoU', tipoU);
     params = params.append('repActivos', reportesActivos);
-    return this.http.get<JSON[]>(this.url + '/ListaBusqueda', {
+    return this.http.get<Object[]>(this.url + '/ListaBusqueda', {
       params
       });
   }

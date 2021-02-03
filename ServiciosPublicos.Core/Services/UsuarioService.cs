@@ -25,6 +25,9 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarUsuario(Usuario usuario, out string Message);
         int ObtenerIDRegistro(out string Message);
         string SendMail(Usuario user, out string Message, int code);
+        string forgotPassword(string email);
+        void modificarPassword(string token, string password, out string Message);
+        bool verificarToken(string token);
     }
 
     public class UsuarioService : IUsuarioService
@@ -190,11 +193,64 @@ namespace ServiciosPublicos.Core.Services
             }
             return result;
         }
+
         //G: LLAMA DIRECTO AL METODO DE ENVIAR CORREO ENVIANDO CODIGO DE CONFIRMACION Y MENSAJE POR PARAMETROS
+        //Método de recuperación de contraseña para app móvil
         public string SendMail(Usuario user, out string Message, int code)
         {
             Message = _usuarioRepository.EnviarCorreo(user.Correo_usuario, "Confirma tu correo", "Tu código de verificación es: "+code);
             return Message;
         }
+
+        // Entrada: string con email.
+        // Salida: token tipo string para cambiar la contraseña.
+        // Descripción: Genera correo para recuperacion de contraseña por sistema web.
+        public string forgotPassword(string email)
+        {
+            byte[] time = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
+            //byte[] key = Guid.NewGuid().ToByteArray();
+            byte[] key = System.Text.Encoding.Unicode.GetBytes(email);
+            string token = Convert.ToBase64String(time.Concat(key).ToArray());           
+            return token;
+        }
+
+        // Entrada: token de tipo string.
+        // Salida: valor bool
+        // Descripción: cambia la contraseña del usuario, después de verificar que el token no tiene más de 24 hrs.
+        public void modificarPassword(string correo, string password, out string Message)
+        {
+            
+                try
+                {
+                    _usuarioRepository.cambiarPassword(correo, password);
+                    Message = "La contraseña se ha cambiado exitosamente.";
+                }
+                catch (Exception ex)
+                {
+                    Message = "No ha sido posible cambiar la contraseña. Error:" + ex.Message;
+                }
+                
+            
+        }
+
+        public bool verificarToken( string token)
+        {
+            bool cambiarPassword;
+            // to discover the token
+            byte[] data = Convert.FromBase64String(token);
+            DateTime fechaCreacion = DateTime.FromBinary(BitConverter.ToInt64(data, 0));
+            if (fechaCreacion < DateTime.UtcNow.AddHours(-24))
+            {
+                // old token
+                cambiarPassword = false;
+            }
+            else
+            {                
+                cambiarPassword = true;
+            }
+
+            return cambiarPassword;
+        }
+
     }
 }

@@ -59,7 +59,6 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -104,7 +103,7 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
 // Descripción: Este método habilita o deshabilita el formulario según el estado del reporte.
 tipoFormularioAccion(): void{
   const estadoReporte = this.reporte.Estatus_reporte;
-  if(estadoReporte === 2 || estadoReporte === 4){
+  if (estadoReporte === 2 || estadoReporte === 4){
     this.form.disable();
   }
 }
@@ -115,7 +114,7 @@ tipoFormularioAccion(): void{
 mensajeEstado(): boolean{
   let mostrarMensaje: boolean;
   const estadoReporte = this.reporte.Estatus_reporte;
-  if(estadoReporte === 2 || estadoReporte === 4){
+  if (estadoReporte === 2 || estadoReporte === 4){
     mostrarMensaje = true;
     this.habilitarBoton = true;
   }else{
@@ -191,9 +190,9 @@ cargarImagenesReporte(): void{
    obtenerImagenesSubidas(event): void{
     const photosList = event.target.files;
     this.imagenService.setListaImagenesSel(photosList);
-    this.uploadedImg = this.imagenService.readThis(photosList);    
+    this.uploadedImg = this.imagenService.readThis(photosList);
   }
-  
+
   // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
   // Salida: vacío.
   // Descripción: Método que recibe el evento que se genera al seleccionar imagenes en input
@@ -217,9 +216,9 @@ cargarImagenesReporte(): void{
         alert('Surgió un error al subir imágenes de cierre de reporte. Inténtelo más tarde o verifique las imágenes');
         console.log('Imágenes de cierre no pudieron ser procesadas.', error.message);
       });
-      
+
       // actualizar reporte
-    this.reporteSevice.actualizarReporte(this.reporte). subscribe( respuesta => {
+      this.reporteSevice.actualizarReporte(this.reporte). subscribe( respuesta => {
       alert('¡Cierre de reporte exitoso!');
       this.dialogRef.close();
     }, (error: HttpErrorResponse) => {
@@ -227,7 +226,7 @@ cargarImagenesReporte(): void{
       console.log('Error al efectuar actualización para cierre de reporte.', error.message);
     });
     }else{
-      alert('¡Debe subir imágenes de cierre para poder cerrar el reporte!');      
+      alert('¡Debe subir imágenes de cierre para poder cerrar el reporte!');
     }
   }
 

@@ -14,7 +14,7 @@ namespace ServiciosPublicos.Core.Services
     {
         Tipo_usuario GetTipoUsuario(int id);
         Tipo_usuario GetTipoUsuarioDescripcion(string descripcion);
-        List<Tipo_usuario> GetTipoUsuarios();
+        List<Tipo_usuario> GetTipoUsuariosGeneral();
         List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado= null);
         bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message);
         bool InsertTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> permisosAsignados, out string Message);
@@ -61,8 +61,8 @@ namespace ServiciosPublicos.Core.Services
         // Entrada: Ninguna
         // Salida: lista de tipos de usuario.
         // Descripción: REGRESA TODOS LOS TIPOS DE USUARIO SIN SUS PERMISOS
-        public List<Tipo_usuario> GetTipoUsuarios() {
-            return _tipoUsuarioRepository.GetAll("Tipo_usuario").ToList();
+        public List<Tipo_usuario> GetTipoUsuariosGeneral() {
+            return _tipoUsuarioRepository.GetTipoUsuarioGeneral();
         }
 
         // Entrada: valor string para ID o descripción de tipo de usuario y valor string de estado.

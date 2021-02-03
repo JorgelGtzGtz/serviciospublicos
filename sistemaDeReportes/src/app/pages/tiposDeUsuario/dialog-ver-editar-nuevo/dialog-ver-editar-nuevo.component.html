@@ -1,16 +1,19 @@
-<!-- <div class="container-fluid"> -->
 <h2 mat-dialog-title>{{ accion | capitalizado }} tipo de usuario</h2>
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
+        <!-- INICIA SPINNER -->
         <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border m-5 align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
+        <!-- TERMINA SPINNER -->
+
+        <!-- INICIA FORMULARIO TIPOS DE USUARIO -->
         <form [formGroup]="form" *ngIf="datosCargados()">
             <div class="row form-sections">
-
+                <!-- ID DE TIPO DE USUARIO -->
                 <div class="col-6" id="id-col">
                     <div class=" row form-group header-form-group justify-content-start">
                         <label class="col-md-auto col-2 col-form-label col-form-label-sm" for="id">ID</label>
@@ -20,6 +23,7 @@
                     </div>
                 </div>
 
+                <!-- ESTADO -->
                 <div class="col-6" id="inactivo-col">
                     <div class="form-check header-form-group justify-content-end">
                         <input class="form-check-input" type="checkbox" id="inactivo-checkbox" formControlName="estado">
@@ -28,15 +32,16 @@
                         </label>
                     </div>
                 </div>
-
             </div>
 
+            <!-- DESCRIPCION TIPO USUARIO -->
             <div class="row form-group form-sections row-input-group">
                 <label id="lbl-descripcion" class="col-form-label col-md-auto" for="descripcionTipoUsuario">Descripción: </label>
                 <div class="col-lg col-md-10 col-12 pl-1 pr-0">
                     <input type="text" maxlength="40" class="form-control" id="descripcionTipoUsuario" formControlName="descripcion">
                     <div *ngIf="campoDescripcion.errors && campoDescripcion.touched">
                         <p class="error" *ngIf="campoDescripcion.hasError('required')">Campo requerido</p>
+                        <p class="error" *ngIf="campoDescripcion.hasError('pattern')">No se permiten números ni caracteres especiales.</p>
                     </div>
                     <div *ngIf="existeDescripcion">
                         <p class="error">Ya existe un Tipo de Usuario con esta descripción.</p>
@@ -44,13 +49,14 @@
                 </div>
             </div>
 
-
+            <!-- INICIA SECCION DEL SELECTOR DE PERMISOS -->
             <section id="pick-list-section">
                 <div class="row">
                     <div class="col">
                         <h3>Permisos</h3>
                     </div>
                     <div class="row" id="pick-list">
+                        <!-- LISTA DE PROCESOS -->
                         <div class="col-md-5 col-sm-12">
                             <div class="list-wrapper border">
                                 <div class="list-header">
@@ -62,6 +68,7 @@
                             </div>
                         </div>
 
+                        <!-- INICIA BOTONES DE FLECHA -->
                         <div class="col-md-2 col-sm-12 align-self-center botones-flecha-wrapper">
                             <div class="row">
                                 <div class="col-md-12 col-6" id="botones-flecha-container">
@@ -76,7 +83,9 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- TERMINA BOTONES DE FLECHA -->
 
+                        <!-- LISTA DE PROCESOS AUTORIZADOS -->
                         <div class="col-md-5 col-sm-12">
                             <div class="list-wrapper border">
                                 <div class="list-header">

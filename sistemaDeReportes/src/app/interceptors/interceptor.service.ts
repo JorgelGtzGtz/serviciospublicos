@@ -17,6 +17,7 @@ export class InterceptorService implements HttpInterceptor {
   // Descripción: Método de interceptor que interviene en las peticiones Http
   // Agrega los headers si es necesario.
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    console.log(req.url, req.params);
     this.claveLogin = this.usuarioService.obtenerClaveLogin();
 
     if (req.url.indexOf('http://localhost:50255/api') === -1) {

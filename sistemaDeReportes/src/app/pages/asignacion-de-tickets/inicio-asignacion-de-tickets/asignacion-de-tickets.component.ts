@@ -6,6 +6,7 @@ import { ReporteService } from '../../../services/reporte.service';
 import { Sector } from '../../../Interfaces/ISector';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
+import { TipoReporte } from '../../../Interfaces/ITipoReporte';
 
 @Component({
   selector: 'app-asignacion-de-tickets',
@@ -14,14 +15,13 @@ import { SectorService } from '../../../services/sector.service';
 })
 export class AsignacionDeTicketsComponent implements OnInit {
   nombreSeccion = 'Asignación de tickets a cuadrilla';
-  datosAsignacionTickets: any;
   form: FormGroup;
   ReportesCargados: boolean;
   sectoresCargados: boolean;
   tiposCargados: boolean;
   headersTabla: string [];
   listaReportes: any[] = [];
-  listaTiposR: any = [];
+  listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
 
   constructor( public dialog: MatDialog,
@@ -109,7 +109,7 @@ export class AsignacionDeTicketsComponent implements OnInit {
     const fecha: string =  this.campoFechaInicio.value;
     const fechaAl: string =  this.campoFechaFinal.value;
     const tipoFecha: string = this.campoTipoFecha.value;
-    this.reporteService.buscarReportes(
+    this.reporteService.filtroReportes(
       tipoR, cuadrilla, estado, sector,  origen, fecha, fechaAl, tipoFecha).subscribe(reportes => {
         this.listaReportes = reportes;
         this.ReportesCargados = true;

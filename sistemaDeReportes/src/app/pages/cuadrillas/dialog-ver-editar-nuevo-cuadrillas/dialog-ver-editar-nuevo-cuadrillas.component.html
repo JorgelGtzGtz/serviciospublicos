@@ -2,14 +2,18 @@
 <hr>
 <div mat-dialog-content id="content-dialog">
     <div class="container-fluid">
+        <!-- INICIA SPINNER -->
         <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
+        <!-- TERMINA SPINNER -->
+
+        <!-- INICIA FORMULARIO CUADRILLA -->
         <form [formGroup]="form" *ngIf="datosCargados()">
             <div class="row form-sections">
-
+                <!-- ID DE CUADRILLA -->
                 <div class="col-6" id="id-col">
                     <div class="form-group header-form-group row justify-content-start">
                         <label class="col-md-auto col-2 col-form-label col-form-label-sm" for="id">ID</label>
@@ -19,6 +23,7 @@
                     </div>
                 </div>
 
+                <!-- ESTADO -->
                 <div class="col-6" id="inactivo-col">
                     <div class="form-check header-form-group justify-content-end">
                         <input class="form-check-input" type="checkbox" id="inactivo-checkbox" formControlName="estado">
@@ -27,8 +32,8 @@
                             </label>
                     </div>
                 </div>
-
             </div>
+
             <!-- FILA NOMBRE -->
             <div class="row form-group form-sections row-input-group">
                 <label id="lblNombre" class="col-form-label col-md-auto" for="nombreCuadrilla">Nombre: </label>
@@ -36,6 +41,7 @@
                     <input type="text" maxlength="25" class="form-control" id="nombreCuadrilla" formControlName="nombreC">
                     <div *ngIf="campoNombreCuadrilla.errors && campoNombreCuadrilla.touched">
                         <p class="error" *ngIf="campoNombreCuadrilla.hasError('required')">Campo requerido</p>
+                        <p class="error" *ngIf="campoNombreCuadrilla.hasError('patter')">No se permiten números ni caracteres especiales.</p>
                     </div>
                     <div *ngIf="existeCuadrilla">
                         <p class="error">Ya existe una Cuadrilla con este nombre. Intente otro.</p>

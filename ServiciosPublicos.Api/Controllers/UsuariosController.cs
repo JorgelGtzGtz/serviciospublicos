@@ -63,6 +63,92 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage y string con email del usuario
+        // Salida: Mensaje de tipo string
+        //Descripción: Método para enviar un correo de recuperación de contraseña al email del usuario.
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("forgotPassword")]
+        public async Task<HttpResponseMessage> forgotPassword(HttpRequestMessage request, string email)
+        {
+            return await CreateHttpResponseAsync(request, async () => {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+
+                try {
+                    var token = _usuarioservice.forgotPassword(email);
+                    response = request.CreateResponse(HttpStatusCode.OK, token);
+                }
+                catch(Exception ex) {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest, new {
+                        error = "Error al solicitar el email de recuperación de contraseña.",
+                        message = ex.Message
+                    }) ;
+                }
+                return await Task.FromResult(response);            
+            });
+        }
+
+        // Entrada: request de tipo HttpRequestMessage y string con email del usuario
+        // Salida: valor bool
+        // Descripción: Verifica que el token no tenga más de 24 hrs.
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("verificarToken")]
+        public async Task<HttpResponseMessage> verificarToken(HttpRequestMessage request, string token)
+        {
+            return await CreateHttpResponseAsync(request, async () => {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+
+                try
+                {
+                    bool cambiarPassword = _usuarioservice.verificarToken(token);
+                    response = request.CreateResponse(HttpStatusCode.OK, cambiarPassword);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest, new
+                    {
+                        error = "Error al verificar la expiración del token.",
+                        message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+
+        // Entrada: request de tipo HttpRequestMessage y string con email del usuario
+        // Salida: Mensaje de tipo string
+        //Descripción: Método para modificar password de usuario.
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("modificarPassword")]
+        public async Task<HttpResponseMessage> modificarPassword(HttpRequestMessage request, string email , string password)
+        {
+            return await CreateHttpResponseAsync(request, async () => {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+
+                try
+                {
+                    _usuarioservice.modificarPassword(email, password, out message);
+                    response = request.CreateResponse(HttpStatusCode.OK,message);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest, new
+                    {
+                        error = "Error al modificar contraseña.",
+                        message = ex.Message
+                    });
+                }
+                return await Task.FromResult(response);
+            });
+        }
+
+
         // Entrada: request de tipo HttpRequestMessage, string de texto de búsqueda, string de estado de usuario, string de tipo de usuario
         //          string de tipo de usuario y string para reportes activos.
         // Salida: respuesta de tipo HttpResponseMessage y lista de tipo dynamic con los registros de usuario.

@@ -18,7 +18,7 @@ export class TipoUsuarioService {
   // Salida: Observable de tipo lista de tipos de usuario.
   // Descripción: Función para realizar petición Http de tipo GET para obtener
   // una lista de los tipos de usuario que cumplen con los parámetros de búsqueda.
-  obtenerListaTipoU(textoB?: string, estadoValor?: string): Observable<TipoUsuario[]>{
+  filtroTiposUsuario(textoB?: string, estadoValor?: string): Observable<TipoUsuario[]>{
     if (textoB === undefined){
       textoB = '';
    }
@@ -31,6 +31,18 @@ export class TipoUsuarioService {
     return this.http.get<TipoUsuario[]>(this.url + '/ListaBusqueda', {
       params
     }).pipe(
+      map(tipoU => {
+        return tipoU.map(user => TipoUsuarioM.tipoDesdeJson(user));
+      })
+    );
+  }
+
+   // Entrada: Ninguna.
+  // Salida: Observable de tipo Tipo de Usuario con respuesta de petición.
+  // Descripción: Función para realizar petición Http de tipo GET para obtener
+  // tipos de usuario existentes.
+  obtenerTiposUGeneral(): Observable<TipoUsuario[]>{
+    return this.http.get<TipoUsuario[]>(this.url + '/GetTiposUsuarioGeneral').pipe(
       map(tipoU => {
         return tipoU.map(user => TipoUsuarioM.tipoDesdeJson(user));
       })
@@ -56,6 +68,8 @@ export class TipoUsuarioService {
     let params = new HttpParams();
     params = params.append('descripcion', descripcion);
     return this.http.get<TipoUsuario>(this.url + '/GetTipoUsuarioByDescripcion',{params})
+    .pipe(
+      map( tipoU => TipoUsuarioM.tipoDesdeJson(tipoU)));
   }
 
   // Entrada: ninguna.
