@@ -55,6 +55,15 @@ button.btn-header {
 }
 
 
+/*ESTILO PARA ELEMENTOS DE FORMULARIOS*/
+
+.error {
+    margin: 0;
+    color: #ff0000;
+    font-size: 0.8rem;
+}
+
+
 /* ESTILO PARA TABLA  */
 
 table {

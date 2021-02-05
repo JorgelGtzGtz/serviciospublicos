@@ -35,6 +35,22 @@ input {
 }
 
 
+/*ESTILO PARA RECUPERACION PASSWORD*/
+
+#texto-olvide-password {
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+a#linkPassword {
+    color: #343a40;
+}
+
+a#linkPassword:hover {
+    color: #085097;
+}
+
+
 /* Estilo botón para entrar al sistema */
 
 .btn-login {

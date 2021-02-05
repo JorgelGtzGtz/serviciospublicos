@@ -262,6 +262,7 @@ inicializarFormulario(): void{
     default:
       this.form.enable();
       this.campoId.disable();
+      this.campoPassword.disable();
   }
 }
 

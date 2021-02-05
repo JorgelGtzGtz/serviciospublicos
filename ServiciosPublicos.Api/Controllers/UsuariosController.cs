@@ -76,8 +76,8 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
 
                 try {
-                    var token = _usuarioservice.forgotPassword(email);
-                    response = request.CreateResponse(HttpStatusCode.OK, token);
+                    _usuarioservice.forgotPassword(email, out message);
+                    response = request.CreateResponse(HttpStatusCode.OK, message);
                 }
                 catch(Exception ex) {
                     response = request.CreateResponse(HttpStatusCode.BadRequest, new {
@@ -95,7 +95,7 @@ namespace ServiciosPublicos.Api.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("verificarToken")]
-        public async Task<HttpResponseMessage> verificarToken(HttpRequestMessage request, string token)
+        public async Task<HttpResponseMessage> verificarToken(HttpRequestMessage request, string token, string email)
         {
             return await CreateHttpResponseAsync(request, async () => {
                 HttpResponseMessage response = null;
@@ -103,7 +103,7 @@ namespace ServiciosPublicos.Api.Controllers
 
                 try
                 {
-                    bool cambiarPassword = _usuarioservice.verificarToken(token);
+                    bool cambiarPassword = _usuarioservice.verificarToken(token, email);
                     response = request.CreateResponse(HttpStatusCode.OK, cambiarPassword);
                 }
                 catch (Exception ex)
@@ -125,7 +125,7 @@ namespace ServiciosPublicos.Api.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("modificarPassword")]
-        public async Task<HttpResponseMessage> modificarPassword(HttpRequestMessage request, string email , string password)
+        public async Task<HttpResponseMessage> modificarPassword(HttpRequestMessage request, string token , string password)
         {
             return await CreateHttpResponseAsync(request, async () => {
                 HttpResponseMessage response = null;
@@ -133,7 +133,7 @@ namespace ServiciosPublicos.Api.Controllers
 
                 try
                 {
-                    _usuarioservice.modificarPassword(email, password, out message);
+                    _usuarioservice.modificarPassword(token, password, out message);
                     response = request.CreateResponse(HttpStatusCode.OK,message);
                 }
                 catch (Exception ex)

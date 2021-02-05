@@ -55,17 +55,47 @@ export class UsuarioService {
   // Descripción: Se recupera de localStorage el email del usuario.
   recuperarEmailUsuario(): string {
     const email = localStorage.getItem('emailUsuario');
-    localStorage.removeItem('emailUsuario');
     return  email;
   }
+
+  // Entrada: Ninguna.
+  // Salida: Ninguna.
+  // Descripción: elimina el emial de localStorage.
+  eliminarEmail(): void{
+    localStorage.removeItem('emailUsuario');
+  }
+
+  // Entrada: valor string con correo del usuario.
+  // Salida: Ninguna
+  // Descripción: Guarda en localStorage el token de recuperación.
+  guardarToken(token: string): void {
+    localStorage.setItem('token', token);
+  }
+
+  // Entrada: ninguna.
+  // Salida: string
+  // Descripción: Se recupera de localStorage el token de recuperación.
+  recuperarToken(): string {
+    const token = localStorage.getItem('token');
+    return  token;
+  }
+
+  // Entrada: Ninguna.
+  // Salida: Ninguna.
+  // Descripción: elimina el token de localStorage.
+  eliminarToken(): void{
+    localStorage.removeItem('token');
+  }
+
   // Entrada: string con email.
   // Salida: Observable de tipo string.
   // Descripción: Método para solicitar link para reestablecer contraseña.
   modificarPassword(password: string): Observable<string>{
-    const email = this.recuperarEmailUsuario();
+    const token = this.recuperarToken();
+    this.eliminarToken();
     let params = new HttpParams();
     params = params.append('password', password);
-    params = params.append('correo', email);
+    params = params.append('token', token);
     return this.http.post<string>(this.url + '/modificarPassword', null, {params});
   }
 
@@ -73,8 +103,11 @@ export class UsuarioService {
   // Salida: Observable de tipo boolean.
   // Descripción: Verifica que el token tenga menos de 24 hrs.
   verificarToken(token: string): Observable<boolean>{
+    this.guardarToken(token);
+    const email = this.recuperarEmailUsuario();
     let params = new HttpParams();
     params = params.append('token', token);
+    params = params.append('email', email);
     return this.http.post<boolean>(this.url + '/verificarToken', null, {params});
 
   }

@@ -58,6 +58,13 @@ export class LoginComponent implements OnInit {
   }
 
   // Entrada: Ninguna.
+  // Salida: Ninguna
+  // Descripción: redirecciona hacia la página para recuperación de contraseña.
+  recuperarPassword(): void{
+    this.router.navigate(['../forgotPassword']);
+  }
+
+  // Entrada: Ninguna.
   // Salida: vacío.
   // Descripción: Método que oculta el texto del input password o muestra el texto.
   visibilidadContra(): void{

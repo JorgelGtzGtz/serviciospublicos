@@ -7,6 +7,10 @@ import { RecuperarPasswordRoutingModule } from './recuperar-password-routing.mod
 // COMPONENT
 import { RecuperarPasswordComponent } from '../../pages/recuperar-password/recuperar-password.component';
 
+import { MatButtonModule } from '@angular/material/button';
+
+// FORMULARIO
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -14,6 +18,9 @@ import { RecuperarPasswordComponent } from '../../pages/recuperar-password/recup
   ],
   imports: [
     CommonModule,
+    FormsModule,
+    MatButtonModule,
+    ReactiveFormsModule,
     RecuperarPasswordRoutingModule
   ],
   exports: [

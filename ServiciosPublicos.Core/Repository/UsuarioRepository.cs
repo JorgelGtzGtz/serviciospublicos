@@ -4,10 +4,9 @@ using ServiciosPublicos.Core.Factories;
 using PetaPoco;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EASendMail;
+using System.Configuration;
+using System.IO;
 
 namespace ServiciosPublicos.Core.Repository
 {
@@ -23,7 +22,9 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
         int GetUltimoID();
         string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo);
-        void cambiarPassword(string correo, string password);
+        string EnviarCorreoRecuperacion(string correoDestino, string asunto, string mensajeCorreo);
+        string llenarBodyHtml(string clave);
+        void CambiarPassword(int id_usuario, string password);
     }
 
     public class UsuarioRepository : RepositoryBase<Usuario>, IUsuarioRepository
@@ -81,6 +82,56 @@ namespace ServiciosPublicos.Core.Repository
                 mensaje = "Error al enviar correo." + ex.Message;
             }
             return mensaje;
+        }
+
+        // Entrada: String con correo de usuario, string con asunto, string con clave de recuperación
+        // Salida: String que indica si se envió el correo o no.
+        // Descripción: Envía un correo a el usuario para recuperar su contraseña.
+        public string EnviarCorreoRecuperacion(string correoDestino, string asunto, string codigo)
+        {
+            string mensaje = "Error al enviar correo.";
+            try
+            {
+                SmtpMail objetoCorreo = new SmtpMail("TryIt");
+
+                objetoCorreo.From = "publicosservicios745@gmail.com";
+                objetoCorreo.To = correoDestino;
+                objetoCorreo.Subject = asunto;
+                objetoCorreo.HtmlBody = llenarBodyHtml(codigo);
+
+                SmtpServer objetoServidor = new SmtpServer("smtp.gmail.com");
+
+                objetoServidor.User = "publicosservicios745@gmail.com";
+                objetoServidor.Password = "public329";
+                objetoServidor.Port = 587;
+                objetoServidor.ConnectType = SmtpConnectType.ConnectSSLAuto;
+
+                SmtpClient objetoCliente = new SmtpClient();
+                objetoCliente.SendMail(objetoServidor, objetoCorreo);
+                mensaje = "Correo Enviado Correctamente.";
+
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al enviar correo." + ex.Message;
+            }
+            return mensaje;
+        }
+
+        // Entrada: String con clave de recuperación.
+        // Salida: String con el template del correo modificado.
+        // Descripción: Método que llena los elementos del html con los elementos personalizados
+        // para el usuario. Reemplaza {codigo} por el código para recuperación.
+        public string llenarBodyHtml(string codigo)
+        {
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(System.Web.Hosting.HostingEnvironment.MapPath("~/Templates/passwordRecovery.html")))
+            {
+                body = reader.ReadToEnd();
+            }
+            body = body.Replace("{codigo}", codigo);
+
+            return body;
         }
 
         public Usuario GetUsuario(string usr)
@@ -201,13 +252,13 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<Usuario>(query2);
         }
 
-        // Entrada: string con correo, string con nuevo password
+        // Entrada: int con ID usuario, string con nuevo password
         // Salida: ninguna
         // Descripción: query para modificar la contraseña del usuario.
-        public void cambiarPassword(string correo, string password)
+        public void CambiarPassword(int id_usuario, string password)
         {
             Sql query = new Sql("UPDATE Usuario SET Password_usuario = @0 " +
-                                    "WHERE Correo_usuario = @1 AND Disponible = 1", password, correo);
+                                    "WHERE ID_usuario = @1 AND Disponible = 1", password, id_usuario);
             this.Context.Execute(query);
         }
     }

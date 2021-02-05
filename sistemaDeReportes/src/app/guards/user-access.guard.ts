@@ -21,21 +21,22 @@ export class UserAccessGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Promise<boolean> {
       let acceder: boolean;
-      const usuario = await this.usuarioServicio.login().toPromise()
+      const usuario: Usuario = await this.usuarioServicio.login().toPromise()
       .then( (usuarioRes: Usuario) => {
         return usuarioRes;
       })
       .catch((err: HttpErrorResponse) => {
-          alert('Ingrese un usuario y contraseña válidos.');
+          alert('Verifique que el usuario y contraseña sean correctos.');
           console.log(err);
           return null;
       });
-      if (usuario){
+      if (usuario && usuario.ID_tipoUsuario === 3){
         acceder = true;
         this.usuarioServicio.almacenarUsuarioLog(usuario);
       }else{
         this.usuarioServicio.eliminarDatosLogin();
-        this.router.navigate(['login']);
+        alert('No tiene permisos para ingresar a este sistema.');
+        // this.router.navigate(['login']);
         acceder = false;
       }
       return acceder;
