@@ -170,5 +170,33 @@ namespace ServiciosPublicos.Api.Controllers
                 return await Task.FromResult(response);
             });
         }
+
+        [HttpPut]
+        [Route("CancelarTicket")]
+        public async Task<HttpResponseMessage> CancelarTicket(HttpRequestMessage request, Ticket model)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var ticket = _ticketService.cancelarTicket(model, out message);
+
+                    response = request.CreateResponse(HttpStatusCode.OK, message);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
     }
 }
