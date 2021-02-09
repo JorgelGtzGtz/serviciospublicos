@@ -16,6 +16,7 @@ export class LoginComponent implements OnInit {
   @ViewChild('password') passwordInput: ElementRef;
   usuarioForm: FormControl;
   passwordForm: FormControl;
+  deshabilitar: boolean;
   visible = false;
 
 
@@ -27,6 +28,7 @@ export class LoginComponent implements OnInit {
    }
 
   ngOnInit(): void {
+    this.deshabilitar = false;
   }
 
   // Entrada: Ninguna.
@@ -54,6 +56,7 @@ export class LoginComponent implements OnInit {
   // y se redirecciona a inicio.
   ingresar(): void{
     this.usuarioServicio.almacenarClaveLogin(this.campoUsuario.value, this.passwordForm.value);
+    this.deshabilitar = true;
     this.router.navigate(['../inicio']);
   }
 

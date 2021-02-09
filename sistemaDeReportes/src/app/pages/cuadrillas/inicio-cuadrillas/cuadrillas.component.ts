@@ -128,10 +128,10 @@ export class CuadrillasComponent implements OnInit {
     const result = confirm('¿Seguro que desea eliminar la cuadrilla?');
     if (result) {
       this.cuadrillaService.eliminarCuadrilla(cuadrilla).subscribe( res => {
-        alert('La cuadrilla se ha eliminado.');
+        alert(res);
         this.actualizarTabla();
       }, (error: HttpErrorResponse) => {
-        alert('Existió un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' intente de nuevo o solicite asistencia.');
+        alert('Se generó un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' intente de nuevo o solicite asistencia.');
         console.log('Error al eliminar cuadrilla:' + error.message);
       });
     }

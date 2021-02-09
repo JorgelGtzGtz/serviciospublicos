@@ -35,12 +35,16 @@ export class TiposDeUsuarioComponent implements OnInit {
   private buildForm(): void{
     this.busquedaForm = new FormControl('');
     this.estadoForm = new FormControl('Todos');
-    this.busquedaForm.valueChanges.subscribe(value => {
-      console.log('se interactuo busqueda:', value);
-    });
-    this.estadoForm.valueChanges.subscribe(value => {
-      console.log('se interactuo estado:', value);
-    });
+  }
+
+   // Entrada: Ninguna
+  // Salida: control de tipo AbstractControl.
+  // Descripción:Métodos get para obtener acceso a los campos del formulario
+  get campoBusqueda(): AbstractControl{
+    return this.busquedaForm;
+  }
+  get campoEstado(): AbstractControl{
+    return this.estadoForm;
   }
 
   // Entrada: Ninguna
@@ -58,22 +62,11 @@ export class TiposDeUsuarioComponent implements OnInit {
   actualizarTabla(): void{
     this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
       this.tiposUsuario = tipos;
-      console.log( this.tiposUsuario);
       this.datos = true;
     }, (error: HttpErrorResponse) => {
-      alert('Existió un problema al cargar datos de página. Recargue página o solicite asistencia.');
+      alert('Se generó un problema al cargar los datos de página. Recargue página o solicite asistencia.');
       console.log('Error al cargar datos de tabla Tipos de usuario: ' +  error.message);
     });
-  }
-
-  // Entrada: Ninguna
-  // Salida: control de tipo AbstractControl.
-  // Descripción:Métodos get para obtener acceso a los campos del formulario
-   get campoBusqueda(): AbstractControl{
-    return this.busquedaForm;
-  }
-  get campoEstado(): AbstractControl{
-    return this.estadoForm;
   }
 
   // Entrada: Valor tipo string con el nombre del header
@@ -134,17 +127,13 @@ export class TiposDeUsuarioComponent implements OnInit {
   eliminarTipoUsuario(tipoU: TipoUsuario): void{
     const result = confirm('¿Seguro que desea eliminar el tipo de usuario?');
     if (result) {
-      console.log('A eliminar', tipoU);
       this.tipoService.eliminarTipoUsuario(tipoU).subscribe( res => {
-        console.log('El usuario se eliminó');
         this.actualizarTabla();
-        alert('El tipo de usuario se ha eliminado.');
+        alert(res);
       }, (error: HttpErrorResponse) => {
         alert('No ha sido posible eliminar el tipo de usuario. Verifique que no existan registros relacionados o solicite apoyo.');
         console.log('Se generó error al eliminar tipo de usuario: ' + error.message);
       });
-    }else{
-      console.log('no se elimina');
     }
   }
 

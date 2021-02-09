@@ -22,7 +22,8 @@ namespace ServiciosPublicos.Core.Repository
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
         List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus);
-        string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo, List<Imagen> listaImagenes, string path);
+        string EnviarCorreo(string correoDestino, string asunto, string tipoR, string colonia, List<Imagen> listaImagenes, string path);
+        string llenarBodyHtml(string tipoReporte, string colonia);
         string EnviarSMS(string numeroDestino, string mensajeSMS);
 
     }
@@ -195,7 +196,7 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.Fetch<dynamic>(query);
         }
         //G:METODO PARA ENVIAR CORREO CON IMAGENES DE CIERRE, SE ENVIA AL USUARIO CON IMAGENES ADJUNTAS
-        public string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo, List<Imagen> listaImagenes, string path)
+        public string EnviarCorreo(string correoDestino, string asunto, string tipoR, string colonia, List<Imagen> listaImagenes, string path)
         {
             string mensaje = "Error al enviar correo.";
             string html = String.Empty;
@@ -207,13 +208,14 @@ namespace ServiciosPublicos.Core.Repository
                 objetoCorreo.From = "publicosservicios745@gmail.com";
                 objetoCorreo.To = correoDestino;
                 objetoCorreo.Subject = asunto;
-                html += "<h4>El problema fue solucionado correctamente</h4>";
+                /*html += "<h4>El problema fue solucionado correctamente</h4>";
                 html += "<h3>A continuacion te anexamos las pruebas solicitadas por ti...</h3>";
+                */
+                objetoCorreo.HtmlBody = llenarBodyHtml(tipoR, colonia);
 
                 foreach (var imagen in listaImagenes) {
                     objetoCorreo.AddAttachment(path + imagen.Path_imagen.Replace("/", @"\"));
                 }
-                objetoCorreo.HtmlBody = html;
                
                 SmtpServer objetoServidor = new SmtpServer("smtp.gmail.com");
 
@@ -233,6 +235,20 @@ namespace ServiciosPublicos.Core.Repository
                 mensaje = "Error al enviar correo." + ex.Message;
             }
             return mensaje;
+        }
+
+        public string llenarBodyHtml(string tipoReporte, string colonia)
+        {
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(System.Web.Hosting.HostingEnvironment.MapPath("~/Templates/cierreReporte.html")))
+            {
+                body = reader.ReadToEnd();
+            }
+            body = body.Replace("{tipoReporte}", tipoReporte);
+            body = body.Replace("{colonia}", colonia);
+
+            return body;
+
         }
 
         //G: METODO PARA ENVIAR SMS

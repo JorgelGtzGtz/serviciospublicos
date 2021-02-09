@@ -17,7 +17,6 @@ export class InterceptorService implements HttpInterceptor {
   // Descripción: Método de interceptor que interviene en las peticiones Http
   // Agrega los headers si es necesario.
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    console.log(req.url, req.params);
     this.claveLogin = this.usuarioService.obtenerClaveLogin();
 
     if (req.url.indexOf('http://localhost:50255/api') === -1) {
@@ -40,8 +39,15 @@ export class InterceptorService implements HttpInterceptor {
   // Entrada: valor de tipo HttpErrorResponse.
   // Salida: Observable.
   // Descripción: Método para manejar un error en caso de presentarse.
-  manejarError(error: HttpErrorResponse){
+  manejarError(error: HttpErrorResponse): Observable<never>{
+    let mensajeError: string;
+    if (error.status === 0){
+      mensajeError = 'Se ha perdido la conexión con el servidor. Intente de nuevo más tarde ó solicite asistencia.';
+      alert(mensajeError);
+    }else{
+      mensajeError = 'Se ha generado un un problema al acceder a la información solicitada. Vuelva a intentarlo o solicite asistencia.';
+    }
     console.warn(error);
-    return throwError('Error en dirección de acceso');
+    return throwError(mensajeError);
   }
 }

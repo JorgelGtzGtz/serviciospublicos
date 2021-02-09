@@ -73,6 +73,8 @@ export class ImagenService {
   // poder ser enviados a la API
   generarFormData(photo: File, index: string): FormData{
     const usuario: Usuario = this.usuarioService.obtenerUsuarioLogueado();
+    console.log('Usuario logueado:', usuario);
+
     const formData = new FormData();
     const date = new Date();
     const day = date.getDate();
@@ -93,6 +95,7 @@ export class ImagenService {
     '.jpg';
     const blob = new Blob([photo], { type: 'image/jpg'});
     formData.append('photo', blob, photoName);
+    console.log('NOMBRE FOTO:', photoName);
     return formData;
   }
 

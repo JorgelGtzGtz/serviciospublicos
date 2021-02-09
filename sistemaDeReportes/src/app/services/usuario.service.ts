@@ -10,7 +10,7 @@ import { Observable } from 'rxjs';
 })
 export class UsuarioService {
   url = 'http://localhost:50255/api/Usuario';
-  // datosLogin: string [];
+  tokenRecuperacion: string [];
 
   constructor(private http: HttpClient ) { }
 
@@ -35,11 +35,10 @@ export class UsuarioService {
   // Entrada: string con email.
   // Salida: Observable de tipo string.
   // Descripción: Método para solicitar link para reestablecer contraseña.
-  recuperarPassword(email: string): Observable<string>{
-    this.guardarEmailUsuario(email);
+  recuperarPassword(email: string): Observable<string[]>{
     let params = new HttpParams();
     params = params.append('email', email);
-    return this.http.post<string>(this.url + '/forgotPassword', null, {params});
+    return this.http.post<string[]>(this.url + '/forgotPassword', null, {params});
   }
 
 
@@ -68,23 +67,23 @@ export class UsuarioService {
   // Entrada: valor string con correo del usuario.
   // Salida: Ninguna
   // Descripción: Guarda en localStorage el token de recuperación.
-  guardarToken(token: string): void {
-    localStorage.setItem('token', token);
+  guardarToken(token: string[]): void {
+    this.tokenRecuperacion = token;
+    console.log('SE GUARDA TOKEN:', token);
   }
 
   // Entrada: ninguna.
   // Salida: string
   // Descripción: Se recupera de localStorage el token de recuperación.
-  recuperarToken(): string {
-    const token = localStorage.getItem('token');
-    return  token;
+  recuperarToken(): string[] {
+    return  this.tokenRecuperacion;
   }
 
   // Entrada: Ninguna.
   // Salida: Ninguna.
   // Descripción: elimina el token de localStorage.
   eliminarToken(): void{
-    localStorage.removeItem('token');
+    this.tokenRecuperacion = [];
   }
 
   // Entrada: string con email.
@@ -92,21 +91,27 @@ export class UsuarioService {
   // Descripción: Método para solicitar link para reestablecer contraseña.
   modificarPassword(password: string): Observable<string>{
     const token = this.recuperarToken();
-    this.eliminarToken();
+    const idUsuario = token[2];
     let params = new HttpParams();
     params = params.append('password', password);
-    params = params.append('token', token);
+    params = params.append('idUsuario', idUsuario);
     return this.http.post<string>(this.url + '/modificarPassword', null, {params});
   }
 
   // Entrada: string con token
   // Salida: Observable de tipo boolean.
-  // Descripción: Verifica que el token tenga menos de 24 hrs.
+  // Descripción: Verifica que el token tenga menos de 1 hr.
   verificarToken(token: string): Observable<boolean>{
-    this.guardarToken(token);
+    const tokenArr = this.recuperarToken();
+    const tokenAsignado = tokenArr[0];
+    const fechaToken = tokenArr[1];
     const email = this.recuperarEmailUsuario();
+
+    // Asignar parámetros
     let params = new HttpParams();
     params = params.append('token', token);
+    params = params.append('tokenA', tokenAsignado);
+    params = params.append('fechaToken', fechaToken);
     params = params.append('email', email);
     return this.http.post<boolean>(this.url + '/verificarToken', null, {params});
 
@@ -158,7 +163,7 @@ export class UsuarioService {
     params = params.append('correoUsuario', correo);
     return this.http.get<Usuario>(this.url + '/GetUsuarioByEmail', {params});
   }
-  
+
   // Entrada: valor tipo string.
   // Salida: observable de tipo Usuario.
   // Descripción: método para obtener un Usuario por su username mediante una petición http GET
@@ -190,15 +195,15 @@ export class UsuarioService {
   // Entrada: valor tipo Usuario.
   // Salida: Observable con el resultado de la petición.
   // Descripción: Método para hacer una petición Http de tipo POST para registrar un nuevo usuario.
-  registrarUsuario(usuario: Usuario): Observable<object>{
-    return this.http.post(this.url + '/Registrar', usuario);
+  registrarUsuario(usuario: Usuario): Observable<string>{
+    return this.http.post<string>(this.url + '/Registrar', usuario);
   }
 
   // Entrada: valor tipo Usuario.
   // Salida: observable con el resultado de la petición http PUT.
   // Descripción: Método para actualizar la información del usuario.
-  actualizarUsuario(usuario: Usuario): Observable<object>{
-    return this.http.put(this.url + '/Actualizar', usuario);
+  actualizarUsuario(usuario: Usuario): Observable<string>{
+    return this.http.put<string>(this.url + '/Actualizar', usuario);
   }
 
   // Entrada: valor tipo number con el ID del usuario.
@@ -213,7 +218,6 @@ export class UsuarioService {
   // Descripción: Método para guardar el objeto de tipo Usuario en el session storage
   almacenarUsuarioLog(usuario: Usuario): void{
     usuario.Password_usuario = '';
-    usuario.Login_usuario = '';
     usuario.Telefono_usuario = '';
     usuario.Correo_usuario = '';
     sessionStorage.setItem('usuario', JSON.stringify(usuario));

@@ -8,7 +8,6 @@ import { UsuarioService } from '../../../services/usuario.service';
 import { Usuario } from '../../../Interfaces/IUsuario';
 import { CuadrillaM } from '../../../Models/CuadrillaM';
 import { HttpErrorResponse } from '@angular/common/http';
-import { TipoCuadrillaM } from '../../../Models/TipoCuadrilla';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { TipoReporte } from 'src/app/Interfaces/ITipoReporte';
 
@@ -19,12 +18,16 @@ import { TipoReporte } from 'src/app/Interfaces/ITipoReporte';
 })
 export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
   accion: string;
+  mensajeResultado: string;
   form: FormGroup;
   modificado: boolean;
   idListo: boolean;
   jefesCargados: boolean;
   tiposCargados: boolean;
   existeCuadrilla: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
   cuadrilla: Cuadrilla;
   jefesCuadrillaDisp: Usuario[] = [];
   tiposCuadrilla: TipoReporte[];
@@ -42,6 +45,9 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.ObtenerTiposCuadrilla();
     this.obtenerJefesCuadrilla();
     this.inicializarCampos();
@@ -82,7 +88,7 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
   // Descripción: Verifica si se ha interactuado con el formulario.
   verificarCambiosFormulario(): void{
     this.form.valueChanges.subscribe(value => {
-      if (this.form.touched){
+      if (this.form.dirty){
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -109,7 +115,6 @@ verificarExistenciaCuadrilla(nombre: string): void{
   if (nombre.length > 0){
     this.cuadrillaService.obtenerCuadrillaPorNombre(nombre).subscribe( res => {
       console.log(res);
-      
       if (res !== null){
         this.existeCuadrilla = this.esCuadrillaDiferente(res);
       }else{
@@ -225,7 +230,7 @@ tipoFormularioAccion(): void{
       this.campoId.setValue(id);
       this.idListo = true;
     }, (error: HttpErrorResponse) => {
-      alert('No ha sido posible cargar la página correctamente. Vuelva a cargar la página o solicite asistencia.');
+      alert('Se generó un problema al cargar ventana. Vuelva a cargar la página o solicite asistencia.');
       console.log('Error al obtener ID para nuevo registro de cuadrilla: ' + error.message);
     });
   }
@@ -238,7 +243,7 @@ ObtenerTiposCuadrilla(): void{
     this.tiposCuadrilla = tipos;
     this.tiposCargados = true;
   }, (error: HttpErrorResponse) => {
-    alert('Error al cargar ventana. Vuelva a cargar la página o solicite asistencia.');
+    alert('Se generó un problema al cargar ventana. Vuelva a cargar la página o solicite asistencia.');
     console.log('Error al cargar tipos de reporte para tipos de cuadrilla. Error: ' + error.message);
   });
 }
@@ -250,11 +255,15 @@ ObtenerTiposCuadrilla(): void{
   obtenerJefesCuadrilla(): void{
     this.usuarioService.obtenerJefesCuadrilla().subscribe( jefes => {
       jefes.forEach(jefe => {
-        this.jefesCuadrillaDisp.push(jefe);
+        console.log('JEFE:', jefe);
+
+        if (!jefe.Jefe_asignado){
+          this.jefesCuadrillaDisp.push(jefe);
+        }
       });
       this.jefesCargados = true;
     }, (error: HttpErrorResponse) => {
-      alert('No ha sido posible cargar la página correctamente. Vuelva a cargar la página o solicite asistencia.');
+      alert('Se generó un problema al cargar ventana. Vuelva a cargar la página o solicite asistencia.');
       console.log('Error al cargar jefes de cuadrilla. Error:' + error.message);
     });
   }
@@ -267,7 +276,7 @@ ObtenerTiposCuadrilla(): void{
     this.usuarioService.obtenerUsuario(this.cuadrilla.ID_JefeCuadrilla).subscribe( usuario => {
       this.jefesCuadrillaDisp.push(usuario);
     }, (error: HttpErrorResponse) => {
-      alert('No ha sido posible cargar la página correctamente. Vuelva a cargar la página o solicite asistencia.');
+      alert('Se generó un problema al cargar ventana                                                                                                                                                                                                                                                                                                                . Vuelva a cargar la página o solicite asistencia.');
       console.log('Error al obtener usuario de Jefe de cuadrilla. Error:' + error.message);
     });
   }
@@ -294,6 +303,21 @@ obtenerEstadoFormulario(): boolean{
   }
 
 // Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
+// Entrada: Ninguna
 // Salida: vacío.
 // Descripción: Método que se llama cuando se le da click en guardar en el formulario.
 // Aquí se llama al método "accionGuardar" para ejecutar las acciones pertinente
@@ -301,6 +325,7 @@ obtenerEstadoFormulario(): boolean{
 guardar(): void {
   // event.preventDefault();
   if (this.camposValidos()){
+    this.procesando = true;
     this.accionGuardar();
   } else{
     alert('Verifique que los campos tengan la información correcta o estén llenos.');
@@ -333,21 +358,30 @@ accionGuardar(): void{
   const cuadrilla = this.generarNuevaCuadrilla();
   if (this.accion === 'nuevo'){
     this.cuadrillaService.insertarCuadrilla(cuadrilla).subscribe( res => {
-      alert('¡Registro de cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' exitoso!');
-      this.dialogRef.close(this.data);
+      this.procesando = false;
+      this.finalProceso = true;
+      this.mensajeResultado = res;
     }, (error: HttpErrorResponse) => {
-          alert('El registro no pudo ser completado. Verifique los datos o solicite asistencia.');
-          console.log('Error al registrar nueva cuadrilla:' + error.message);
+      this.procesando = false;
+      this.finalProceso = true;
+      this.error = true;
+      this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
+      console.log('Error al registrar nueva cuadrilla:' + error.message);
     });
   } else{
     this.cuadrillaService.actualizarCuadrilla(cuadrilla).subscribe( res => {
-      alert('¡Cuadrilla ' + cuadrilla.Nombre_cuadrilla  + ' se han actualizado exitosamente!');
-      this.dialogRef.close(this.data);
+      this.procesando = false;
+      this.finalProceso = true;
+      this.mensajeResultado = res;
     }, (error: HttpErrorResponse) => {
-      alert('Los datos de la cuadrilla no pudieron ser actualizados. Verifique los datos o solicite asistencia.');
+      this.procesando = false;
+      this.finalProceso = true;
+      this.error = true;
+      this.mensajeResultado = 'La cuadrilla no pudo ser actualizada. Vuelva a intentarlo ó solicite asistencia.';
       console.log('Error al actualizar cuadrilla:' + error.message);
     });
   }
+  this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
 }
 
 // Entrada: Ninguna

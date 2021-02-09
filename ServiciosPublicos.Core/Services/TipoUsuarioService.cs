@@ -127,7 +127,7 @@ namespace ServiciosPublicos.Core.Services
                         _permisosRepository.Add<int>(permisoTipoUsuario);
                 }
 
-                Message = "Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " guardado con exito";
+                Message = "¡Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " guardado con éxito !";
                 result = true;
             }
             catch (Exception ex)
@@ -172,7 +172,7 @@ namespace ServiciosPublicos.Core.Services
                         _permisosRepository.Add<int>(permisoTipoUsuario);
                     }                    
                 }
-                Message = "Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " guardado con exito";
+                Message = "¡Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " actualizado con éxito!";
                 result = true;
             }
             catch (Exception ex)
@@ -198,7 +198,7 @@ namespace ServiciosPublicos.Core.Services
                 {
                     tipoUsuario.Disponible = false;
                     _tipoUsuarioRepository.Modify(tipoUsuario);
-                    Message = "Tipo Usuario  " + tipoUsuario.Descripcion_tipoUsuario + " eliminado con exito";
+                    Message = "¡Tipo Usuario  " + tipoUsuario.Descripcion_tipoUsuario + " eliminado con éxito!";
                     result = true;
                 }
                 else

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, ActivatedRoute } from '@angular/router';
 import { UsuarioService } from '../services/usuario.service';
 import { Usuario } from '../Interfaces/IUsuario';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,7 +10,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class UserAccessGuard implements CanActivate {
 
   constructor(private usuarioServicio: UsuarioService,
-              private router: Router){}
+              private router: Router, private route: ActivatedRoute){}
 
   // Entrada: ActivatedRouteSnapshot y RouterStateSnapshot.
   // Salida: Promesa de tipo boolean.
@@ -25,21 +24,34 @@ export class UserAccessGuard implements CanActivate {
       .then( (usuarioRes: Usuario) => {
         return usuarioRes;
       })
-      .catch((err: HttpErrorResponse) => {
+      .catch((error: HttpErrorResponse) => {
           alert('Verifique que el usuario y contraseña sean correctos.');
-          console.log(err);
           return null;
       });
-      if (usuario && usuario.ID_tipoUsuario === 3){
-        acceder = true;
-        this.usuarioServicio.almacenarUsuarioLog(usuario);
+
+      if (usuario){
+        acceder = this.verificarTipoUsuario(usuario);
       }else{
-        this.usuarioServicio.eliminarDatosLogin();
-        alert('No tiene permisos para ingresar a este sistema.');
-        // this.router.navigate(['login']);
         acceder = false;
       }
       return acceder;
+  }
+
+  // Entrada: usuario de tipo Usuario
+  // Salida: valor boolean
+  // Descripción: verifica si el usuario encontrado es administrador
+  // para permitirle acceder al sistema.
+  verificarTipoUsuario(usuario: Usuario): boolean{
+    let acceder: boolean;
+    if (usuario.ID_tipoUsuario === 3){
+      acceder = true;
+      this.usuarioServicio.almacenarUsuarioLog(usuario);
+    }else{
+      this.usuarioServicio.eliminarDatosLogin();
+      alert('No tiene permisos para ingresar a este sistema.');
+      acceder = false;
+    }
+    return acceder;
   }
 
 }

@@ -27,15 +27,17 @@ namespace ServiciosPublicos.Core.Services
         private readonly IImagenRepository _imagenRepository;
         private readonly ITicketRepository _ticketRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ITipoReporteRepository _tipoReporteRepository;
         public ReporteServicio(IReporteRepository reporteRepository, 
             IImagenRepository imagenRepository, IReporteTicketRepository reporteTicketRepository,
-            ITicketRepository ticketRepository, IUsuarioRepository usuarioRepository)
+            ITicketRepository ticketRepository, IUsuarioRepository usuarioRepository, ITipoReporteRepository tipoReporteRepository)
         {
             _reporteRepository = reporteRepository;
             _imagenRepository = imagenRepository;
             _reporteTicketRepository = reporteTicketRepository;
             _ticketRepository = ticketRepository;
             _usuarioRepository = usuarioRepository;
+            _tipoReporteRepository = tipoReporteRepository;
         }
 
         // Entrada: valores de tipo string que funcionan como filtros para la búsqueda de registros.
@@ -144,7 +146,10 @@ namespace ServiciosPublicos.Core.Services
                     if (reporte.Estatus_reporte == 2) {
                         if ((bool)ticket.EnviarCorreo_ticket)
                         {
-                            _reporteRepository.EnviarCorreo(usuarioReportante.Correo_usuario, "Reporte finalizado", "Texto sin formato", listaImagenes, path);
+                            Tipo_Reporte tipoR = _tipoReporteRepository.Get<int>(reporte.ID_tipoReporte);
+                            string descripcionTR = tipoR.Descripcion_tipoReporte;
+                            string coloniaR = reporte.Colonia_reporte;
+                            _reporteRepository.EnviarCorreo(usuarioReportante.Correo_usuario, "Reporte finalizado", descripcionTR, coloniaR, listaImagenes, path);
                         }
                     }
                     

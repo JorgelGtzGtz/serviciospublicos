@@ -23,11 +23,15 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   procesosSistema: ProcesoPermiso[] = [];
   elementoLista: ProcesoPermiso;
   accion: string;
+  mensajeResultado: string;
   idListo: boolean;
   procesosYpermisos: boolean;
   modificado: boolean;
   existeDescripcion: boolean;
   errorListas: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
   form: FormGroup;
   tipoUsuario: TipoUsuario;
 
@@ -44,6 +48,9 @@ export class DialogVerEditarNuevoComponent implements OnInit {
 
    ngOnInit(): void {
      this.accion = this.data.accion;
+     this.procesando = false;
+     this.finalProceso = false;
+     this.error = false;
      this.tipoFormularioAccion();
      this.inicializarCampos();
      this.obtenerProcesosSistema();
@@ -349,6 +356,20 @@ listaTienePermisos(): void{
     this.elementoLista = undefined;
   }
 
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
 
   // Entrada: Ninguna.
   // Salida: vacío.
@@ -357,6 +378,7 @@ guardar(): void {
   // event.preventDefault();
   this.listaTienePermisos();
   if (this.camposValidos()){
+    this.procesando = true;
     const tipo = this.generarTipo();
     this.accionGuardar(tipo);
   }else{
@@ -409,19 +431,30 @@ generarTipo(): TipoUsuarioM{
 accionGuardar(tipo: TipoUsuario): void{
   if (this.accion === 'nuevo'){
       this.tipoService.insertarTipoUsuario(tipo, this.listaProcTipo).subscribe( res => {
-        alert('¡Tipo de usuario registrado exitosamente!');
-        this.dialogRef.close();
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('El registro no pudo ser completado. Error:' + error.message);
+        this.procesando = false;
+        this.finalProceso = true;
+        this.error = true;
+        this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
+        console.log('Error al registrar tipo de usuario. Error:' + error.message);
       });
   }else if (this.accion === 'editar'){
       this.tipoService.actualizarTipoUsuario(tipo, this.listaProcTipo).subscribe(res => {
-        alert('¡Tipo de usuario actualizado exitosamente!');
-        this.dialogRef.close();
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('Tipo de usuario no pudo ser actualizado. Error:' + error.message);
+        this.procesando = false;
+        this.finalProceso = true;
+        this.error = true;
+        this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
+        console.log('Tipo de usuario no pudo ser actualizado. Error:' + error.message);
       });
   }
+  this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
 }
 
 // Entrada: Ninguna.

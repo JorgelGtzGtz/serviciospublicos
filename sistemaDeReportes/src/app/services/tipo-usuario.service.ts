@@ -67,7 +67,7 @@ export class TipoUsuarioService {
   obtenerTipoUPorDesc(descripcion: string): Observable<TipoUsuario>{
     let params = new HttpParams();
     params = params.append('descripcion', descripcion);
-    return this.http.get<TipoUsuario>(this.url + '/GetTipoUsuarioByDescripcion',{params})
+    return this.http.get<TipoUsuario>(this.url + '/GetTipoUsuarioByDescripcion', {params})
     .pipe(
       map( tipoU => TipoUsuarioM.tipoDesdeJson(tipoU)));
   }
@@ -84,8 +84,8 @@ export class TipoUsuarioService {
   // Salida: Observable con respuesta de la petición.
   // Descripción: Función para realizar petición Http de tipo POST para insertar nuevo
   // tipo de usuario y sus permisos.
-  insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<object>{
-    return this.http.post(this.url + '/Insertar', {
+  insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<string>{
+    return this.http.post<string>(this.url + '/Insertar', {
       'tipo': tipoUsuario,
       'permisos': permisosT
     });
@@ -95,8 +95,8 @@ export class TipoUsuarioService {
   // Salida: Observable con respuesta de la petición.
   // Descripción: Función para realizar petición Http de tipo PUT para actualizar
   // tipo de usuario y sus permisos.
-  actualizarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<object>{
-    return this.http.put(this.url + '/Actualizar', {
+  actualizarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<string>{
+    return this.http.put<string>(this.url + '/Actualizar', {
       'tipo': tipoUsuario,
       'permisos': permisosT
     });
@@ -106,8 +106,8 @@ export class TipoUsuarioService {
   // Salida: Observable con respuesta de la petición.
   // Descripción: Función para realizar petición Http de tipo DELETE para efectuar
   // eliminación lógica de tipo de usuario.
-  eliminarTipoUsuario(tipoUsuario: TipoUsuario): Observable<object>{
-    return this.http.put(this.url + '/EliminarTipoUsuario', tipoUsuario);
+  eliminarTipoUsuario(tipoUsuario: TipoUsuario): Observable<string>{
+    return this.http.put<string>(this.url + '/EliminarTipoUsuario', tipoUsuario);
   }
 
 }

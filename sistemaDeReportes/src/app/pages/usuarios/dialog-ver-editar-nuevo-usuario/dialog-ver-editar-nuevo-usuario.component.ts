@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -8,7 +8,7 @@ import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { UsuarioM } from '../../../Models/UsuarioM';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
-import { debounce, debounceTime } from 'rxjs/operators';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-usuario',
@@ -17,14 +17,18 @@ import { debounce, debounceTime } from 'rxjs/operators';
 })
 export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
   accion: string;
-  usuarioActual: Usuario;
-  tiposUsuario: TipoUsuario[] = [];
+  mensajeResultado: string;
   modificado: boolean;
   existeCorreo: boolean;
   existeLoginUsuario: boolean;
   passwordInvalido: boolean;
   idListo: boolean;
   tiposUListos: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
+  usuarioActual: Usuario;
+  tiposUsuario: TipoUsuario[] = [];
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoUsuarioComponent> ,
@@ -39,6 +43,9 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.cargarTiposUsuario();
     this.inicializarCampos();
     this.inicializarFormulario();
@@ -86,6 +93,40 @@ datosCargados(): boolean{
     this.verificarCambiosLogin();
   }
 
+  // Entrada: Ninguna
+// Salida: control del input que pertenece al formGroup, de tipo AbstractControl.
+// Descripción: Métodos para obtener acceso a los controladores de los inputs del formulario.
+get campoId(): AbstractControl{
+  return this.form.get('id');
+}
+get campoEstado(): AbstractControl{
+  return this.form.get('estado');
+}
+
+get campoNombre(): AbstractControl{
+  return this.form.get('nombre');
+}
+get campoCorreo(): AbstractControl{
+  return this.form.get('correo');
+}
+
+get campoTelefono(): AbstractControl{
+  return this.form.get('telefono');
+}
+
+get campoGenero(): AbstractControl{
+  return this.form.get('genero');
+}
+get campoTipoUsuario(): AbstractControl{
+  return this.form.get('tipoUsuario');
+}
+get campoUsuario(): AbstractControl{
+  return this.form.get('usuario');
+}
+get campoPassword(): AbstractControl{
+  return this.form.get('password');
+}
+
 // Entrada: Ninguna
 // Salida: vacío
 // Descripción: Método que se llama cuando se interactúa con el formulario
@@ -93,7 +134,6 @@ datosCargados(): boolean{
   verificarCambiosFormulario(): void{
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -107,7 +147,7 @@ datosCargados(): boolean{
 // para verificar si se interactuó con el input correo.
   verificarCambiosCorreo(): void{
     this.campoCorreo.valueChanges.pipe(debounceTime(500)).subscribe(correo => {
-     if (this.campoCorreo.touched){
+     if (this.campoCorreo.dirty){
        this.verificarExistenciaEmail(correo);
      }
     });
@@ -119,7 +159,7 @@ datosCargados(): boolean{
 // para verificar si se interactuó con el input usuario.
   verificarCambiosLogin(): void{
     this.campoUsuario.valueChanges.pipe(debounceTime(500)).subscribe(loginUsuario => {
-      if (this.campoUsuario.touched){
+      if (this.campoUsuario.dirty){
       this.verificarExistenciaUsuario(loginUsuario);
       }
     });
@@ -212,40 +252,6 @@ esUsuarioDiferente(usuario: Usuario): boolean{
   return valor;
 }
 
-// Entrada: Ninguna
-// Salida: control del input que pertenece al formGroup, de tipo AbstractControl.
-// Descripción: Métodos para obtener acceso a los controladores de los inputs del formulario.
-get campoId(): AbstractControl{
-  return this.form.get('id');
-}
-get campoEstado(): AbstractControl{
-  return this.form.get('estado');
-}
-
-get campoNombre(): AbstractControl{
-  return this.form.get('nombre');
-}
-get campoCorreo(): AbstractControl{
-  return this.form.get('correo');
-}
-
-get campoTelefono(): AbstractControl{
-  return this.form.get('telefono');
-}
-
-get campoGenero(): AbstractControl{
-  return this.form.get('genero');
-}
-get campoTipoUsuario(): AbstractControl{
-  return this.form.get('tipoUsuario');
-}
-get campoUsuario(): AbstractControl{
-  return this.form.get('usuario');
-}
-get campoPassword(): AbstractControl{
-  return this.form.get('password');
-}
-
 // Entrada: objeto tipo TipoUsuario
 // Salida: valor boolean
 // Descripción: Este método habilita o deshabilita el formulario según lo que se quiera hacer en el
@@ -330,7 +336,6 @@ obtenerIDNuevo(): void{
     this.usuarioService.obtenerIDRegistro().subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
-      console.log('ID a asignar:', id);
     }, (error: HttpErrorResponse) => {
       alert('Ha surgido un error al cargar ventana. Intente de nuevo o solicite asistencia.');
       console.log('Error al obtener ID para nuevo registro. Mensaje de error: ', error.message);
@@ -370,12 +375,28 @@ buscarTipo(descripcion: string): number{
   return idTipoUsuario;
 }
 
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
 // Entrada: Ninguna.
 // Salida: vacío.
 // Descripción: Método que se llama cuando se le da click en guardar en el formulario.
 guardar(): void {
   // event.preventDefault();
   if (this.camposValidos()){
+    this.procesando = true;
     const usuario = this.generarUsuario();
     this.accionGuardar(usuario);
   } else{
@@ -410,22 +431,30 @@ camposValidos(): boolean{
 // la petición para guardar o actualizar un registro de usuario.
 accionGuardar(usuario: Usuario): void{
   if (this.accion === 'nuevo'){
-      this.usuarioService.registrarUsuario(usuario).subscribe( res => {
-        alert(res);
-        this.dialogRef.close(this.data);
+    this.usuarioService.registrarUsuario(usuario).subscribe( res => {
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('El registro no pudo ser completado. Verifique que los datos sean correctos o solicite asistencia.');
+        this.procesando = false;
+        this.error = true;
+        this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
         console.log('Error al registrar usuario. Mensaje de error: ', error.message);
       });
   }else if (this.accion === 'editar'){
     this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
-        alert(res);
-        this.dialogRef.close(this.data);
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('Usuario no pudo ser actualizado. Verifique que los datos sean correctos o solicite asistencia.');
+        this.procesando = false;
+        this.finalProceso = true;
+        this.error = true;
+        this.mensajeResultado = 'Usuario no pudo ser actualizado. Vuelva a intentarlo ó solicite asistencia.';
         console.log('Error al actualizar usuario. Mensaje de error: ', error.message);
       });
     }
+  this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
 }
 
 // Entrada: Objeto de tipo Usuario.

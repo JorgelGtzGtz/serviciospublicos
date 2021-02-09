@@ -24,8 +24,8 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
   mostrarImgCierre: boolean;
   imagenesCargadas: boolean;
   modificado: boolean;
-  habilitarBoton: boolean;
   imagenesValidas: boolean;
+  procesando: boolean;
   form: FormGroup;
   reporte: Reporte;
 
@@ -54,8 +54,8 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
   // se crean los controladores de los inputs.
   private buildForm(): void{
     this.form = this.formBuilder.group({
-      fechaCierre: [''],
-      hora: ['']
+      fechaCierre: ['', [Validators.required]],
+      hora: ['', [Validators.required]]
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
@@ -111,17 +111,15 @@ tipoFormularioAccion(): void{
 // Entrada: Ninguna.
 // Salida: boolean
 // Descripción: Genera mensaje para informar al usuario que el reporte tiene estado cancelado o cerrado.
-mensajeEstado(): boolean{
-  let mostrarMensaje: boolean;
+reporteDisponible(): boolean{
+  let disponible: boolean;
   const estadoReporte = this.reporte.Estatus_reporte;
   if (estadoReporte === 2 || estadoReporte === 4){
-    mostrarMensaje = true;
-    this.habilitarBoton = true;
+    disponible = true;
   }else{
-    mostrarMensaje = false;
-    this.habilitarBoton = false;
+    disponible = false;
   }
-  return mostrarMensaje;
+  return disponible;
 }
 
   // Entrada: Ninguna
@@ -199,13 +197,6 @@ cargarImagenesReporte(): void{
   // obtiene la lista de files o imagenes y las almacena en el servicio de imagen
   // Muestra en pantalla las imagenes seleccionadas.
   async accionGuardar(): Promise<void>{
-    // Obtener datos a actualizar
-    const fechaCierre = this.campoFechaCierre.value;
-    const horaCierre = this.campoHora.value;
-    const fechaCierreHora: string = this.reporteSevice.juntarFechaHora(fechaCierre, horaCierre);
-    this.reporte.FechaCierre_reporte = fechaCierreHora;
-    this.reporte.Estatus_reporte = 2;
-
     // Obtener imágenes
     if (this.uploadedImg.length > 0){
       this.imagenesCierre = await this.imagenService.llenarListaImagen(2);
@@ -218,9 +209,18 @@ cargarImagenesReporte(): void{
       });
 
       // actualizar reporte
+      // Obtener datos a actualizar
+      const fechaCierre = this.campoFechaCierre.value;
+      const horaCierre = this.campoHora.value;
+      const fechaCierreHora: string = this.reporteSevice.juntarFechaHora(fechaCierre, horaCierre);
+      this.reporte.FechaCierre_reporte = fechaCierreHora;
+      this.reporte.Estatus_reporte = 2;
+
+      // Enviar datos de reporte para actualizar
       this.reporteSevice.actualizarReporte(this.reporte). subscribe( respuesta => {
       alert('¡Cierre de reporte exitoso!');
-      this.dialogRef.close();
+      this.procesando = false;
+      // this.dialogRef.close();
     }, (error: HttpErrorResponse) => {
       alert('¡Lo sentimos! El cierre no se ha podido efectuar. Verifique que los datos sean correctos o solicite ayuda. ');
       console.log('Error al efectuar actualización para cierre de reporte.', error.message);
@@ -237,6 +237,7 @@ cargarImagenesReporte(): void{
   guardar(): void {
     // event.preventDefault();
     if (this.form.valid){
+      this.procesando = true;
       this.accionGuardar();
     } else{
       this.form.markAllAsTouched();

@@ -7,15 +7,6 @@ import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
 
-/*EJEMPLO TABLA */
-export interface PeriodicElement {
-  name: string;
-  position: number;
-  weight: number;
-  symbol: string;
-}
-
-
 @Component({
   selector: 'app-usuarios',
   templateUrl: './usuarios.component.html',
@@ -51,9 +42,6 @@ export class UsuariosComponent implements OnInit {
       tipoUsuario: ['Todos'],
       estado: ['Todos'],
       reportesActivos: ['']
-    });
-    this.form.valueChanges.subscribe(value => {
-      console.log('se interactuo:', value);
     });
   }
 
@@ -94,7 +82,7 @@ export class UsuariosComponent implements OnInit {
       this.usuarios = datos;
       this.usuariosListos = true;
     }, (error: HttpErrorResponse) => {
-      alert('Existió un problema al cargar datos de página. Recargue página o solicite asistencia.');
+      alert('Se generó un problema al cargar datos de esta sección. Recargue la página ó solicite asistencia.');
       console.log('Error al cargar datos de tabla usuarios: ' +  error.message);
     });
   }
@@ -107,6 +95,9 @@ export class UsuariosComponent implements OnInit {
     this.tipoService.filtroTiposUsuario().subscribe( tipos => {
       this.tiposUsuario = tipos;
       this.tiposListos = true;
+    }, (error: HttpErrorResponse) => {
+      alert('Se generó un problema al cargar datos de esta sección. Recargue la página ó solicite asistencia..');
+      console.log('Se generó un error al cargar los tipos de usuario. Error:' + error.message);
     });
   }
 

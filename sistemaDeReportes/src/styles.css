@@ -40,7 +40,7 @@ button.btn-header {
     float: right;
 }
 
-.btn-proceso {
+button.btn-proceso {
     width: 100px;
     margin: 5px 0;
     background-color: #ececf0;
@@ -118,6 +118,42 @@ div.botones-wrapper {
 }
 
 
+/*ESTILO PARA DIALOG*/
+
+
+/*MENSAJE CONFIRMACION PROCESO*/
+
+.horizontal-align {
+    justify-content: center;
+    height: 100%;
+}
+
+span.horizontal-align-elements {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+h2.mensaje-confirmacion {
+    margin-top: 4rem;
+}
+
+.icono-confirmacion {
+    color: #23a739;
+}
+
+.icono-error {
+    color: #c22424;
+}
+
+.centrar-margen-izquierdo {
+    margin-left: 45%;
+}
+
+
 /* ESTILO PARA TABLETS */
 
 @media only screen and (min-width:600px) {
@@ -151,6 +187,10 @@ div.botones-wrapper {
         width: 100px;
         margin: 5px 8px;
     }
+    /*MENSAJE CONFIRMACION PROCESO*/
+    .centrar-margen-izquierdo {
+        margin-left: 45%;
+    }
 }
 
 
@@ -181,5 +221,9 @@ div.botones-wrapper {
         margin: 5px 10px;
         line-height: 30px;
         padding: 0 12px;
+    }
+    /*MENSAJE CONFIRMACION PROCESO*/
+    .centrar-margen-izquierdo {
+        margin-left: 48%;
     }
 }

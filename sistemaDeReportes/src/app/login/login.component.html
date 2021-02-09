@@ -24,7 +24,7 @@
                 <a id="linkPassword" href="javascript:void(0)" (click)="recuperarPassword()">Olvidé mi contraseña</a>
             </p>
         </div>
-        <button type="button" (click)="ingresar()" class="btn btn-secondary btn-block btn-login">Entrar</button>
+        <button type="button" (click)="ingresar()" [disabled]="deshabilitar" class="btn btn-secondary btn-block btn-login">Entrar</button>
     </form>
 </div>
 

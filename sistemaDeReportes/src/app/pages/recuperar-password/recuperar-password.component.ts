@@ -75,9 +75,20 @@ export class RecuperarPasswordComponent implements OnInit {
   // envía al servicio, el correo ingresado por el usuario.
   recuperarPassword(): void{
     if (this.email.valid){
-      this.usuarioService.recuperarPassword(this.email.value).toPromise()
-    .then( resultado => {
-      console.log('token generado:', resultado);
+      this.usuarioService.guardarEmailUsuario(this.email.value);
+      this.enviarCorreo();
+    }
+  }
+
+  // Entrada: Ninguna
+  // Salida: Ninguna
+  // Descripción: llama al método del servicio que genera el token y envía
+  // el correo de recuperación al usuario.
+  enviarCorreo(): void{
+    const correo = this.usuarioService.recuperarEmailUsuario();
+    this.usuarioService.recuperarPassword(correo).toPromise()
+    .then( token => {
+      this.usuarioService.guardarToken(token);
       alert('El código para recuperar contraseña a sido enviado a su correo.');
       this.pedirToken = false;
       this.recibirToken = true;
@@ -86,7 +97,6 @@ export class RecuperarPasswordComponent implements OnInit {
       alert('¡Lo sentimos! ocurrió un problema al enviar su código de modificación de contraseña, vuelva a interntarlo.');
       console.log('Error al solicitar enviar correo para recuperación de contraseña. Error:' + error.message);
     });
-    }
   }
 
   // Entrada: Ninguna
@@ -110,24 +120,6 @@ export class RecuperarPasswordComponent implements OnInit {
 
   // Entrada: Ninguna
   // Salida: Ninguna
-  // Descripción: Reenvía al correo proporcionado el token.
-  enviarCorreo(): void{
-    const correo = this.usuarioService.recuperarEmailUsuario();
-    this.usuarioService.recuperarPassword(correo).toPromise()
-    .then( resultado => {
-      console.log('Respuesta de correo:', resultado);
-      alert('El código para recuperar contraseña a sido enviado a su correo.');
-      this.pedirToken = false;
-      this.recibirToken = true;
-    })
-    .catch((error: HttpErrorResponse) => {
-      alert('¡Lo sentimos! ocurrió un problema al enviar su código de modificación de contraseña, vuelva a interntarlo.');
-      console.log('Error al solicitar enviar correo para recuperación de contraseña. Error:' + error.message);
-    });
-  }
-
-  // Entrada: Ninguna
-  // Salida: Ninguna
   // Descripción: Método para modificar la contraseña del usuario.
   modificarPassword(): void {
     if (this.mismoPassword){
@@ -137,6 +129,7 @@ export class RecuperarPasswordComponent implements OnInit {
         this.volverLogin = true;
         this.actualizarPassword = false;
         this.usuarioService.eliminarEmail();
+        this.usuarioService.eliminarToken();
       }).catch( (error: HttpErrorResponse) => {
         console.log(error.message);
         alert('Ha ocurrido un problema al actualizar su contraseña. Vuelva a intentarlo más tarde.');

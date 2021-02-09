@@ -42,7 +42,7 @@ namespace ServiciosPublicos.Core.Repository
             var query = new Sql(@"SELECT * FROM hiram74_residencias.Usuario 
                                   WHERE Login_usuario = @0 
                                   AND Password_usuario = @1 
-                                  AND Disponible = 1", usr.ToLower(), password);
+                                  AND Disponible = 1", usr, password);
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 

@@ -2,16 +2,27 @@
 <hr>
 <div mat-dialog-content id="content-dialog">
     <div class="container-fluid">
-        <!-- INICIA SPINNER -->
+        <!-- SPINNERS -->
+        <!-- INICIA SPINNER PARA CARGAR PAGINA -->
         <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <!-- TERMINA SPINNER -->
+        <!-- TERMINA SPINNER PARA CARGAR PAGINA -->
+
+        <!-- INICIA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <div *ngIf="procesando" class="row horizontal-align">
+            <div class="col-12 align-self-center">
+                <div class="spinner-border centrar-margen-izquierdo" role="status"></div>
+                <h2 class="text-center mt-3">Guardando información</h2>
+            </div>
+        </div>
+        <!-- TERMINA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <!-- TERMINAN SPINNERS -->
 
         <!-- INICIA FORMULARIO CUADRILLA -->
-        <form [formGroup]="form" *ngIf="datosCargados()">
+        <form [formGroup]="form" *ngIf="datosCargados() && !procesando && !finalProceso">
             <div class="row form-sections">
                 <!-- ID DE CUADRILLA -->
                 <div class="col-6" id="id-col">
@@ -41,7 +52,7 @@
                     <input type="text" maxlength="25" class="form-control" id="nombreCuadrilla" formControlName="nombreC">
                     <div *ngIf="campoNombreCuadrilla.errors && campoNombreCuadrilla.touched">
                         <p class="error" *ngIf="campoNombreCuadrilla.hasError('required')">Campo requerido</p>
-                        <p class="error" *ngIf="campoNombreCuadrilla.hasError('patter')">No se permiten números ni caracteres especiales.</p>
+                        <p class="error" *ngIf="campoNombreCuadrilla.hasError('pattern')">No se permiten números ni caracteres especiales.</p>
                     </div>
                     <div *ngIf="existeCuadrilla">
                         <p class="error">Ya existe una Cuadrilla con este nombre. Intente otro.</p>
@@ -56,7 +67,7 @@
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="encargadoSelector" formControlName="encargado">
                         <option disabled hidden [ngValue]="0">Seleccionar</option>
-                        <option *ngIf="jefesCuadrillaDisp.length === 0"> No hay opciones disponibles</option>
+                        <option disabled *ngIf="jefesCuadrillaDisp.length === 0"> No hay opciones disponibles</option>
                         <option *ngFor="let jefe of jefesCuadrillaDisp"
                         [ngValue] = jefe.ID_usuario >
                              {{ jefe.Nombre_usuario }}
@@ -87,9 +98,28 @@
             </div>
             <!-- TERMINA TIPO DE CUADRILLA -->
         </form>
+        <!-- INICIA TEXTO DE CONFIRMACION DE PROCESO -->
+        <div *ngIf="!procesando && finalProceso" class="row horizontal-align">
+            <div class="col align-self-center">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <span class="icono-confirmacion horizontal-align-elements ">
+                            <i *ngIf="!error" class="fas fa-check fa-9x"></i>                   
+                        </span>
+                        <span class="icono-error horizontal-align-elements "> 
+                            <i *ngIf="error" class="fas fa-times fa-9x"></i>                  
+                        </span>
+                    </div>
+                    <div class="col-12">
+                        <h2 class="text-center mensaje-confirmacion">{{ mensajeResultado }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- TERMINA  TEXTO DE CONFIRMACION DE PROCESO  -->
     </div>
 </div>
 <div matDialogActions align="end">
-    <button type="button" (click)="guardar()" [disabled]="accion === 'ver'" mat-raised-button color="primary">Guardar</button>
+    <button type="button" (click)="guardar()" [disabled]="deshabilitarGuardar()" mat-raised-button color="primary">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>
