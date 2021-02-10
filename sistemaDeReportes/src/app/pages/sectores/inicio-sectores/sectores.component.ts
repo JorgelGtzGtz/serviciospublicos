@@ -33,12 +33,6 @@ export class SectoresComponent implements OnInit {
   formBuilder(): void{
       this.busquedaForm = new FormControl('');
       this.estadoForm = new FormControl('Todos');
-      this.busquedaForm.valueChanges.subscribe(value => {
-        console.log('se interactuo busqueda:', value);
-      });
-      this.estadoForm.valueChanges.subscribe(value => {
-        console.log('se interactuo estado:', value);
-      });
     }
 
   // Entrada: Ninguna
@@ -68,7 +62,7 @@ export class SectoresComponent implements OnInit {
       this.sectores = sectores;
       this.sectoresListos = true;
     }, (error: HttpErrorResponse) => {
-      alert('Existió un problema al cargar datos de página. Recargue página o solicite asistencia.');
+      alert('Se generó un problema al cargar datos de página. Recargue página o solicite asistencia.');
       console.log('Error al cargar datos de tabla sectores: ' +  error.message);
     });
   }
@@ -136,13 +130,11 @@ export class SectoresComponent implements OnInit {
     if (result) {
       this.sectorService.eliminarSector(sector).subscribe( res => {
         this.actualizarTabla();
-        alert('El sector ' + sector.Descripcion_sector + ' se ha eliminado.');
+        alert(res);
       }, (error: HttpErrorResponse) => {
         alert('El sector ' + sector.Descripcion_sector + ' no pudo ser eliminado. Intente de nuevo o solicite asistencia.');
         console.log('Error al eliminar sector: ' + error.message);
       });
-    }else{
-      console.log('no se elimina');
     }
   }
 

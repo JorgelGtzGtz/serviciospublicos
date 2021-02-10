@@ -20,38 +20,12 @@ export class UserAccessGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Promise<boolean> {
       let acceder: boolean;
-      const usuario: Usuario = await this.usuarioServicio.login().toPromise()
-      .then( (usuarioRes: Usuario) => {
-        return usuarioRes;
-      })
-      .catch((error: HttpErrorResponse) => {
-          alert('Verifique que el usuario y contraseña sean correctos.');
-          return null;
-      });
-
+      const usuario: Usuario = this.usuarioServicio.obtenerUsuarioLogueado();
       if (usuario){
-        acceder = this.verificarTipoUsuario(usuario);
+        acceder = true;
       }else{
         acceder = false;
       }
       return acceder;
   }
-
-  // Entrada: usuario de tipo Usuario
-  // Salida: valor boolean
-  // Descripción: verifica si el usuario encontrado es administrador
-  // para permitirle acceder al sistema.
-  verificarTipoUsuario(usuario: Usuario): boolean{
-    let acceder: boolean;
-    if (usuario.ID_tipoUsuario === 3){
-      acceder = true;
-      this.usuarioServicio.almacenarUsuarioLog(usuario);
-    }else{
-      this.usuarioServicio.eliminarDatosLogin();
-      alert('No tiene permisos para ingresar a este sistema.');
-      acceder = false;
-    }
-    return acceder;
-  }
-
 }

@@ -41,13 +41,20 @@ export class InterceptorService implements HttpInterceptor {
   // Descripción: Método para manejar un error en caso de presentarse.
   manejarError(error: HttpErrorResponse): Observable<never>{
     let mensajeError: string;
-    if (error.status === 0){
-      mensajeError = 'Se ha perdido la conexión con el servidor. Intente de nuevo más tarde ó solicite asistencia.';
-      alert(mensajeError);
-    }else{
-      mensajeError = 'Se ha generado un un problema al acceder a la información solicitada. Vuelva a intentarlo o solicite asistencia.';
+    switch (error.status) {
+      case 0:
+        mensajeError = 'Se ha perdido la conexión con el servidor. Intente de nuevo más tarde ó solicite asistencia.';
+        break;
+      case 401:
+        mensajeError = 'Verifique que el usuario y contraseña sean correctos.';
+        break;
+      default:
+        mensajeError = 'Se ha generado un problema al acceder a la información solicitada. Vuelva a intentarlo o solicite asistencia.';
+        break;
     }
+    alert(mensajeError);
     console.warn(error);
     return throwError(mensajeError);
   }
+
 }

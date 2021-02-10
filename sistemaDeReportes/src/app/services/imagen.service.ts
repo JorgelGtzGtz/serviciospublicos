@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Usuario } from '../Interfaces/IUsuario';
 import { ImagenM } from '../Models/ImagenM';
 import { UsuarioService } from './usuario.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Imagen } from '../Interfaces/IImagen';
 import { Observable } from 'rxjs';
 
@@ -105,7 +105,7 @@ export class ImagenService {
   //  en el input tipo file, para que el usuario visualize las imágenes que eligió.
   readThis(file: File[]): string[] {
     const urlImage: string[] = [];
-    for (let i = 0; i < file.length ; i++){     
+    for (let i = 0; i < file.length ; i++){
       if (file[i].type === 'image/jpeg' || file[i].type === 'image/png'){
           const myReader: FileReader = new FileReader();
           myReader.readAsDataURL(file[i]);
@@ -138,13 +138,20 @@ export class ImagenService {
   // Salida: promesa de tipo lista de tipo ImagenM, con los objetos ImagenM creados
   // Descripción: método para guardar las imágenes en la API y generar su path a 
   // partir de los archivos seleccionados en el input tipo file.
-  async llenarListaImagen(tipo: number): Promise<ImagenM[]>{
+  async llenarListaImagen(tipo: number): Promise<Imagen[]>{
     const photosList = this.photosList;
-    const listaImagenObjeto: ImagenM [] = [];
+    const listaImagenObjeto: Imagen [] = [];
 
     for (let i = 0; i < photosList.length; i++ ){
           const formData: FormData = this.generarFormData(photosList[i], i.toString());
-          const path = await this.generarPathImagen(formData);
+          const path = await this.obtenerPathImagen(formData).toPromise()
+          .then(resultado => {
+            return resultado;
+          })
+          .catch((error: HttpErrorResponse) => {
+            console.log(error);
+            return 'Photos/no-image.png';
+          });
           const pathPhoto: string = path.toString();
           const imagen = this.generarObjImagen(pathPhoto, tipo, 0, 0);
           listaImagenObjeto.push(imagen);

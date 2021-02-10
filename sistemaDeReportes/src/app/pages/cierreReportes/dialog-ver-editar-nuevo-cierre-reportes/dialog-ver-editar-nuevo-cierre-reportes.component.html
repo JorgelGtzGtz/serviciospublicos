@@ -1,18 +1,20 @@
 <h2 mat-dialog-title>Cierre de reporte</h2>
 <hr>
 <mat-dialog-content>
-    <div class="container-fluid ">
-        <!-- INICIA SPINNER -->
+    <div class="container-fluid">
+        <!-- SPINNERS -->
+        <!-- INICIA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
         <div *ngIf="procesando" class="row horizontal-align">
-            <div class="col-auto spinner-container align-self-center">
+            <div class="col-12 align-self-center">
                 <div class="spinner-border centrar-margen-izquierdo" role="status"></div>
-                <h3 class="text-align-center mt-3">Cerrando reporte...</h3>
+                <h2 class="text-center mt-3">Guardando información</h2>
             </div>
         </div>
-        <!-- TERMINA SPINNER -->
+        <!-- TERMINA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <!-- TERMINAN SPINNERS -->
 
         <!-- MENSAJE PARA REPORTES CERRADOS O CANCELADOS -->
-        <div *ngIf="!procesando">
+        <div *ngIf="!procesando && !finalProceso">
             <div *ngIf="reporteDisponible()">
                 <div *ngIf="reporte.Estatus_reporte===2" class="alert alert-danger" role="alert">
                     Este reporte ya ha sido cerrado.
@@ -28,7 +30,7 @@
             <!-- TERMINA MAPA -->
 
             <!-- INICIA VISUALIZAR IMAGENES -->
-            <section id="imagenesReporte ">
+            <section id="imagenesReporte">
                 <h3>Imágenes del reporte</h3>
                 <hr>
                 <!-- IMAGENES DE APERTURA -->
@@ -54,7 +56,7 @@
                 </div>
 
                 <!-- IMAGENES DE CIERRE -->
-                <div class="row img-group ">
+                <div class="row img-group">
                     <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#cierre" aria-expanded="false" aria-controls="cierre">
                         Imágenes de cierre
                       </button>
@@ -123,11 +125,29 @@
                     <!-- TERMINA SUBIR IMAGENES DE CIERRE -->
                 </div>
             </form>
-
         </div>
+        <!-- INICIA TEXTO DE CONFIRMACION DE PROCESO -->
+        <div *ngIf="!procesando && finalProceso" class="row horizontal-align">
+            <div class="col align-self-center">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <span class="icono-confirmacion horizontal-align-elements ">
+                            <i *ngIf="!error" class="fas fa-check fa-9x"></i>                   
+                        </span>
+                        <span class="icono-error horizontal-align-elements "> 
+                            <i *ngIf="error" class="fas fa-times fa-9x"></i>                  
+                        </span>
+                    </div>
+                    <div class="col-12">
+                        <h2 class="text-center mensaje-confirmacion">{{ mensajeResultado }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- TERMINA  TEXTO DE CONFIRMACION DE PROCESO  -->
     </div>
 </mat-dialog-content>
 <div matDialogActions align="end" class="mb-2">
-    <button type="button" mat-raised-button color="primary" [disabled]="reporteDisponible()" (click)="guardar()">Guardar</button>
+    <button type="button" mat-raised-button color="primary" [disabled]="deshabilitarGuardar()" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

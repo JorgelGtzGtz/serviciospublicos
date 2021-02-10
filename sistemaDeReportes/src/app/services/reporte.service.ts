@@ -17,8 +17,8 @@ export class ReporteService {
   // Entrada: objeto tipo Ticket y lista de tipo Imagen
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición tipo POST para registrar un nuevo reporte.
-  registrarReporte(ticket: Ticket, imagenes: Imagen[]): Observable<object>{
-    return this.http.post(this.url + '/Registrar', {
+  registrarReporte(ticket: Ticket, imagenes: Imagen[]): Observable<string>{
+    return this.http.post<string>(this.url + '/Registrar', {
     'ticket': ticket, 'imagenes': imagenes
     });
   }
@@ -26,8 +26,8 @@ export class ReporteService {
   // Entrada: objeto tipo Reporte.
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición tipo PUT para actualizar un registro de reporte.
-  actualizarReporte(reporte: Reporte): Observable<object>{
-    return this.http.put(this.url + '/Actualizar', reporte);
+  actualizarReporte(reporte: Reporte): Observable<string>{
+    return this.http.put<string>(this.url + '/Actualizar', reporte);
   }
 
   // Entrada: datos de tipo string que corresponden a: tipo de reporte, cuadrilla, estado, sector,

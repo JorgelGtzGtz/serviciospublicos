@@ -15,17 +15,20 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
   @ViewChild('inputFile') inputFile: ElementRef;
-  pathImgApertura: string[] = [];
-  pathImgCierre: string[] = [];
   imagenesApertura: Imagen [] = [];
   imagenesCierre: Imagen [] = [];
+  pathImgApertura: string[] = [];
+  pathImgCierre: string[] = [];
   uploadedImg: string [] = [];
+  mensajeResultado: string;
   mostrarImgApertura: boolean;
   mostrarImgCierre: boolean;
   imagenesCargadas: boolean;
   modificado: boolean;
   imagenesValidas: boolean;
   procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
   form: FormGroup;
   reporte: Reporte;
 
@@ -42,6 +45,9 @@ export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
 
 //  Al iniciar se mandarán los datos al componente de mapa
   ngOnInit(): void {
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.obtenerObjetoReporte();
     this.inicializarFormulario();
     this.tipoFormularioAccion();
@@ -191,6 +197,22 @@ cargarImagenesReporte(): void{
     this.uploadedImg = this.imagenService.readThis(photosList);
   }
 
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.procesando || this.finalProceso || this.reporteDisponible()) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
+
   // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
   // Salida: vacío.
   // Descripción: Método que recibe el evento que se genera al seleccionar imagenes en input
@@ -200,11 +222,9 @@ cargarImagenesReporte(): void{
     // Obtener imágenes
     if (this.uploadedImg.length > 0){
       this.imagenesCierre = await this.imagenService.llenarListaImagen(2);
-      this.reporteSevice.insertarImgReporte(this.reporte, this.imagenesCierre).subscribe(res => {
-        console.log('Imagenes de cierre:', this.imagenesCierre);
-        console.log(res);
-      }, (error: HttpErrorResponse) => {
-        alert('Surgió un error al subir imágenes de cierre de reporte. Inténtelo más tarde o verifique las imágenes');
+      this.reporteSevice.insertarImgReporte(this.reporte, this.imagenesCierre).toPromise()
+      .catch((error: HttpErrorResponse) => {
+        alert('Surgió un error al subir imágenes de cierre de reporte. Inténtelo más tarde o verifique que las imágenes sean del formato y peso correcto.');
         console.log('Imágenes de cierre no pudieron ser procesadas.', error.message);
       });
 
@@ -218,13 +238,17 @@ cargarImagenesReporte(): void{
 
       // Enviar datos de reporte para actualizar
       this.reporteSevice.actualizarReporte(this.reporte). subscribe( respuesta => {
-      alert('¡Cierre de reporte exitoso!');
-      this.procesando = false;
-      // this.dialogRef.close();
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = '¡El reporte se ha cerrado exitosamente!';
     }, (error: HttpErrorResponse) => {
-      alert('¡Lo sentimos! El cierre no se ha podido efectuar. Verifique que los datos sean correctos o solicite ayuda. ');
-      console.log('Error al efectuar actualización para cierre de reporte.', error.message);
+        this.procesando = false;
+        this.finalProceso = true;
+        this.error = true;
+        this.mensajeResultado = 'No fue posible cerrar el reporte. Vuelva a intentarlo ó solicite asistencia.';
+        console.log('Error al efectuar actualización para cierre de reporte.', error.message);
     });
+      this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
     }else{
       alert('¡Debe subir imágenes de cierre para poder cerrar el reporte!');
     }

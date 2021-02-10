@@ -438,6 +438,7 @@ accionGuardar(usuario: Usuario): void{
       }, (error: HttpErrorResponse) => {
         this.procesando = false;
         this.error = true;
+        this.finalProceso = true;
         this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
         console.log('Error al registrar usuario. Mensaje de error: ', error.message);
       });

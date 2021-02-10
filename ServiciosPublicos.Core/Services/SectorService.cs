@@ -42,12 +42,12 @@ namespace ServiciosPublicos.Core.Services
             try
             {
                 _SectorRepository.Add<int>(sector);
-                Message = "Sector registrado con exito";
+                Message = "¡Sector " + sector.Descripcion_sector + " registrado con éxito!";
                 result = true;
             }
             catch(Exception ex)
             {
-                Message = "Sector no pudo ser registrado" + ex.Message;
+                Message = "El sector " + sector.Descripcion_sector +" no pudo ser registrado: " + ex.Message;
             }
             
             return result;
@@ -64,12 +64,12 @@ namespace ServiciosPublicos.Core.Services
             try
             {
                 _SectorRepository.Modify(sector);
-                Message = "Sector "+sector.Descripcion_sector+ " actualizado con exito";
+                Message = "¡Sector " + sector.Descripcion_sector + " actualizado con éxito!";
                 result = true;
             }
             catch (Exception ex)
             {
-                Message = "Sector " + sector.Descripcion_sector + " no pudo ser actualizado" + ex.Message;
+                Message = "Sector " + sector.Descripcion_sector + " no pudo ser actualizado: " + ex.Message;
             }
             return result;
         }
@@ -130,7 +130,7 @@ namespace ServiciosPublicos.Core.Services
                 {
                     sector.Disponible = false;
                     _SectorRepository.Modify(sector);
-                    Message = "Sector eliminado con exito";
+                    Message = "¡Sector " + sector.Descripcion_sector + " eliminado con éxito!";
                     result = true;
                 }
                 catch (Exception ex)

@@ -215,7 +215,7 @@ namespace ServiciosPublicos.Api.Controllers
                     var result = _reporteServicio.ActualizarReporte(model, HttpContext.Current.Server.MapPath("~") , out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {

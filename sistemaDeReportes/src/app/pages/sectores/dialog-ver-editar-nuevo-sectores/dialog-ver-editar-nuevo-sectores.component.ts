@@ -14,11 +14,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class DialogVerEditarNuevoSectoresComponent implements OnInit {
 accion: string;
+mensajeResultado: string;
 form: FormGroup;
 modificado: boolean;
 idListo: boolean;
 existeSector: boolean;
 datosSectorCargados: boolean;
+procesando: boolean;
+finalProceso: boolean;
+error: boolean;
 sector: Sector;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoSectoresComponent>,
@@ -32,6 +36,9 @@ sector: Sector;
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.tipoFormularioAccion();
     this.iniciarFormulario();
   }
@@ -201,6 +208,7 @@ tipoFormularioAccion(): void{
 guardar(): void {
   // event.preventDefault();
   if (this.camposValidos()){
+    this.procesando = true;
     this.accionGuardar();
   } else{
     alert('Verifique que los campos tengan la información correcta o estén llenos.');
@@ -227,31 +235,6 @@ camposValidos(): boolean{
 }
 
 // Entrada: Ninguna
-// Salida: vacío.
-// Descripción: Acciones a ejecutar para guardar dependiendo
-// del tipo de proceso que se hizo en el dialog. Se usan las peticiones del servicio de sector.
-accionGuardar(): void{
-  const sector = this.generarSector();
-  if (this.accion !== 'nuevo'){
-   this.sectorService.actualizarSector(sector).subscribe( res => {
-    alert ('¡Sector ' + sector.Descripcion_sector + ' actualizado con éxito!');
-    this.dialogRef.close(this.data);
-    }, (error: HttpErrorResponse) => {
-      alert('¡Sector ' + sector.Descripcion_sector + ' no pudo ser actualizado! Verifique los datos o solicite asistencia.');
-      console.log('Error al actualizar sector: ' + error.message);
-    });
-  } else{
-    this.sectorService.insertarSector(sector).subscribe( res => {
-      alert ('¡Sector ' + sector.Descripcion_sector + ' registrado con éxito!');
-      this.dialogRef.close(this.data);
-    }, (error: HttpErrorResponse) => {
-      alert ('¡Sector ' + sector.Descripcion_sector + ' no pudo ser guardado! Verifique los datos o solicite asistencia.');
-      console.log('Error al registrar nuevo sector: ' + error.message);
-    });
-  }
-}
-
-// Entrada: Ninguna
 // Salida: Objeto de tipo SectorM.
 // Descripción: Se crea nuevo objeto sectorM con los datos ingresados en los campos
 // del formulario.
@@ -263,6 +246,57 @@ generarSector(): SectorM{
     true
   );
 }
+
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
+
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Acciones a ejecutar para guardar dependiendo
+// del tipo de proceso que se hizo en el dialog. Se usan las peticiones del servicio de sector.
+accionGuardar(): void{
+  const sector = this.generarSector();
+  if (this.accion !== 'nuevo'){
+   this.sectorService.actualizarSector(sector).subscribe( res => {
+    this.procesando = false;
+    this.finalProceso = true;
+    this.mensajeResultado = res;
+    }, (error: HttpErrorResponse) => {
+      this.procesando = false;
+      this.finalProceso = true;
+      this.error = true;
+      this.mensajeResultado = ' El sector no pudo ser actualizado.Vuelva a intentarlo ó solicite asistencia.';
+      console.log('Error al actualizar sector: ' + error.message);
+    });
+  } else{
+    this.sectorService.insertarSector(sector).subscribe( res => {
+      this.procesando = false;
+      this.finalProceso = true;
+      this.mensajeResultado = res;
+    }, (error: HttpErrorResponse) => {
+      this.procesando = false;
+      this.finalProceso = true;
+      this.error = true;
+      this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
+      console.log('Error al registrar nuevo sector: ' + error.message);
+    });
+  }
+  this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
+}
+
 
 // Entrada: Ninguna
 // Salida: vacío.

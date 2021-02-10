@@ -155,7 +155,7 @@ namespace ServiciosPublicos.Core.Services
                     
                     
                 } 
-                Message = "Reporte actualizado con exito";
+                Message = "¡El reporte se ha actualizado con éxito!";
                 result = true;
             }
             catch (Exception ex)

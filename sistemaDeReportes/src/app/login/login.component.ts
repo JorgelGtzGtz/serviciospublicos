@@ -35,8 +35,8 @@ export class LoginComponent implements OnInit {
   // Salida: vacío.
   // Descripción: Método que inicializa los controles que interactúan con los inputs del formulario.
   formBuilder(): void{
-    this.usuarioForm = new FormControl('');
-    this.passwordForm = new FormControl('');
+    this.usuarioForm = new FormControl('', [Validators.required]);
+    this.passwordForm = new FormControl('', [Validators.required]);
   }
 
   // Entrada: Ninguna.
@@ -54,10 +54,55 @@ export class LoginComponent implements OnInit {
   // Descripción:Método que se llama al hacer click en el botón ingresar del login.
   // En este se almacenan los datos ingresados del usuario y contraseña en el localStorage 
   // y se redirecciona a inicio.
-  ingresar(): void{
-    this.usuarioServicio.almacenarClaveLogin(this.campoUsuario.value, this.passwordForm.value);
-    this.deshabilitar = true;
-    this.router.navigate(['../inicio']);
+  async ingresar(): Promise<void>{
+    if (this.campoUsuario.valid && this.campoPassword.valid){
+      this.deshabilitar = true;
+      this.usuarioServicio.almacenarClaveLogin(this.campoUsuario.value, this.passwordForm.value);
+      const usuario: Usuario = await this.buscarUsuario();
+      this.usuarioServicio.almacenarUsuarioLog(usuario);
+      this.router.navigate(['../inicio']);
+    }else{
+      this.campoPassword.markAsTouched();
+      this.campoUsuario.markAsTouched();
+    }
+  }
+
+  // Entrada: Ninguna.
+  // Salida: Ninguna.
+  // Descripción: con método del servicio de usuario, busca el usuario que
+  // coincida con los datos usuario y contraseña proporcionados.
+
+  async buscarUsuario(): Promise<Usuario>{
+    const usuario: Usuario = await this.usuarioServicio.login().toPromise()
+      .then( (usuarioRes: Usuario) => {
+        const usuarioExaminado = this.verificarTipoUsuario(usuarioRes);
+        return usuarioExaminado;
+      })
+      .catch((error: HttpErrorResponse) => {
+        this.usuarioServicio.logOut();
+        this.deshabilitar = false;
+        this.campoUsuario.setValue('');
+        this.campoPassword.setValue('');
+        console.log('Ha ocurrido un error al entrar al sistema. Error: ', error);
+        return null;
+      });
+    return usuario;
+  }
+
+  // Entrada: usuario de tipo Usuario
+  // Salida: valor boolean
+  // Descripción: verifica si el usuario encontrado es administrador
+  // para permitirle acceder al sistema.
+  verificarTipoUsuario(usuario: Usuario): Usuario{
+    let usuarioExaminado: Usuario;
+    if (usuario.ID_tipoUsuario === 3){
+      usuarioExaminado = usuario;
+    }else{
+      this.usuarioServicio.eliminarDatosLogin();
+      alert('No tiene permisos para ingresar a este sistema.');
+      usuarioExaminado = null;
+    }
+    return usuarioExaminado;
   }
 
   // Entrada: Ninguna.

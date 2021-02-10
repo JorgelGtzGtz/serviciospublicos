@@ -17,12 +17,16 @@ import { Reporte } from '../../../Interfaces/IReporte';
   styleUrls: ['./dialog-asignacion-tickets.component.css']
 })
 export class DialogAsignacionTicketsComponent implements OnInit {
+  mensajeResultado: string;
   imagenesApertura: string [];
   listaCuadrillas: Cuadrilla [] = [];
   mostrarImgApertura: boolean;
   cuadrillasCargadas: boolean;
   imagenesCargadas: boolean;
   modificado: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
   form: FormGroup;
   reporte: Reporte;
 
@@ -40,6 +44,9 @@ export class DialogAsignacionTicketsComponent implements OnInit {
 
   //  Al iniciar se mandarán los datos al componente de mapa
   ngOnInit(): void {
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.obtenerCuadrillasList();
     this.obtenerObjetoReporte();
     this.inicializarFormulario();
@@ -196,6 +203,22 @@ cargarImagenesReporte(): void{
   }
 
 // Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
+
+// Entrada: Ninguna
 // Salida: vacío.
 // Descripción: Método en donde se llama al servicio de reporte para ejecutar la actualización,
 // de la información del reporte, a partir de los datos del formulario.
@@ -204,12 +227,17 @@ cargarImagenesReporte(): void{
     this.reporte.TiempoEstimado_reporte = this.campoTiempo.value;
     this.reporte.ID_cuadrilla = this.campoCuadrilla.value;
     this.reporteSevice.actualizarReporte(this.reporte).subscribe( respuesta => {
-      alert('¡ Reporte asignado con éxito ! ');
-      this.dialogRef.close();
+      this.procesando = false;
+      this.finalProceso = true;
+      this.mensajeResultado = '¡El reporte se ha asignado con éxito!';
     }, (error: HttpErrorResponse) => {
-      alert('¡Lo sentimos! No ha sido posible asignar la cudrilla. Verifique que los datos sean correctos o solicite asistencia.');
+      this.procesando = false;
+      this.error = true;
+      this.finalProceso = true;
+      this.mensajeResultado = 'No ha sido posible asignar el reporte. Vuelva a intentarlo ó solicite asistencia.';
       console.log('Error al asignar cuadrilla a reporte:', error.message);
     });
+    this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
   }
 
 // Entrada: Ninguna
@@ -219,6 +247,7 @@ cargarImagenesReporte(): void{
   guardar(): void {
     // event.preventDefault();
     if (this.form.valid){
+      this.procesando = true;
       this.accionGuardar();
     } else{
       this.form.markAllAsTouched();

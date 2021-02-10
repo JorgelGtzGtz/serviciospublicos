@@ -29,8 +29,12 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   modificado: boolean;
   mostrarImgApertura: boolean;
   mostrarImgCierre: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
   estadoReporte: number;
   accion: string;
+  mensajeResultado: string;
   pathImgApertura: string[] = [];
   pathImgCierre: string[] = [];
   imagenesApertura: Imagen [] = [];
@@ -58,6 +62,9 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.obtenerSectoresYTiposRep();
     this.inicializarCampos();
     this.tipoFormularioAccion();
@@ -454,6 +461,22 @@ mensajeEstado(): boolean{
     return ticket;
   }
 
+
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
   // Entrada: ninguna
   // Salida: Promesa<void> que indica que las operaciones asíncronas se completaron.
   // Descripción: Método para actualizar o registrar un nuevo reporte.
@@ -464,25 +487,36 @@ mensajeEstado(): boolean{
     }
 
     if (this.accion !== 'nuevo'){
+      // actualizar reporte
         this.modificarDatosReporte(coordenadas);
         this.reporteSevice.actualizarReporte(this.reporte).subscribe( res => {
-          alert('¡Los datos del reporte se actualizaron correctamente!');
-          this.dialogRef.close(this.data);
+          this.procesando = false;
+          this.finalProceso = true;
+          this.mensajeResultado = res;
         }, (error: HttpErrorResponse) => {
-          alert('¡Lo sentimos! El reporte no pudo ser modificado. Verifique que los datos sean correctos');
+          this.procesando = false;
+          this.finalProceso = true;
+          this.error = true;
+          this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
           console.warn( 'Error al actualizar reporte:' + error.message);
         });
       } else{
+        // registrar nuevo reporte
         const ticket = this.generarNuevoTicket(coordenadas);
         this.reporteSevice.registrarReporte(ticket, this.imagenesApertura).subscribe( res => {
-            alert(res);
-            this.dialogRef.close(this.data);
+          this.procesando = false;
+          this.finalProceso = true;
+          this.mensajeResultado = res;
           }, (error: HttpErrorResponse) => {
-            alert('¡Lo sentimos! El registro no pudo ser completado. Verifique que los datos sean correctos');
+            this.procesando = false;
+            this.finalProceso = true;
+            this.error = true;
+            this.mensajeResultado = 'EL reporte no pudo ser actualizado. Vuelva a intentarlo ó solicite asistencia.';
             console.warn('Error al registrar nuevo reporte:' + error.message);
 
           });
       }
+    this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
   }
 
   // Entrada: ninguna.
@@ -491,6 +525,7 @@ mensajeEstado(): boolean{
 guardar(): void {
   // event.preventDefault();
   if (this.form.valid){
+    this.procesando = true;
     this.accionGuardar();
   } else{
     this.form.markAllAsTouched();

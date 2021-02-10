@@ -217,10 +217,14 @@ export class UsuarioService {
   // Salida: vacío.
   // Descripción: Método para guardar el objeto de tipo Usuario en el session storage
   almacenarUsuarioLog(usuario: Usuario): void{
-    usuario.Password_usuario = '';
-    usuario.Telefono_usuario = '';
-    usuario.Correo_usuario = '';
-    sessionStorage.setItem('usuario', JSON.stringify(usuario));
+    if (usuario){
+      usuario.Password_usuario = '';
+      usuario.Telefono_usuario = '';
+      usuario.Correo_usuario = '';
+      sessionStorage.setItem('usuario', JSON.stringify(usuario));
+    }else{
+      sessionStorage.setItem('usuario', 'null');
+    }
   }
 
   // Entrada: valor tipo string para usuario y valor tipo string para contraseña.
@@ -244,8 +248,8 @@ export class UsuarioService {
   // Salida: objeto tipo Usuario.
   // Descripción: Método para obtener el usuario que inicio de sesión del local storage.
   obtenerUsuarioLogueado(): Usuario{
-    const usuario = JSON.parse(sessionStorage.getItem('usuario'));
-    // const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario'));
+    const usuario = usuarioGuardado !== 'null' ? usuarioGuardado : null;
     return usuario;
   }
 
