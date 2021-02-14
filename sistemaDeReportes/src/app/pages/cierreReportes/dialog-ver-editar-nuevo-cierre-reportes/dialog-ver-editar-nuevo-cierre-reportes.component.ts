@@ -1,4 +1,6 @@
-import { Component, OnInit, Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy , Inject, Renderer2, ViewChild, ElementRef } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -13,7 +15,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './dialog-ver-editar-nuevo-cierre-reportes.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo-cierre-reportes.component.css']
 })
-export class DialogVerEditarNuevoCierreReportesComponent implements OnInit {
+export class DialogVerEditarNuevoCierreReportesComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   @ViewChild('inputFile') inputFile: ElementRef;
   imagenesApertura: Imagen [] = [];
   imagenesCierre: Imagen [] = [];
@@ -142,6 +145,7 @@ reporteDisponible(): boolean{
 cargarImagenesReporte(): void{
   // Imagenes de apertura
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 1)
+  .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe( (imgApertura: Imagen[]) => {
     this.pathImgApertura = this.imagenService.llenarListaPathImagenes(imgApertura);
     this.inicializarContenedorImagenes();
@@ -152,6 +156,7 @@ cargarImagenesReporte(): void{
 
   // imágenes de cierre
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 2)
+  .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe( (imgCierre: Imagen[]) => {
     this.pathImgCierre = this.imagenService.llenarListaPathImagenes(imgCierre);
     this.inicializarContenedorImagenes();
@@ -193,8 +198,13 @@ cargarImagenesReporte(): void{
   // Muestra en pantalla las imagenes seleccionadas.
    obtenerImagenesSubidas(event): void{
     const photosList = event.target.files;
+    if (photosList.length <= 2){
     this.imagenService.setListaImagenesSel(photosList);
     this.uploadedImg = this.imagenService.readThis(photosList);
+    this.modificado = true;
+    }else{
+      alert('Solo se permiten dos imágenes de cierre.');
+    }
   }
 
 // Entrada: Ninguna
@@ -220,7 +230,6 @@ deshabilitarGuardar(): boolean{
   // Muestra en pantalla las imagenes seleccionadas.
   async accionGuardar(): Promise<void>{
     // Obtener imágenes
-    if (this.uploadedImg.length > 0){
       this.imagenesCierre = await this.imagenService.llenarListaImagen(2);
       this.reporteSevice.insertarImgReporte(this.reporte, this.imagenesCierre).toPromise()
       .catch((error: HttpErrorResponse) => {
@@ -237,7 +246,9 @@ deshabilitarGuardar(): boolean{
       this.reporte.Estatus_reporte = 2;
 
       // Enviar datos de reporte para actualizar
-      this.reporteSevice.actualizarReporte(this.reporte). subscribe( respuesta => {
+      this.reporteSevice.actualizarReporte(this.reporte)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( respuesta => {
         this.procesando = false;
         this.finalProceso = true;
         this.mensajeResultado = '¡El reporte se ha cerrado exitosamente!';
@@ -249,10 +260,27 @@ deshabilitarGuardar(): boolean{
         console.log('Error al efectuar actualización para cierre de reporte.', error.message);
     });
       this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
-    }else{
-      alert('¡Debe subir imágenes de cierre para poder cerrar el reporte!');
     }
+
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){
+    this.form.markAllAsTouched();
+    sonValidos = false;
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
+  // Verificar nombre de cuadrilla
+  if (this.uploadedImg.length === 0){
+    sonValidos = false;
+    alert('¡Debe subir imágenes de cierre para poder cerrar el reporte!');
+  }
+  return sonValidos;
+}
 
   // Entrada: evento que se genera al seleccionar imágenes en ventana de input tipo = file.
   // Salida: vacío.
@@ -260,7 +288,7 @@ deshabilitarGuardar(): boolean{
   // llamar al método "accionGuardar" que efectúa los procesos para mandar información a la API.
   guardar(): void {
     // event.preventDefault();
-    if (this.form.valid){
+    if (this.camposValidos()){
       this.procesando = true;
       this.accionGuardar();
     } else{
@@ -273,6 +301,11 @@ deshabilitarGuardar(): boolean{
 // Si la interacción sucedió se despliega un mensaje de confirmación.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
 }
 
 }

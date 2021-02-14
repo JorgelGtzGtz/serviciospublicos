@@ -1,4 +1,6 @@
-import { Component, OnInit,AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoUsuarioComponent } from '../dialog-ver-editar-nuevo-usuario/dialog-ver-editar-nuevo-usuario.component';
 import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
@@ -12,7 +14,8 @@ import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
   templateUrl: './usuarios.component.html',
   styleUrls: ['./usuarios.component.css']
 })
-export class UsuariosComponent implements OnInit {
+export class UsuariosComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   form: FormGroup;
   nombreSeccion = 'Usuarios';
   headersTabla: string [];
@@ -78,9 +81,10 @@ export class UsuariosComponent implements OnInit {
   actualizarTabla(): void{
     this.usuarioService.obtenerListaUsuarios(this.campoBusqueda.value,
       this.campoEstado.value, this.campoTipoUsuario.value, this.campoReportesActivos.value)
-    .subscribe( datos => {
-      this.usuarios = datos;
-      this.usuariosListos = true;
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( datos => {
+        this.usuarios = datos;
+        this.usuariosListos = true;
     }, (error: HttpErrorResponse) => {
       alert('Se generó un problema al cargar datos de esta sección. Recargue la página ó solicite asistencia.');
       console.log('Error al cargar datos de tabla usuarios: ' +  error.message);
@@ -92,7 +96,9 @@ export class UsuariosComponent implements OnInit {
   // Descripción: Método para obtener los registros de tipos de usuario para ser
   // cargados en una lista para ser mostrados en un select.
   obtenerTiposUsuario(): void{
-    this.tipoService.filtroTiposUsuario().subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.tiposUsuario = tipos;
       this.tiposListos = true;
     }, (error: HttpErrorResponse) => {
@@ -127,7 +133,9 @@ export class UsuariosComponent implements OnInit {
       data: {accion, usuario}
     });
 
-    DIALOG_REF.afterClosed().subscribe(result => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(result => {
         this.actualizarTabla();
     });
   }
@@ -163,7 +171,9 @@ export class UsuariosComponent implements OnInit {
  eliminarUsuario(usuario: any): void{
   const result = confirm('¿Seguro que desea eliminar el usuario?');
   if (result) {
-    this.usuarioService.eliminarUsuario(usuario).subscribe(res => {
+    this.usuarioService.eliminarUsuario(usuario)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(res => {
       alert(res);
       this.actualizarTabla();
     }, (error: HttpErrorResponse) => {
@@ -196,5 +206,9 @@ export class UsuariosComponent implements OnInit {
    this.actualizarTabla();
   }
 
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }

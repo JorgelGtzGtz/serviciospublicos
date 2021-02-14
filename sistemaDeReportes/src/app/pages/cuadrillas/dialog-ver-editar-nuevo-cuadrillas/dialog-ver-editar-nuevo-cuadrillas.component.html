@@ -73,7 +73,7 @@
                              {{ jefe.Nombre_usuario }}
                             </option>
                     </select>
-                    <div *ngIf="campoEncargado.errors && campoEncargado.touched">
+                    <div *ngIf="errorEncargado(campoEncargado.value) && campoEncargado.touched">
                         <p class="error" *ngIf="campoEncargado.hasError('required')">Campo requerido</p>
                     </div>
                 </div>
@@ -91,7 +91,7 @@
                              {{ tipo.Descripcion_tipoReporte }} 
                             </option>
                     </select>
-                    <div *ngIf="campoTipoCuadrilla.errors && campoTipoCuadrilla.touched">
+                    <div *ngIf="errorTipoC(campoTipoCuadrilla.value) && campoTipoCuadrilla.touched">
                         <p class="error" *ngIf="campoTipoCuadrilla.hasError('required')">Campo requerido</p>
                     </div>
                 </div>

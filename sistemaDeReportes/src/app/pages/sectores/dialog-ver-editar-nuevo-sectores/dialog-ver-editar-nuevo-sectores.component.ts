@@ -1,4 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA  } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -12,7 +14,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './dialog-ver-editar-nuevo-sectores.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo-sectores.component.css']
 })
-export class DialogVerEditarNuevoSectoresComponent implements OnInit {
+export class DialogVerEditarNuevoSectoresComponent implements OnInit, OnDestroy  {
+private ngUnsubscribe = new Subject();
 accion: string;
 mensajeResultado: string;
 form: FormGroup;
@@ -77,8 +80,10 @@ sector: Sector;
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
   verificarCambiosFormulario(): void{
-    this.form.valueChanges.subscribe(value => {
-      if (this.form.touched){
+    this.form.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(value => {
+      if (this.form.dirty){
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -90,7 +95,9 @@ sector: Sector;
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
   verificarCambiosNombre(): void{
-    this.campoNombreSector.valueChanges.subscribe(nombre => {
+    this.campoNombreSector.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(nombre => {
       if (this.campoNombreSector.dirty){
         this.verificarExistenciaSector(nombre);
       }
@@ -103,7 +110,9 @@ sector: Sector;
 //  y si la descripción de sector ya existe.
 verificarExistenciaSector(nombre: string): void{
   if (nombre.length > 0){
-    this.sectorService.obtenerSectorPorNombre(nombre).subscribe( res => {
+    this.sectorService.obtenerSectorPorNombre(nombre)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
       if (res !== null){
         this.existeSector = this.esSectorDiferente(res);
       }else{
@@ -188,7 +197,9 @@ tipoFormularioAccion(): void{
   // Salida: vacío.
   // Descripción: Función para obtener el ID del nuevo registro
    obtenerIDNuevo(): void{
-    this.sectorService.obtenerIDRegistro().subscribe( (id: number) => {
+    this.sectorService.obtenerIDRegistro()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
     });
@@ -270,7 +281,9 @@ deshabilitarGuardar(): boolean{
 accionGuardar(): void{
   const sector = this.generarSector();
   if (this.accion !== 'nuevo'){
-   this.sectorService.actualizarSector(sector).subscribe( res => {
+   this.sectorService.actualizarSector(sector)
+   .pipe(takeUntil(this.ngUnsubscribe))
+   .subscribe( res => {
     this.procesando = false;
     this.finalProceso = true;
     this.mensajeResultado = res;
@@ -282,7 +295,9 @@ accionGuardar(): void{
       console.log('Error al actualizar sector: ' + error.message);
     });
   } else{
-    this.sectorService.insertarSector(sector).subscribe( res => {
+    this.sectorService.insertarSector(sector)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
       this.procesando = false;
       this.finalProceso = true;
       this.mensajeResultado = res;
@@ -305,6 +320,11 @@ accionGuardar(): void{
 // Si la interacción sucedió se despliega un mensaje de confirmación.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
 }
 
 }

@@ -32,7 +32,7 @@ export class ImagenService {
   // Descripción: Recibe la lista de Files con las imágenes
   // que se seleccionaron en el input type = file
   setListaImagenesSel(listaFiles: File[]): void{
-    this.photosList = listaFiles;
+      this.photosList = listaFiles;
   }
 
   // Entrada: Ninguna

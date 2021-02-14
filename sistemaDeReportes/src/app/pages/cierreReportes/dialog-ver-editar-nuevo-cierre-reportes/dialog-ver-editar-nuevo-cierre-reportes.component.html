@@ -115,7 +115,7 @@
                         <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
                         <button id="btn-subirImg" mat-raised-button [disabled]="reporteDisponible()" (click)="abrirVentanaImagenes()">Subir imágenes</button>
                         <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
-                        <div><small>Las imágenes deben ser de tipo .jpeg .jpg ó .png</small></div>
+                        <div><small>Máximo 2 imágenes. Las imágenes deben ser de tipo .jpeg .jpg ó .png</small></div>
                         <div>
                             <div class="img-container" *ngIf="uploadedImg.length> 0">
                                 <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">

@@ -54,7 +54,7 @@
                                     {{ tipo.Descripcion_tipoReporte }}
                                 </option>
                             </select>
-                            <div *ngIf="campoTipoReporte.errors && campoTipoReporte.touched">
+                            <div *ngIf="errorTipoR(campoTipoReporte.value) && campoTipoReporte.touched">
                                 <p class="error" *ngIf="campoTipoReporte.hasError('required')">Campo requerido</p>
                             </div>
                         </div>
@@ -71,7 +71,7 @@
                                     {{ sector.Descripcion_sector }}
                                 </option>
                             </select>
-                            <div *ngIf="campoSector.errors && campoSector.touched">
+                            <div *ngIf="errorSector(campoSector.value) && campoSector.touched">
                                 <p class="error" *ngIf="campoSector.hasError('required')">Campo requerido</p>
                             </div>
                         </div>

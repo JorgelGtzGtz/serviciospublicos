@@ -135,7 +135,7 @@
                             </option>
                             <option *ngIf="tiposUsuario.length === 0"> No hay opciones disponibles</option>
                         </select>
-                        <div *ngIf="campoTipoUsuario.errors && campoTipoUsuario.touched">
+                        <div *ngIf="errorTipoU(campoTipoUsuario.value) && campoTipoUsuario.touched">
                             <p class="error" *ngIf="campoTipoUsuario.hasError('required')">Campo requerido</p>
                         </div>
                     </div>
@@ -164,7 +164,7 @@
 
                     <!-- PASSWORD -->
                     <div class="col-md-5">
-                        <div class="row form-group row-input-group">
+                        <div class="row form-group row-input-group" *ngIf="accion === 'nuevo'">
                             <label id="lblContrasena" class="col-form-label col-md-auto" for="password">Contraseña: </label>
                             <div class="col p-0">
                                 <input type="password" class="form-control" id="password" maxlength="8" formControlName="password">

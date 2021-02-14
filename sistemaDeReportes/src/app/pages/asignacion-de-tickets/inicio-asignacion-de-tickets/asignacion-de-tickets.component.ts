@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAsignacionTicketsComponent } from '../dialog-asignacion-tickets/dialog-asignacion-tickets.component';
 import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
@@ -13,7 +15,8 @@ import { TipoReporte } from '../../../Interfaces/ITipoReporte';
   templateUrl: './asignacion-de-tickets.component.html',
   styleUrls: ['./asignacion-de-tickets.component.css']
 })
-export class AsignacionDeTicketsComponent implements OnInit {
+export class AsignacionDeTicketsComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   nombreSeccion = 'Asignación de tickets a cuadrilla';
   form: FormGroup;
   ReportesCargados: boolean;
@@ -48,7 +51,7 @@ export class AsignacionDeTicketsComponent implements OnInit {
       tipoReporte: ['Todos'],
       fechaInicio: [''],
       fechaFinal: [''],
-      tipoFecha: ['']
+      tipoFecha: ['a']
     });
   }
 
@@ -110,7 +113,9 @@ export class AsignacionDeTicketsComponent implements OnInit {
     const fechaAl: string =  this.campoFechaFinal.value;
     const tipoFecha: string = this.campoTipoFecha.value;
     this.reporteService.filtroReportes(
-      tipoR, cuadrilla, estado, sector,  origen, fecha, fechaAl, tipoFecha).subscribe(reportes => {
+      tipoR, cuadrilla, estado, sector,  origen, fecha, fechaAl, tipoFecha)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(reportes => {
         this.listaReportes = reportes;
         this.ReportesCargados = true;
     });
@@ -121,13 +126,17 @@ export class AsignacionDeTicketsComponent implements OnInit {
   // Descripción:Método para obtener los registros de tipos de reporte, sectores y cuadrillas
   // para mostrarlos en sus respectivos select.
   inicializarListas(): void{
-    this.tipoRService.obtenerTiposReporte().subscribe( tipos => {
+    this.tipoRService.obtenerTiposReporte()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.listaTiposR = tipos;
       this.tiposCargados = true;
     }, error => {
         console.log('No fue posible obtener los tipos de reportes existentes. ' + error );
     });
-    this.sectorService.obtenerSectores().subscribe(sectores => {
+    this.sectorService.obtenerSectores()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(sectores => {
       this.listaSectores = sectores;
       this.sectoresCargados = true;
     }, error => {
@@ -174,7 +183,9 @@ export class AsignacionDeTicketsComponent implements OnInit {
       data: {reporte}
     });
 
-    DIALOG_REF.afterClosed().subscribe(() => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(() => {
       this.actualizarTabla();
     });
   }
@@ -210,8 +221,13 @@ export class AsignacionDeTicketsComponent implements OnInit {
     this.campoTipoReporte.setValue('Todos');
     this.campoFechaInicio.setValue('');
     this.campoFechaFinal.setValue('');
-    this.campoTipoFecha.setValue('');
+    this.campoTipoFecha.setValue('a');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }

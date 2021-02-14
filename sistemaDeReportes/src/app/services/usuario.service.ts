@@ -69,7 +69,6 @@ export class UsuarioService {
   // Descripción: Guarda en localStorage el token de recuperación.
   guardarToken(token: string[]): void {
     this.tokenRecuperacion = token;
-    console.log('SE GUARDA TOKEN:', token);
   }
 
   // Entrada: ninguna.
@@ -100,13 +99,24 @@ export class UsuarioService {
 
   // Entrada: string con token
   // Salida: Observable de tipo boolean.
-  // Descripción: Verifica que el token tenga menos de 1 hr.
+  // Descripción: Verifica que el token ingresado y el asignado sean el mismo.
+  mismoToken(token: string): boolean{
+    let mismo: boolean;
+    const tokenArr = this.recuperarToken();
+    const tokenAsignado = tokenArr[0];
+    mismo = token === tokenAsignado ? true : false;
+    return mismo;
+  }
+
+
+  // Entrada: string con token
+  // Salida: Observable de tipo boolean.
+  // Descripción: Verifica validez del token en la API
   verificarToken(token: string): Observable<boolean>{
     const tokenArr = this.recuperarToken();
     const tokenAsignado = tokenArr[0];
     const fechaToken = tokenArr[1];
     const email = this.recuperarEmailUsuario();
-
     // Asignar parámetros
     let params = new HttpParams();
     params = params.append('token', token);
@@ -114,7 +124,6 @@ export class UsuarioService {
     params = params.append('fechaToken', fechaToken);
     params = params.append('email', email);
     return this.http.post<boolean>(this.url + '/verificarToken', null, {params});
-
   }
   // Entrada: valor tipo string para cada parámetro de filtro de búsqueda.
   // Salida: observable con la respuesta de la petición.
@@ -213,6 +222,13 @@ export class UsuarioService {
     return this.http.put(this.url + '/EliminarUsuario', usuario);
   }
 
+  // Entrada: String con password
+  // Salida: password encriptada
+  // Descripción: Encripta las contraseñas.
+  encriptarPassword(password: string): string{
+    return btoa(password);
+  }
+
   // Entrada: objeto tipo Usuario
   // Salida: vacío.
   // Descripción: Método para guardar el objeto de tipo Usuario en el session storage
@@ -232,7 +248,8 @@ export class UsuarioService {
   // Descripción: Al iniciar sesión, almacena temporalmente el usuario
   // y contraseña para los headers en el interceptor
   almacenarClaveLogin(usuarioLogin: string, password: string): void{
-    const datosLogin = btoa(usuarioLogin + ':' + password);
+    const passwordEncriptada = btoa(password);
+    const datosLogin = btoa(usuarioLogin + ':' + passwordEncriptada);
     sessionStorage.setItem('claveLogin', JSON.stringify(datosLogin));
   }
 

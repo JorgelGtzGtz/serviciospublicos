@@ -23,7 +23,7 @@
 
         <div *ngIf="datosCargados() && !procesando && !finalProceso">
             <!-- MENSAJE PARA REPORTES CANCELADOS O CERRADOS -->
-            <div *ngIf="mensajeEstado()">
+            <div *ngIf="reporteDisponible()">
                 <div *ngIf="reporte.Estatus_reporte === 2" class="alert alert-danger" role="alert">
                     Este reporte ha sido cerrado. No se permite la asignación de cuadrilla.
                 </div>
@@ -80,7 +80,7 @@
                                     {{ cuadrilla.Nombre_cuadrilla }}
                                 </option>
                             </select>
-                                <div *ngIf="campoCuadrilla.errors && campoCuadrilla.touched">
+                                <div *ngIf="errorCuadrilla(campoCuadrilla.value) && campoCuadrilla.touched">
                                     <p class="error" *ngIf="campoCuadrilla.hasError('required')">Campo requerido</p>
                                 </div>
                             </div>
@@ -95,6 +95,9 @@
                                 <input type="date" class="form-control" id="fechaCierre" formControlName="fechaCierre">
                                 <div class="col-12">
                                     <small class="indicaciones">Fecha aproximada. No oficial</small>
+                                </div>
+                                <div *ngIf="campoFechaCierre.errors && campoCuadrilla.touched">
+                                    <p class="error" *ngIf="campoFechaCierre.hasError('required')">Campo requerido</p>
                                 </div>
                             </div>
                         </div>

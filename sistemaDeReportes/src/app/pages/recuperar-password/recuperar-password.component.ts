@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { UsuarioService } from '../../services/usuario.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormControl, Validators } from '@angular/forms';
@@ -10,7 +12,8 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: './recuperar-password.component.html',
   styleUrls: ['./recuperar-password.component.css']
 })
-export class RecuperarPasswordComponent implements OnInit {
+export class RecuperarPasswordComponent implements OnInit, OnDestroy  {
+  private ngUnsubscribe = new Subject();
   email: FormControl;
   token: FormControl;
   password: FormControl;
@@ -20,6 +23,7 @@ export class RecuperarPasswordComponent implements OnInit {
   actualizarPassword: boolean;
   volverLogin: boolean;
   mismoPassword: boolean;
+  botonDesactivado: boolean;
 
   constructor( private usuarioService: UsuarioService,
                private router: Router) {
@@ -31,6 +35,7 @@ export class RecuperarPasswordComponent implements OnInit {
     this.recibirToken = false;
     this.actualizarPassword = false;
     this.mismoPassword = true;
+    this.botonDesactivado = false;
   }
 
   // Entrada: Ninguna.
@@ -49,7 +54,8 @@ export class RecuperarPasswordComponent implements OnInit {
   // Descripción: monitorea la contraseña de confirmación para verificar que sea igual a
   // la contraseña principal.
   validezPassword(): void{
-    this.confirmPassword.valueChanges.pipe(debounceTime(500)).subscribe(passwordConfirmacion => {
+    this.confirmPassword.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe(passwordConfirmacion => {
       if (this.confirmPassword.dirty){
         this.mismoPassword = this.compararPassword(passwordConfirmacion);
       }
@@ -75,6 +81,7 @@ export class RecuperarPasswordComponent implements OnInit {
   // envía al servicio, el correo ingresado por el usuario.
   recuperarPassword(): void{
     if (this.email.valid){
+      this.botonDesactivado = true;
       this.usuarioService.guardarEmailUsuario(this.email.value);
       this.enviarCorreo();
     }
@@ -92,8 +99,10 @@ export class RecuperarPasswordComponent implements OnInit {
       alert('El código para recuperar contraseña a sido enviado a su correo.');
       this.pedirToken = false;
       this.recibirToken = true;
+      this.botonDesactivado = false;
     })
     .catch((error: HttpErrorResponse) => {
+      this.botonDesactivado = false;
       alert('¡Lo sentimos! ocurrió un problema al enviar su código de modificación de contraseña, vuelva a interntarlo.');
       console.log('Error al solicitar enviar correo para recuperación de contraseña. Error:' + error.message);
     });
@@ -103,19 +112,28 @@ export class RecuperarPasswordComponent implements OnInit {
   // Salida: Ninguna
   // Descripción: Verifica que el token sea válido.
   verificarToken(): void{
-    this.usuarioService.verificarToken(this.token.value).toPromise()
-    .then( resultado => {
-      if (resultado){
-        this.actualizarPassword = true;
-        this.recibirToken = false;
-      }else{
-        alert('Este token no es válido.');
-        this.usuarioService.eliminarToken();
-      }
-    })
-    .catch( (error: HttpErrorResponse) => {
-      console.log(error.message);
-    });
+    this.botonDesactivado = true;
+    const token = this.token.value;
+    if (this.usuarioService.mismoToken(token)){
+      this.usuarioService.verificarToken(token).toPromise()
+      .then( resultado => {
+        if (resultado){
+          this.actualizarPassword = true;
+          this.recibirToken = false;
+          this.botonDesactivado = false;
+        }else{
+          alert('Este token no es válido.');
+          this.botonDesactivado = false;
+        }
+      })
+      .catch( (error: HttpErrorResponse) => {
+        console.log(error.message);
+        this.botonDesactivado = false;
+      });
+    }else{
+      alert('Este token no es válido.');
+      this.botonDesactivado = false;
+    }
   }
 
   // Entrada: Ninguna
@@ -123,9 +141,10 @@ export class RecuperarPasswordComponent implements OnInit {
   // Descripción: Método para modificar la contraseña del usuario.
   modificarPassword(): void {
     if (this.mismoPassword){
-      this.usuarioService.modificarPassword(this.password.value).toPromise()
+      this.botonDesactivado = true;
+      const passwordEncriptada = this.usuarioService.encriptarPassword(this.password.value);
+      this.usuarioService.modificarPassword(passwordEncriptada).toPromise()
       .then( mensajeResultado => {
-        alert(mensajeResultado);
         this.volverLogin = true;
         this.actualizarPassword = false;
         this.usuarioService.eliminarEmail();
@@ -142,6 +161,10 @@ export class RecuperarPasswordComponent implements OnInit {
 // Descripción: Redirecciona al login.
 volverInicio(): void{
   this.router.navigate(['../login']);
+}
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
 }
 
 }

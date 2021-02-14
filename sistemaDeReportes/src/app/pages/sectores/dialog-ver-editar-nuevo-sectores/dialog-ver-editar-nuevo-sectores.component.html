@@ -49,7 +49,7 @@
             <div class="row form-group form-sections row-input-group">
                 <label id="lblNombreSector" class="col-form-label col-md-auto" for="nombreSector">Nombre de sector: </label>
                 <div class="col p-0">
-                    <input type="text" maxlenght="40" class="form-control" id="nombreSector" formControlName="nombreS">
+                    <input type="text" maxlength="40" class="form-control" id="nombreSector" formControlName="nombreS">
                     <div *ngIf="campoNombreSector.errors && campoNombreSector.touched ">
                         <p class="error" *ngIf="campoNombreSector.hasError( 'required')">Campo requerido</p>
                         <p class="error" *ngIf="campoNombreSector.hasError( 'pattern')">No se permiten números ni caracteres especiales.</p>

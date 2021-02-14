@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoCuadrillasComponent } from '../dialog-ver-editar-nuevo-cuadrillas/dialog-ver-editar-nuevo-cuadrillas.component';
 import { FormControl, AbstractControl } from '@angular/forms';
@@ -12,7 +14,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './cuadrillas.component.html',
   styleUrls: ['./cuadrillas.component.css']
 })
-export class CuadrillasComponent implements OnInit {
+export class CuadrillasComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   nombreSeccion = 'Cuadrillas';
   busquedaForm: FormControl;
   estadoForm: FormControl;
@@ -47,10 +50,11 @@ export class CuadrillasComponent implements OnInit {
   }
 
   actualizarTabla(): void{
-    this.cuadrillaService.obtenerCuadrillasFiltro(this.campoBusqueda.value, this.campoEstado.value).subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasFiltro(this.campoBusqueda.value, this.campoEstado.value)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
       this.cuadrillasListas = true;
-      console.log('Cuadrillas lista:', cuadrillas);
     }, (error: HttpErrorResponse) => {
       alert('Surgió un problema al cargar datos de página. Vuelva a cargar o solicite asistencia.');
       console.log('Error al obtener lista de cuadrillas disponibles. Error:' + error.message);
@@ -91,7 +95,9 @@ export class CuadrillasComponent implements OnInit {
       disableClose: true,
       data: {accion, cuadrilla}
     });
-    DIALOG_REF.afterClosed().subscribe(result => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(result => {
       this.actualizarTabla();
     });
   }
@@ -127,7 +133,9 @@ export class CuadrillasComponent implements OnInit {
   eliminarCuadrilla( cuadrilla: Cuadrilla): void{
     const result = confirm('¿Seguro que desea eliminar la cuadrilla?');
     if (result) {
-      this.cuadrillaService.eliminarCuadrilla(cuadrilla).subscribe( res => {
+      this.cuadrillaService.eliminarCuadrilla(cuadrilla)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( res => {
         alert(res);
         this.actualizarTabla();
       }, (error: HttpErrorResponse) => {
@@ -154,5 +162,10 @@ export class CuadrillasComponent implements OnInit {
     this.campoEstado.setValue('Todos');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }

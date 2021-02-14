@@ -1,4 +1,6 @@
-import { Component, OnInit, Inject, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -22,7 +24,8 @@ import { ImagenService } from '../../../services/imagen.service';
   templateUrl: './dialog-ver-editar-nuevo-alta-reportes.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo-alta-reportes.component.css']
 })
-export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
+export class DialogVerEditarNuevoAltaReportesComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   @ViewChild('inputFile') inputFile: ElementRef;
   reporte: Reporte;
   idListo: boolean;
@@ -213,7 +216,9 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   // Descripción: Método para obtener el último ID registrado en la base de datos para
   // posteriormente ser mostrado en formulario.
     obtenerIDNuevo(): void{
-      this.reporteSevice.obtenerIDRegistro().subscribe( (id: number) => {
+      this.reporteSevice.obtenerIDRegistro()
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( (id: number) => {
         this.campoId.setValue(id);
         this.idListo = true;
       });
@@ -234,13 +239,17 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit {
   // Descripción: Método para obtener el listado de sectores y tipos de reporte
   // que se encuentran en la base de datos.
 obtenerSectoresYTiposRep(): void{
-  this.sectorService.obtenerSectores().subscribe( sectores => {
+  this.sectorService.obtenerSectores()
+  .pipe(takeUntil(this.ngUnsubscribe))
+  .subscribe( sectores => {
     sectores.forEach(sector => {
       this.listaSectores.push(sector);
     });
   });
 
-  this.tipoReporteService.obtenerTiposReporte().subscribe( tipos => {
+  this.tipoReporteService.obtenerTiposReporte()
+  .pipe(takeUntil(this.ngUnsubscribe))
+  .subscribe( tipos => {
     tipos.forEach(tipo => {
       this.listaTiposR.push(tipo);
     });
@@ -254,6 +263,7 @@ obtenerSectoresYTiposRep(): void{
 cargarImagenesReporte(): void{
   // Imagenes de apertura
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 1)
+  .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe( (imgApertura: Imagen[]) => {
     this.pathImgApertura = this.imagenService.llenarListaPathImagenes(imgApertura);
     this.inicializarContenedorImagenes();
@@ -263,6 +273,7 @@ cargarImagenesReporte(): void{
 
   // imágenes de cierre
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 2)
+  .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe( (imgCierre: Imagen[]) => {
     this.pathImgCierre = this.imagenService.llenarListaPathImagenes(imgCierre);
     this.inicializarContenedorImagenes();
@@ -329,7 +340,9 @@ obtenerEstadoFormulario(): boolean{
     const auxEstado = this.reporte.Estatus_reporte;
     this.reporte.Estatus_reporte = 4;
     if (result) {
-      this.reporteSevice.actualizarReporte(this.reporte).subscribe( res => {
+      this.reporteSevice.actualizarReporte(this.reporte)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( res => {
         alert('¡El reporte fue cancelado!');
         this.form.disable();
         this.dialogRef.close(this.data);
@@ -461,6 +474,37 @@ mensajeEstado(): boolean{
     return ticket;
   }
 
+// Entrada: valor de tipo number con el valor actual del input tipo reporte.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para tipo de reporte y activa el error si
+// no se ha seleccionado un tipo de reporte o lo retira.
+errorTipoR(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoTipoReporte.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoTipoReporte.setErrors(null);
+    error = false;
+  }
+  return error;
+}
+
+// Entrada: valor de tipo number con el valor actual del input sector.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para sector y activa el error si
+// no se ha seleccionado un sector o lo retira.
+errorSector(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoSector.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoSector.setErrors(null);
+    error = false;
+  }
+  return error;
+}
 
 // Entrada: Ninguna
 // Salida: Booleano
@@ -489,7 +533,9 @@ deshabilitarGuardar(): boolean{
     if (this.accion !== 'nuevo'){
       // actualizar reporte
         this.modificarDatosReporte(coordenadas);
-        this.reporteSevice.actualizarReporte(this.reporte).subscribe( res => {
+        this.reporteSevice.actualizarReporte(this.reporte)
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe( res => {
           this.procesando = false;
           this.finalProceso = true;
           this.mensajeResultado = res;
@@ -503,7 +549,9 @@ deshabilitarGuardar(): boolean{
       } else{
         // registrar nuevo reporte
         const ticket = this.generarNuevoTicket(coordenadas);
-        this.reporteSevice.registrarReporte(ticket, this.imagenesApertura).subscribe( res => {
+        this.reporteSevice.registrarReporte(ticket, this.imagenesApertura)
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe( res => {
           this.procesando = false;
           this.finalProceso = true;
           this.mensajeResultado = res;
@@ -541,6 +589,11 @@ guardar(): void {
 // Si la interacción sucedió se despliega un mensaje de confirmación.
   cerrarDialog(): void{
     this.dialogService.verificarCambios(this.dialogRef);
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy , Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -10,13 +10,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { Reporte } from '../../../Interfaces/IReporte';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dialog-asignacion-tickets',
   templateUrl: './dialog-asignacion-tickets.component.html',
   styleUrls: ['./dialog-asignacion-tickets.component.css']
 })
-export class DialogAsignacionTicketsComponent implements OnInit {
+export class DialogAsignacionTicketsComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   mensajeResultado: string;
   imagenesApertura: string [];
   listaCuadrillas: Cuadrilla [] = [];
@@ -61,12 +64,11 @@ export class DialogAsignacionTicketsComponent implements OnInit {
   private buildForm(): void{
     this.form = this.formBuilder.group({
       cuadrilla: [0, [Validators.required]],
-      fechaCierre: [''],
-      tiempo: ['']
+      fechaCierre: ['', [Validators.required]],
+      tiempo: ['', [Validators.required]]
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -122,7 +124,7 @@ get campoTiempo(): AbstractControl{
 // Descripción: Este método habilita o deshabilita el formulario según el estado del reporte.
 tipoFormularioAccion(): void{
   const estadoReporte = this.reporte.Estatus_reporte;
-  if(estadoReporte === 2 || estadoReporte === 4){
+  if (estadoReporte === 2 || estadoReporte === 4){
     this.form.disable();
   }
 }
@@ -130,10 +132,10 @@ tipoFormularioAccion(): void{
 // Entrada: Ninguna.
 // Salida: boolean
 // Descripción: Genera mensaje para informar al usuario que el reporte tiene estado cancelado o cerrado.
-mensajeEstado(): boolean{
+reporteDisponible(): boolean{
   let mostrarMensaje: boolean;
   const estadoReporte = this.reporte.Estatus_reporte;
-  if(estadoReporte === 2 || estadoReporte === 4){
+  if (estadoReporte === 2 || estadoReporte === 4){
     mostrarMensaje = true;
   }else{
     mostrarMensaje = false;
@@ -147,6 +149,7 @@ mensajeEstado(): boolean{
   // contiene el reporte.
 cargarImagenesReporte(): void{
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 1)
+  .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe( (imgApertura: Imagen[]) => {
     this.imagenesApertura = this.imagenSevice.llenarListaPathImagenes(imgApertura);
     this.inicializarVariablesImagenes();
@@ -160,7 +163,9 @@ cargarImagenesReporte(): void{
   // Salida: vacío.
   // Descripción: Método para obtener el listado de cuadrillas
   obtenerCuadrillasList(): void{
-    this.cuadrillaService.obtenerCuadrillasGeneral().subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasGeneral()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( cuadrillas => {
       cuadrillas.forEach(cuadrilla => {
         this.listaCuadrillas.push(cuadrilla);
         this.cuadrillasCargadas = true;
@@ -202,6 +207,22 @@ cargarImagenesReporte(): void{
     }
   }
 
+// Entrada: valor de tipo number con el valor actual del input cuadrilla.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para cuadrilla y activa el error si
+// no se ha seleccionado una cuadrilla o lo retira.
+errorCuadrilla(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoCuadrilla.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoCuadrilla.setErrors(null);
+    error = false;
+  }
+  return error;
+}
+
 // Entrada: Ninguna
 // Salida: Booleano
 // Descripción: Deshabilita el botón guardar si
@@ -209,7 +230,7 @@ cargarImagenesReporte(): void{
 // una actualización o alta, o si ya se ha concluido un proceso.
 deshabilitarGuardar(): boolean{
   let deshabilitar: boolean;
-  if (this.procesando || this.finalProceso) {
+  if (this.procesando || this.finalProceso || this.reporteDisponible()) {
     deshabilitar = true;
   }else{
     deshabilitar = false;
@@ -226,7 +247,9 @@ deshabilitarGuardar(): boolean{
     this.reporte.FechaCierre_reporte = this.campoFechaCierre.value;
     this.reporte.TiempoEstimado_reporte = this.campoTiempo.value;
     this.reporte.ID_cuadrilla = this.campoCuadrilla.value;
-    this.reporteSevice.actualizarReporte(this.reporte).subscribe( respuesta => {
+    this.reporteSevice.actualizarReporte(this.reporte)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( respuesta => {
       this.procesando = false;
       this.finalProceso = true;
       this.mensajeResultado = '¡El reporte se ha asignado con éxito!';
@@ -251,6 +274,7 @@ deshabilitarGuardar(): boolean{
       this.accionGuardar();
     } else{
       this.form.markAllAsTouched();
+      alert('Verifique que los campos tengan la información correcta o estén llenos.');
     }
   }
 
@@ -260,6 +284,11 @@ deshabilitarGuardar(): boolean{
 // en caso de que se interactuara con el dialog.
   cerrarDialog(): void{
     this.dialogService.verificarCambios(this.dialogRef);
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   }

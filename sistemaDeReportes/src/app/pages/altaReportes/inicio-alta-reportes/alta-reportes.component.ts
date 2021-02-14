@@ -1,4 +1,6 @@
-import { Component, OnInit, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog} from '@angular/material/dialog';
 import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
 import { DialogVerEditarNuevoAltaReportesComponent } from '../dialog-ver-editar-nuevo-alta-reportes/dialog-ver-editar-nuevo-alta-reportes.component';
@@ -16,7 +18,8 @@ import { TipoReporte } from '../../../Interfaces/ITipoReporte';
   templateUrl: './alta-reportes.component.html',
   styleUrls: ['./alta-reportes.component.css']
 })
-export class AltaReportesComponent implements OnInit {
+export class AltaReportesComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   form: FormGroup;
   nombreSeccion = 'Alta de reportes';
   headersTabla: string [];
@@ -55,7 +58,7 @@ export class AltaReportesComponent implements OnInit {
       origen: ['Todos'],
       fechaInicio: [''],
       fechaFinal: [''],
-      tipoFecha: ['']
+      tipoFecha: ['a']
     });
   }
 
@@ -158,19 +161,25 @@ export class AltaReportesComponent implements OnInit {
   // Descripción:Método para obtener los registros de tipos de reporte, sectores y cuadrillas
   // para mostrarlos en sus respectivos select.
   inicializarListas(): void{
-    this.tipoRService.obtenerTiposReporte().subscribe( tipos => {
+    this.tipoRService.obtenerTiposReporte()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.listaTiposR = tipos;
       this.tiposCargados = true;
     }, error => {
         console.log('No fue posible obtener los tipos de reportes existentes. ' + error );
     });
-    this.sectorService.obtenerSectores().subscribe(sectores => {
+    this.sectorService.obtenerSectores()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(sectores => {
       this.listaSectores = sectores;
       this.sectoresCargados = true;
     }, error => {
       console.log('No fue posible obtener los sectores existentes. ' + error );
     });
-    this.cuadrillaService.obtenerCuadrillasGeneral().subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasGeneral()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
       this.cuadrillasCargadas = true;
     }, error => {
@@ -203,7 +212,9 @@ export class AltaReportesComponent implements OnInit {
       data: {accion, reporte}
     });
 
-    DIALOG_REF.afterClosed().subscribe(() => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(() => {
       this.actualizarTabla();
     });
   }
@@ -258,8 +269,13 @@ export class AltaReportesComponent implements OnInit {
     this.campoTipoReporte.setValue('Todos');
     this.campoFechaInicial.setValue('');
     this.campoFechaFinal.setValue('');
-    this.campoTipoFecha.setValue('');
+    this.campoTipoFecha.setValue('a');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }

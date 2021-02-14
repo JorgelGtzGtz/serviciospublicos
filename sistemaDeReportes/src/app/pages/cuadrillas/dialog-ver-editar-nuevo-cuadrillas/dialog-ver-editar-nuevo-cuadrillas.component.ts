@@ -1,4 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -16,7 +18,8 @@ import { TipoReporte } from 'src/app/Interfaces/ITipoReporte';
   templateUrl: './dialog-ver-editar-nuevo-cuadrillas.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo-cuadrillas.component.css']
 })
-export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
+export class DialogVerEditarNuevoCuadrillasComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   accion: string;
   mensajeResultado: string;
   form: FormGroup;
@@ -87,8 +90,12 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
   verificarCambiosFormulario(): void{
-    this.form.valueChanges.subscribe(value => {
-      if (this.form.dirty){
+    this.form.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(value => {
+      if (this.form.touched){
+        console.log('MONITOREAR FORMULARIO:', this.form.value);
+        
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -100,7 +107,9 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
   verificarCambiosNombre(): void{
-    this.campoNombreCuadrilla.valueChanges.subscribe(nombre => {
+    this.campoNombreCuadrilla.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(nombre => {
       if (this.campoNombreCuadrilla.dirty){
         this.verificarExistenciaCuadrilla(nombre);
       }
@@ -113,8 +122,9 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit {
 //  y si la descripción de cuadrilla ya existe.
 verificarExistenciaCuadrilla(nombre: string): void{
   if (nombre.length > 0){
-    this.cuadrillaService.obtenerCuadrillaPorNombre(nombre).subscribe( res => {
-      console.log(res);
+    this.cuadrillaService.obtenerCuadrillaPorNombre(nombre)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
       if (res !== null){
         this.existeCuadrilla = this.esCuadrillaDiferente(res);
       }else{
@@ -226,7 +236,9 @@ tipoFormularioAccion(): void{
   // Salida: vacío.
   // Descripción: Función para obtener el ID del nuevo registro
   obtenerIDNuevo(): void{
-    this.cuadrillaService.obtenerIDRegistro().subscribe( (id: number) => {
+    this.cuadrillaService.obtenerIDRegistro()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
     }, (error: HttpErrorResponse) => {
@@ -239,7 +251,9 @@ tipoFormularioAccion(): void{
 // Salida: vacío.
 // Descripción: Llena la lista de Tipos de cuadrilla.
 ObtenerTiposCuadrilla(): void{
-  this.tipoReporteService.obtenerTiposReporte().subscribe(tipos => {
+  this.tipoReporteService.obtenerTiposReporte()
+  .pipe(takeUntil(this.ngUnsubscribe))
+  .subscribe(tipos => {
     this.tiposCuadrilla = tipos;
     this.tiposCargados = true;
   }, (error: HttpErrorResponse) => {
@@ -253,10 +267,10 @@ ObtenerTiposCuadrilla(): void{
 // Descripción: Función para obtener la lista de los usuarios
 // de tipo Jefe de cuadrilla que pueden ser asignados
   obtenerJefesCuadrilla(): void{
-    this.usuarioService.obtenerJefesCuadrilla().subscribe( jefes => {
+    this.usuarioService.obtenerJefesCuadrilla()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( jefes => {
       jefes.forEach(jefe => {
-        console.log('JEFE:', jefe);
-
         if (!jefe.Jefe_asignado){
           this.jefesCuadrillaDisp.push(jefe);
         }
@@ -273,7 +287,9 @@ ObtenerTiposCuadrilla(): void{
 // Descripción: Método que obtiene el objeto Usuario del ID_JefeCuadrilla que la cuadrilla tiene asociado
 // Y lo agrega a la lista de jefes de cuadrilla disponibles
   obtenerObjetoJefeActual(): void{
-    this.usuarioService.obtenerUsuario(this.cuadrilla.ID_JefeCuadrilla).subscribe( usuario => {
+    this.usuarioService.obtenerUsuario(this.cuadrilla.ID_JefeCuadrilla)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( usuario => {
       this.jefesCuadrillaDisp.push(usuario);
     }, (error: HttpErrorResponse) => {
       alert('Se generó un problema al cargar ventana                                                                                                                                                                                                                                                                                                                . Vuelva a cargar la página o solicite asistencia.');
@@ -286,6 +302,38 @@ ObtenerTiposCuadrilla(): void{
 // Descripción: Devuelve true si el usuario interactuó con el formulario o false si no.
 obtenerEstadoFormulario(): boolean{
   return this.modificado;
+}
+
+// Entrada: valor de tipo number con el valor actual del input encargado.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para encargado y activa el error si 
+// no se ha seleccionado un encargado o lo retira.
+errorEncargado(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoEncargado.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoEncargado.setErrors(null);
+    error = true;
+  }
+  return error;
+}
+
+// Entrada: valor de tipo number con el valor actual del input tipo cuadrilla.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para tipo de cuadrilla y activa el error si
+// no se ha seleccionado un tipo de cuadrilla o lo retira.
+errorTipoC(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoTipoCuadrilla.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoTipoCuadrilla.setErrors(null);
+    error = false;
+  }
+  return error;
 }
 
 // Entrada: Ninguna
@@ -343,7 +391,6 @@ camposValidos(): boolean{
     this.form.markAllAsTouched();
     sonValidos = false;
   }
-
   // Verificar nombre de cuadrilla
   if (this.existeCuadrilla){
     sonValidos = false;
@@ -357,7 +404,9 @@ camposValidos(): boolean{
 accionGuardar(): void{
   const cuadrilla = this.generarNuevaCuadrilla();
   if (this.accion === 'nuevo'){
-    this.cuadrillaService.insertarCuadrilla(cuadrilla).subscribe( res => {
+    this.cuadrillaService.insertarCuadrilla(cuadrilla)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
       this.procesando = false;
       this.finalProceso = true;
       this.mensajeResultado = res;
@@ -369,7 +418,9 @@ accionGuardar(): void{
       console.log('Error al registrar nueva cuadrilla:' + error.message);
     });
   } else{
-    this.cuadrillaService.actualizarCuadrilla(cuadrilla).subscribe( res => {
+    this.cuadrillaService.actualizarCuadrilla(cuadrilla)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
       this.procesando = false;
       this.finalProceso = true;
       this.mensajeResultado = res;
@@ -392,6 +443,11 @@ accionGuardar(): void{
 // Cierra el dialog.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
 }
 
 }

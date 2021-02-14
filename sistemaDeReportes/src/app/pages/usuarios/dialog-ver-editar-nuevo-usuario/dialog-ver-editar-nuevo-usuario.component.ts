@@ -1,4 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -15,7 +17,8 @@ import { debounceTime } from 'rxjs/operators';
   templateUrl: './dialog-ver-editar-nuevo-usuario.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo-usuario.component.css']
 })
-export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
+export class DialogVerEditarNuevoUsuarioComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   accion: string;
   mensajeResultado: string;
   modificado: boolean;
@@ -132,7 +135,9 @@ get campoPassword(): AbstractControl{
 // Descripción: Método que se llama cuando se interactúa con el formulario
 // para verificar si se interactuó con el formulario en general.
   verificarCambiosFormulario(): void{
-    this.form.valueChanges.subscribe(value => {
+    this.form.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(value => {
       if (this.form.touched){
         this.modificado = true;
       }else{
@@ -146,7 +151,8 @@ get campoPassword(): AbstractControl{
 // Descripción: Método que se llama cuando se interactúa con el formulario
 // para verificar si se interactuó con el input correo.
   verificarCambiosCorreo(): void{
-    this.campoCorreo.valueChanges.pipe(debounceTime(500)).subscribe(correo => {
+    this.campoCorreo.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe(correo => {
      if (this.campoCorreo.dirty){
        this.verificarExistenciaEmail(correo);
      }
@@ -158,7 +164,8 @@ get campoPassword(): AbstractControl{
 // Descripción: Método que se llama cuando se interactúa con el formulario
 // para verificar si se interactuó con el input usuario.
   verificarCambiosLogin(): void{
-    this.campoUsuario.valueChanges.pipe(debounceTime(500)).subscribe(loginUsuario => {
+    this.campoUsuario.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe(loginUsuario => {
       if (this.campoUsuario.dirty){
       this.verificarExistenciaUsuario(loginUsuario);
       }
@@ -170,7 +177,8 @@ get campoPassword(): AbstractControl{
 // Descripción: Método que se llama cuando se interactúa con el formulario
 // para verificar si se interactuó con el input password.
   verificarPasswordValido(): void{
-    this.campoPassword.valueChanges.pipe(debounceTime(500)).subscribe( password => {
+    this.campoPassword.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe( password => {
       if (this.campoPassword.touched){
       this.verificarPassword(password);
       }
@@ -183,7 +191,9 @@ get campoPassword(): AbstractControl{
 //  y si el Email no pertenece a algun otro usuario.
 verificarExistenciaEmail(correo: string): void{
   if (correo.length > 0){
-    this.usuarioService.obtenerUsuarioPorCorreo(correo).subscribe( res => {
+    this.usuarioService.obtenerUsuarioPorCorreo(correo)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
       if (res !== null){
         this.existeCorreo = this.esUsuarioDiferente(res);
       }else{
@@ -203,7 +213,9 @@ verificarExistenciaEmail(correo: string): void{
 //  y si el login_usuario no pertenece a algun otro usuario.
 verificarExistenciaUsuario(loginUsuario: string): void{
   if (loginUsuario.length > 0){
-    this.usuarioService.obtenerUsuarioPorNombreLogin(loginUsuario).subscribe( res => {
+    this.usuarioService.obtenerUsuarioPorNombreLogin(loginUsuario)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
       if (res !== null){
         this.existeLoginUsuario = this.esUsuarioDiferente(res);
       }else{
@@ -277,7 +289,9 @@ inicializarFormulario(): void{
 // Descripción: Métodos para cargar los tipos de usuario existentes en una lista
 // para posteriormente mostrarlos en un select.
 cargarTiposUsuario(): void{
-  this.tipoService.obtenerTiposUGeneral().subscribe(tipos => {
+  this.tipoService.obtenerTiposUGeneral()
+  .pipe(takeUntil(this.ngUnsubscribe))
+  .subscribe(tipos => {
     this.tiposUsuario = tipos;
     this.tiposUListos = true;
   }, (error: HttpErrorResponse) => {
@@ -333,7 +347,9 @@ obtenerEstadoFormulario(): boolean{
 // Salida: vacío.
 // Descripción: Método para obtener el ID que el nuevo registro tendrá.
 obtenerIDNuevo(): void{
-    this.usuarioService.obtenerIDRegistro().subscribe( (id: number) => {
+    this.usuarioService.obtenerIDRegistro()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
     }, (error: HttpErrorResponse) => {
@@ -354,7 +370,7 @@ generarUsuario(): UsuarioM{
     this.campoGenero.value,
     this.campoTipoUsuario.value,
     this.campoUsuario.value,
-    this.campoPassword.value,
+    this.usuarioService.encriptarPassword(this.campoPassword.value),
     !this.campoEstado.value,
     false, // jefe cuadrilla
     true // disponible (para eliminación)
@@ -373,6 +389,22 @@ buscarTipo(descripcion: string): number{
      }
   });
   return idTipoUsuario;
+}
+
+// Entrada: valor de tipo number con el valor actual del input tipo usuario.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para tipo de usuario y activa el error si
+// no se ha seleccionado un tipo de usuario o lo retira.
+errorTipoU(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoTipoUsuario.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoTipoUsuario.setErrors(null);
+    error = false;
+  }
+  return error;
 }
 
 // Entrada: Ninguna
@@ -431,7 +463,9 @@ camposValidos(): boolean{
 // la petición para guardar o actualizar un registro de usuario.
 accionGuardar(usuario: Usuario): void{
   if (this.accion === 'nuevo'){
-    this.usuarioService.registrarUsuario(usuario).subscribe( res => {
+    this.usuarioService.registrarUsuario(usuario)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
         this.procesando = false;
         this.finalProceso = true;
         this.mensajeResultado = res;
@@ -443,7 +477,9 @@ accionGuardar(usuario: Usuario): void{
         console.log('Error al registrar usuario. Mensaje de error: ', error.message);
       });
   }else if (this.accion === 'editar'){
-    this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
+    this.usuarioService.actualizarUsuario(usuario)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
         this.procesando = false;
         this.finalProceso = true;
         this.mensajeResultado = res;
@@ -465,5 +501,10 @@ accionGuardar(usuario: Usuario): void{
 // Si la interacción sucedió se despliega un mensaje de confirmación. Cierra el dialog.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
 }
 }

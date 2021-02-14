@@ -101,6 +101,7 @@ export class LoginComponent implements OnInit {
       this.usuarioServicio.eliminarDatosLogin();
       alert('No tiene permisos para ingresar a este sistema.');
       usuarioExaminado = null;
+      this.deshabilitar = false;
     }
     return usuarioExaminado;
   }

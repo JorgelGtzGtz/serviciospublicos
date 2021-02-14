@@ -16,6 +16,7 @@ namespace ServiciosPublicos.Core.Services
         Usuario GetUsuario(string usr);
         Usuario GetUsuarioEmail(string email);
         Usuario GetUsuarioTel(string telefono);
+        Usuario GetUsuarioLogin(string usr, string password);
         Usuario GetUsuario(string usr, string password);
         List<Usuario> GetUsuarios();
         List<dynamic> GetUsuariosFiltro(string textoB, string estado, string tipoU, string repActivos);
@@ -54,6 +55,31 @@ namespace ServiciosPublicos.Core.Services
         public Usuario GetUsuario(string usr, string password)
         {
             return _usuarioRepository.GetUsuario(usr, password);
+        }
+
+        // Entrada: string con usuario y string con contraseña de usuario.
+        // Salida: Objeto de tipo Usuario.
+        // Descripción: Llama al método del reporsitorio que busca el Usuario por usuario y 
+        // descifra la contraseña para verificar que sea el usuario correcto.
+        public Usuario GetUsuarioLogin(string usr, string password)
+        {
+            string passwordUsuario;
+            Usuario usuario = null;
+
+            // Obtiene el usuario con su nombre login.
+            Usuario usuarioObtenido = _usuarioRepository.GetUsuario(usr);
+
+            // Desencriptar contraseña del usuario obtenido.
+            byte[] desencriptar = Convert.FromBase64String(usuarioObtenido.Password_usuario);
+            passwordUsuario = System.Text.Encoding.Unicode.GetString(desencriptar);
+
+            // verificar que las contraseñas y nombre de usuario sean iguales.
+            if (password.Equals(passwordUsuario) && usr.Equals(usuarioObtenido.Login_usuario))
+            {
+                usuario = usuarioObtenido;
+            }
+
+            return usuario;
         }
 
         // Entrada: valor string para usuario.
@@ -113,7 +139,13 @@ namespace ServiciosPublicos.Core.Services
             bool result = false;
             try
             {
+                // Encriptar password
+                // byte[] encriptar = System.Text.Encoding.Unicode.GetBytes(usuario.Password_usuario);
+                // string passwordEncriptado = Convert.ToBase64String(encriptar);
+                // Modificaciones a datos de usuario
+                // usuario.Password_usuario = passwordEncriptado;
                 usuario.Disponible = true;
+                // Guardar en BD
                 _usuarioRepository.Add<int>(usuario);
                 Message = "Usuario " + usuario.Login_usuario + " registrado con exito";
                 result = true;
@@ -136,7 +168,6 @@ namespace ServiciosPublicos.Core.Services
             bool result = false;
             try
             {
-                //_usuarioRepository.InsertOrUpdate<int>(usuario, "ID_usuario");
                 _usuarioRepository.Modify(usuario);
 
                 Message = "Modificación de usuario " + usuario.Login_usuario + " exitosa";
@@ -269,7 +300,11 @@ namespace ServiciosPublicos.Core.Services
 
             try
                 {
-                    _usuarioRepository.CambiarPassword(id_usuario, password);
+                // Encriptar password
+               // byte[] encriptar = System.Text.Encoding.Unicode.GetBytes(password);
+                //string passwordEncriptado = Convert.ToBase64String(encriptar);
+                // Guardar en BD
+                _usuarioRepository.CambiarPassword(id_usuario, password);
                     Message = "La contraseña se ha cambiado exitosamente.";
                 }
                 catch (Exception ex)

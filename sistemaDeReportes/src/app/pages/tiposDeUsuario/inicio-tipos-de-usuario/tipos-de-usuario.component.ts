@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoComponent } from '../dialog-ver-editar-nuevo/dialog-ver-editar-nuevo.component';
 import { FormControl, AbstractControl } from '@angular/forms';
@@ -11,7 +13,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './tipos-de-usuario.component.html',
   styleUrls: ['./tipos-de-usuario.component.css']
 })
-export class TiposDeUsuarioComponent implements OnInit {
+export class TiposDeUsuarioComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   nombreSeccion = 'Tipos de Usuario';
   busquedaForm: FormControl;
   estadoForm: FormControl;
@@ -60,7 +63,9 @@ export class TiposDeUsuarioComponent implements OnInit {
   // Descripción: Método para obtener los registros existentes de Tipos de Usuario
   // de acuerdo a determinados filtros.
   actualizarTabla(): void{
-    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.tiposUsuario = tipos;
       this.datos = true;
     }, (error: HttpErrorResponse) => {
@@ -95,7 +100,9 @@ export class TiposDeUsuarioComponent implements OnInit {
       data: {accion, tipoU}
     });
 
-    DIALOG_REF.afterClosed().subscribe(result => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(result => {
       this.actualizarTabla();
   });
   }
@@ -127,7 +134,9 @@ export class TiposDeUsuarioComponent implements OnInit {
   eliminarTipoUsuario(tipoU: TipoUsuario): void{
     const result = confirm('¿Seguro que desea eliminar el tipo de usuario?');
     if (result) {
-      this.tipoService.eliminarTipoUsuario(tipoU).subscribe( res => {
+      this.tipoService.eliminarTipoUsuario(tipoU)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( res => {
         this.actualizarTabla();
         alert(res);
       }, (error: HttpErrorResponse) => {
@@ -142,7 +151,9 @@ export class TiposDeUsuarioComponent implements OnInit {
   // Descripción: Método para buscar en la base de datos los registros que coincidan con los
   // valores que se establescan en los campos
   buscar(): void{
-    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.tiposUsuario = tipos;
     }, (error: HttpErrorResponse) => {
       alert('No ha sido posible completar la búsqueda. Verifique los datos o solicite apoyo.');
@@ -159,5 +170,11 @@ export class TiposDeUsuarioComponent implements OnInit {
     this.campoEstado.setValue('Todos');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+  
 
 }
