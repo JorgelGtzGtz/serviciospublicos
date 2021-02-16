@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router, ActivatedRoute } from '@angular/router';
 import { UsuarioService } from '../services/usuario.service';
 import { Usuario } from '../Interfaces/IUsuario';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -11,7 +10,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 export class UserAccessGuard implements CanActivate {
 
   constructor(private usuarioServicio: UsuarioService,
-              private router: Router){}
+              private router: Router, private route: ActivatedRoute){}
 
   // Entrada: ActivatedRouteSnapshot y RouterStateSnapshot.
   // Salida: Promesa de tipo boolean.
@@ -21,24 +20,12 @@ export class UserAccessGuard implements CanActivate {
     next: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Promise<boolean> {
       let acceder: boolean;
-      const usuario = await this.usuarioServicio.login().toPromise()
-      .then( (usuarioRes: Usuario) => {
-        return usuarioRes;
-      })
-      .catch((err: HttpErrorResponse) => {
-          alert('Ingrese un usuario y contraseña válidos.');
-          console.log(err);
-          return null;
-      });
+      const usuario: Usuario = this.usuarioServicio.obtenerUsuarioLogueado();
       if (usuario){
         acceder = true;
-        this.usuarioServicio.almacenarUsuarioLog(usuario);
       }else{
-        this.usuarioServicio.eliminarDatosLogin();
-        this.router.navigate(['login']);
         acceder = false;
       }
       return acceder;
   }
-
 }

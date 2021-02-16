@@ -16,6 +16,7 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarCuadrilla(Cuadrilla cuadrilla, out string Message);
         int ObtenerIDRegistro();
         Cuadrilla GetCuadrilla(int id);
+        Cuadrilla GetCuadrillaPorNombre(string nombre);
         List<Cuadrilla> GetCuadrillaList();
         List<dynamic> GetCuadrillasConJefe();
         List<dynamic> FiltroCuadrillas(string textoB, string estado);
@@ -46,12 +47,21 @@ namespace ServiciosPublicos.Core.Services
             return valor;
         }
 
+        // Entrada: nombre de cuadrilla de tipo string
+        // Salida: Objeto de tipo Cuadrilla.
+        // Descripción: Llama al método del repositorio de cuadrilla para buscar una cuadrilla por nombre.
+        public Cuadrilla GetCuadrillaPorNombre(string nombre)
+        {
+            var cuadrilla = _cuadrillaRepository.GetCuadrillaPorNombre(nombre);
+            return cuadrilla;
+        }
+
         // Entrada: Ninguna
         // Salida: Lista de tipo Cuadrilla.
         // Descripción: obtener lista de cuadrillas general
         public List<Cuadrilla> GetCuadrillaList()
         {
-            return _cuadrillaRepository.GetAll("Cuadrilla").ToList();
+            return _cuadrillaRepository.GetCuadrillasLista();
         }
 
         // Entrada: Ninguna.
@@ -95,7 +105,7 @@ namespace ServiciosPublicos.Core.Services
             {
                 _cuadrillaRepository.Add<int>(cuadrilla);
                 ModificarUsuarioJefe(idUsuario, true);
-                Message = "Cuadrilla " + cuadrilla.Nombre_cuadrilla + " registrada con exito";
+                Message = "¡Cuadrilla " + cuadrilla.Nombre_cuadrilla + " registrada con éxito!";
                 result = true;
             }
             catch (Exception ex)
@@ -110,7 +120,7 @@ namespace ServiciosPublicos.Core.Services
         // Descripción: Modificar el campo "Jefe asignado" en Usuario
         public void ModificarUsuarioJefe(int idUsuario, bool asignacion)
         {
-            var usuarioJefe = _usuarioRepository.Get(idUsuario);
+            Usuario usuarioJefe = _usuarioRepository.Get(idUsuario);
             usuarioJefe.Jefe_asignado = asignacion;
             _usuarioRepository.Modify(usuarioJefe);
         }
@@ -140,7 +150,7 @@ namespace ServiciosPublicos.Core.Services
                     ModificarUsuarioJefe(jefeActual, false);
                     ModificarUsuarioJefe(jefeNuevo, true);
                 }
-                Message = "Cambios en cuadrilla " + cuadrilla.Nombre_cuadrilla + " se guardaron con exito";
+                Message = "¡Cuadrilla " + cuadrilla.Nombre_cuadrilla + " actualizada con éxito!";
                 result = true;
             }
             catch(Exception ex)
@@ -163,7 +173,7 @@ namespace ServiciosPublicos.Core.Services
                 ModificarUsuarioJefe(cuadrilla.ID_JefeCuadrilla, false);
                 cuadrilla.Disponible = false;
                 _cuadrillaRepository.Modify(cuadrilla);
-                Message = "Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " eliminado con exito";
+                Message = "¡Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " eliminado con éxito!";
                 result = true;
             }
             catch (Exception ex)

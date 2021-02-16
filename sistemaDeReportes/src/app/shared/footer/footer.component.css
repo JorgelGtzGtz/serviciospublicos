@@ -1,4 +1,8 @@
-body:not(.sidebar) footer.main-footer,
+/* body:not(.sidebar) footer.main-footer,
 body:not(.sidebar-mini-md) footer.main-footer {
     margin-left: 0;
+} */
+
+footer {
+    padding: 1.5rem 0.5rem;
 }

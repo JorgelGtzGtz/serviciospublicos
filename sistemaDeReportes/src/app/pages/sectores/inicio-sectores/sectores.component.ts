@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoSectoresComponent } from '../dialog-ver-editar-nuevo-sectores/dialog-ver-editar-nuevo-sectores.component';
 import { AbstractControl, FormControl } from '@angular/forms';
@@ -11,7 +13,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './sectores.component.html',
   styleUrls: ['./sectores.component.css']
 })
-export class SectoresComponent implements OnInit {
+export class SectoresComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   busquedaForm: FormControl;
   estadoForm: FormControl;
   nombreSeccion = 'Sectores';
@@ -33,12 +36,6 @@ export class SectoresComponent implements OnInit {
   formBuilder(): void{
       this.busquedaForm = new FormControl('');
       this.estadoForm = new FormControl('Todos');
-      this.busquedaForm.valueChanges.subscribe(value => {
-        console.log('se interactuo busqueda:', value);
-      });
-      this.estadoForm.valueChanges.subscribe(value => {
-        console.log('se interactuo estado:', value);
-      });
     }
 
   // Entrada: Ninguna
@@ -64,11 +61,13 @@ export class SectoresComponent implements OnInit {
   // Descripción: Método para obtener la lista de sectores
   // de acuerdo a determinados parámetros
   actualizarTabla(): void{
-    this.sectorService.obtenerSectoresFiltro(this.campoBusqueda.value, this.campoEstado.value).subscribe( sectores => {
+    this.sectorService.obtenerSectoresFiltro(this.campoBusqueda.value, this.campoEstado.value)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( sectores => {
       this.sectores = sectores;
       this.sectoresListos = true;
     }, (error: HttpErrorResponse) => {
-      alert('Existió un problema al cargar datos de página. Recargue página o solicite asistencia.');
+      alert('Se generó un problema al cargar datos de página. Recargue página o solicite asistencia.');
       console.log('Error al cargar datos de tabla sectores: ' +  error.message);
     });
   }
@@ -101,7 +100,9 @@ export class SectoresComponent implements OnInit {
       data: {accion, sector}
     });
 
-    DIALOG_REF.afterClosed().subscribe( result => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( result => {
       this.actualizarTabla();
     });
   }
@@ -134,15 +135,15 @@ export class SectoresComponent implements OnInit {
   eliminarSector(sector: Sector): void{
     const result = confirm('¿Seguro que desea eliminar el sector?');
     if (result) {
-      this.sectorService.eliminarSector(sector).subscribe( res => {
+      this.sectorService.eliminarSector(sector)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( res => {
         this.actualizarTabla();
-        alert('El sector ' + sector.Descripcion_sector + ' se ha eliminado.');
+        alert(res);
       }, (error: HttpErrorResponse) => {
         alert('El sector ' + sector.Descripcion_sector + ' no pudo ser eliminado. Intente de nuevo o solicite asistencia.');
         console.log('Error al eliminar sector: ' + error.message);
       });
-    }else{
-      console.log('no se elimina');
     }
   }
 
@@ -163,5 +164,10 @@ export class SectoresComponent implements OnInit {
     this.campoEstado.setValue('Todos');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }

@@ -1,17 +1,18 @@
-<!-- <div class="content-wrapper">
-    <app-header [seccion]="nombreSeccion"></app-header>
-
-    <div class="content"> -->
 <div class="container-fluid">
+    <!-- INICIA SPINNER -->
     <div *ngIf="!tiposListos && !usuariosListos" class="card justify-content-center">
         <div class="spinner-border align-self-center m-5" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
+    <!-- TERMINA SPINNER -->
+
     <div *ngIf="tiposListos && usuariosListos" class="card">
         <div class="content-header">
+            <!-- INICIA FILTRO BUSQUEDA -->
             <form [formGroup]="form">
                 <div class="row grupo-busqueda">
+                    <!-- TEXTO BUSQUEDA -->
                     <div class="col-lg-7 col-md-6">
                         <div class="row">
                             <label class="lblForm col-md-auto" for="textoBusqueda">Búsqueda</label>
@@ -21,6 +22,7 @@
                         </div>
                     </div>
 
+                    <!-- TIPO DE USUARIO -->
                     <div class="col-lg-5 col-md-6">
                         <div class="row">
                             <label class="lblForm col-md-auto" for="tipoUsuarioSelector">Tipo de usuario</label>
@@ -30,6 +32,7 @@
                                     <option *ngFor='let tipo of tiposUsuario' [ngValue] = "tipo.ID_tipoUsuario">
                                         {{ tipo.Descripcion_tipoUsuario }}
                                     </option>
+                                    <option *ngIf="tiposUsuario.length === 0"> No hay opciones disponibles</option>
                                 </select>
                             </div>
                         </div>
@@ -39,6 +42,7 @@
 
                 <div class="mb-3 row">
 
+                    <!-- ESTADO -->
                     <div class="col-lg-4 col-md-6">
                         <div class="row input-group m-0">
                             <label class="lblForm col-md-auto" for="estadoTipoUsuario">Estado</label>
@@ -52,12 +56,15 @@
                         </div>
                     </div>
 
+                    <!-- REPORTES ACTIVOS -->
                     <div class="col-lg-2  col-md-6">
                         <div class="custom-control custom-switch btn-switch-container">
                             <input type="checkbox" class="custom-control-input" id="reportesActivosSwitch" formControlName="reportesActivos">
                             <label class="custom-control-label" for="reportesActivosSwitch">Con reportes activos</label>
                         </div>
                     </div>
+
+                    <!-- INICIA BOTONES -->
                     <div class="col-lg-2 col-md-6">
                         <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
                                      Limpiar búsqueda
@@ -75,13 +82,15 @@
                                     Nuevo
                         </button>
                     </div>
+                    <!-- TERMINA BOTONES -->
 
                 </div>
             </form>
         </div>
         <div class="content-card">
+            <!-- INICIA TABLA -->
             <div class="table-wrapper">
-                <table class="table table-bordered">
+                <table class="table mb-0 table-bordered">
                     <thead>
                         <tr>
                             <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">
@@ -104,11 +113,11 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sin-resultados-texto" *ngIf="usuarios.length===0">
+                    No se encontraron coincidencias.
+                </div>
             </div>
-            <!-- <app-tabla [modeloTabla]="datosUsuario" (enviarAccion)="recibirAccion($event)"></app-tabla> -->
+            <!-- TERMINA TABLA -->
         </div>
     </div>
-
 </div>
-<!-- </div>
-</div> -->

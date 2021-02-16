@@ -1,4 +1,6 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -8,19 +10,28 @@ import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { UsuarioM } from '../../../Models/UsuarioM';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-usuario',
   templateUrl: './dialog-ver-editar-nuevo-usuario.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo-usuario.component.css']
 })
-export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
+export class DialogVerEditarNuevoUsuarioComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   accion: string;
-  datosUsuario: Usuario;
-  tiposUsuario: any = [];
+  mensajeResultado: string;
   modificado: boolean;
+  existeCorreo: boolean;
+  existeLoginUsuario: boolean;
+  passwordInvalido: boolean;
   idListo: boolean;
   tiposUListos: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
+  usuarioActual: Usuario;
+  tiposUsuario: TipoUsuario[] = [];
   form: FormGroup;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoUsuarioComponent> ,
@@ -35,6 +46,9 @@ export class DialogVerEditarNuevoUsuarioComponent implements OnInit {
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.cargarTiposUsuario();
     this.inicializarCampos();
     this.inicializarFormulario();
@@ -69,25 +83,20 @@ datosCargados(): boolean{
     this.form = this.formBuilder.group({
       id: [''],
       estado: [''],
-      nombre: ['', [Validators.required]],
+      nombre: ['', [Validators.required, Validators.pattern('[a-zA-ZÀ-ÿ\u00f1\u00d1 ]*')]],
       correo: ['', [Validators.required, Validators.email]],
-      telefono: ['', [Validators.required]],
+      telefono: ['', [Validators.required, Validators.pattern('[0-9]{10,16}')]],
       genero: ['', [Validators.required]],
       tipoUsuario: ['', [Validators.required]],
-      usuario: ['', [Validators.required]],
-      password: ['', [Validators.required]]
+      usuario: ['', [Validators.required, Validators.pattern('[a-zA-Z0-9-_]*')]],
+      password: ['', [Validators.required, Validators.pattern('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])([A-Za-z0-9]|[^ ]){8}')]]
     });
-    this.form.valueChanges.subscribe(value => {
-      if (this.form.touched){
-        console.log('se interactuo');
-        this.modificado = true;
-      }else{
-        this.modificado = false;
-      }
-    });
+    this.verificarCambiosFormulario();
+    this.verificarCambiosCorreo();
+    this.verificarCambiosLogin();
   }
 
-// Entrada: Ninguna
+  // Entrada: Ninguna
 // Salida: control del input que pertenece al formGroup, de tipo AbstractControl.
 // Descripción: Métodos para obtener acceso a los controladores de los inputs del formulario.
 get campoId(): AbstractControl{
@@ -121,6 +130,140 @@ get campoPassword(): AbstractControl{
   return this.form.get('password');
 }
 
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el formulario en general.
+  verificarCambiosFormulario(): void{
+    this.form.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(value => {
+      if (this.form.touched){
+        this.modificado = true;
+      }else{
+        this.modificado = false;
+      }
+    });
+  }
+
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el input correo.
+  verificarCambiosCorreo(): void{
+    this.campoCorreo.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe(correo => {
+     if (this.campoCorreo.dirty){
+       this.verificarExistenciaEmail(correo);
+     }
+    });
+  }
+
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el input usuario.
+  verificarCambiosLogin(): void{
+    this.campoUsuario.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe(loginUsuario => {
+      if (this.campoUsuario.dirty){
+      this.verificarExistenciaUsuario(loginUsuario);
+      }
+    });
+  }
+
+// Entrada: Ninguna
+// Salida: vacío
+// Descripción: Método que se llama cuando se interactúa con el formulario
+// para verificar si se interactuó con el input password.
+  verificarPasswordValido(): void{
+    this.campoPassword.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe( password => {
+      if (this.campoPassword.touched){
+      this.verificarPassword(password);
+      }
+    });
+  }
+
+  // Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si el Email no pertenece a algun otro usuario.
+verificarExistenciaEmail(correo: string): void{
+  if (correo.length > 0){
+    this.usuarioService.obtenerUsuarioPorCorreo(correo)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
+      if (res !== null){
+        this.existeCorreo = this.esUsuarioDiferente(res);
+      }else{
+        this.existeCorreo = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de correo.' + error.message);
+    });
+  }else {
+    this.existeCorreo = false;
+  }
+}
+
+// Entrada: valor string
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si el login_usuario no pertenece a algun otro usuario.
+verificarExistenciaUsuario(loginUsuario: string): void{
+  if (loginUsuario.length > 0){
+    this.usuarioService.obtenerUsuarioPorNombreLogin(loginUsuario)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
+      if (res !== null){
+        this.existeLoginUsuario = this.esUsuarioDiferente(res);
+      }else{
+        this.existeLoginUsuario = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de login usuario.' + error.message);
+    });
+  }else {
+    this.existeLoginUsuario = false;
+  }
+}
+
+// Entrada: valor string.
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la contraseña tiene el formato correcto.
+verificarPassword(password: string): void{
+  if (password.length > 0){
+    const passwordVerificada = this.usuarioService.verificarFormatoPassword(password);
+    if (passwordVerificada !== null){
+        this.passwordInvalido = false ;
+      }else{
+        this.passwordInvalido = true;
+      }
+  }else {
+    this.passwordInvalido = false;
+  }
+}
+
+// Entrada: usuario con el valor del resultado de la consulta GET
+// Salida: valor booleano.
+// Descripción: método para verificar si los datos que se modificaron ya pertenecían al mismo usuario
+// que se está editando.
+esUsuarioDiferente(usuario: Usuario): boolean{
+  let valor: boolean;
+  if (this.accion === 'editar'){
+    if (this.usuarioActual.ID_usuario === usuario.ID_usuario){
+      valor = false;
+    }else{
+      valor = true;
+    }
+  }else{
+    valor = true;
+  }
+  return valor;
+}
+
 // Entrada: objeto tipo TipoUsuario
 // Salida: valor boolean
 // Descripción: Este método habilita o deshabilita el formulario según lo que se quiera hacer en el
@@ -137,6 +280,7 @@ inicializarFormulario(): void{
     default:
       this.form.enable();
       this.campoId.disable();
+      this.campoPassword.disable();
   }
 }
 
@@ -145,7 +289,9 @@ inicializarFormulario(): void{
 // Descripción: Métodos para cargar los tipos de usuario existentes en una lista
 // para posteriormente mostrarlos en un select.
 cargarTiposUsuario(): void{
-  this.tipoService.obtenerListaTipoU().subscribe(tipos => {
+  this.tipoService.obtenerTiposUGeneral()
+  .pipe(takeUntil(this.ngUnsubscribe))
+  .subscribe(tipos => {
     this.tiposUsuario = tipos;
     this.tiposUListos = true;
   }, (error: HttpErrorResponse) => {
@@ -159,16 +305,16 @@ cargarTiposUsuario(): void{
 // Descripción: Métodos para inicializar valores en formulario en relación a la acción.
 inicializarCampos(): void{
   if (this.accion !== 'nuevo'){
-    this.datosUsuario = this.usuarioService.convertirDesdeJSON(this.data.usuario);
-    this.campoId.setValue( this.datosUsuario.ID_usuario);
-    this.campoNombre.setValue(this.datosUsuario.Nombre_usuario);
-    this.campoCorreo.setValue(this.datosUsuario.Correo_usuario);
-    this.campoTelefono.setValue(this.datosUsuario.Telefono_usuario);
-    this.campoUsuario.setValue(this.datosUsuario.Login_usuario);
-    this.campoPassword.setValue(this.datosUsuario.Password_usuario);
-    this.campoEstado.setValue(!this.datosUsuario.Estatus_usuario);
-    this.campoGenero.setValue(this.datosUsuario.Genero_usuario);
-    this.campoTipoUsuario.setValue(this.datosUsuario.ID_tipoUsuario);
+    this.usuarioActual = this.usuarioService.convertirDesdeJSON(this.data.usuario);
+    this.campoId.setValue( this.usuarioActual.ID_usuario);
+    this.campoNombre.setValue(this.usuarioActual.Nombre_usuario);
+    this.campoCorreo.setValue(this.usuarioActual.Correo_usuario);
+    this.campoTelefono.setValue(this.usuarioActual.Telefono_usuario);
+    this.campoUsuario.setValue(this.usuarioActual.Login_usuario);
+    this.campoPassword.setValue(this.usuarioActual.Password_usuario);
+    this.campoEstado.setValue(!this.usuarioActual.Estatus_usuario);
+    this.campoGenero.setValue(this.usuarioActual.Genero_usuario);
+    this.campoTipoUsuario.setValue(this.usuarioActual.ID_tipoUsuario);
   }else{
     this.campoEstado.setValue(false);
     this.obtenerIDNuevo();
@@ -182,8 +328,8 @@ inicializarCampos(): void{
 // seleccionado en el select.
 inicializarSelTipo(tipo: TipoUsuario): boolean{
   let valor = false;
-  if (this.datosUsuario !== undefined){
-        if (tipo.ID_tipoUsuario === this.datosUsuario.ID_tipoUsuario){
+  if (this.usuarioActual !== undefined){
+        if (tipo.ID_tipoUsuario === this.usuarioActual.ID_tipoUsuario){
           valor =  true;
        }
     }
@@ -201,10 +347,11 @@ obtenerEstadoFormulario(): boolean{
 // Salida: vacío.
 // Descripción: Método para obtener el ID que el nuevo registro tendrá.
 obtenerIDNuevo(): void{
-    this.usuarioService.obtenerIDRegistro().subscribe( (id: number) => {
+    this.usuarioService.obtenerIDRegistro()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
-      console.log('ID a asignar:', id);
     }, (error: HttpErrorResponse) => {
       alert('Ha surgido un error al cargar ventana. Intente de nuevo o solicite asistencia.');
       console.log('Error al obtener ID para nuevo registro. Mensaje de error: ', error.message);
@@ -223,7 +370,7 @@ generarUsuario(): UsuarioM{
     this.campoGenero.value,
     this.campoTipoUsuario.value,
     this.campoUsuario.value,
-    this.campoPassword.value,
+    this.usuarioService.encriptarPassword(this.campoPassword.value),
     !this.campoEstado.value,
     false, // jefe cuadrilla
     true // disponible (para eliminación)
@@ -244,18 +391,70 @@ buscarTipo(descripcion: string): number{
   return idTipoUsuario;
 }
 
+// Entrada: valor de tipo number con el valor actual del input tipo usuario.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para tipo de usuario y activa el error si
+// no se ha seleccionado un tipo de usuario o lo retira.
+errorTipoU(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoTipoUsuario.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoTipoUsuario.setErrors(null);
+    error = false;
+  }
+  return error;
+}
+
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
 // Entrada: Ninguna.
 // Salida: vacío.
 // Descripción: Método que se llama cuando se le da click en guardar en el formulario.
 guardar(): void {
   // event.preventDefault();
-  if (this.form.valid){
+  if (this.camposValidos()){
+    this.procesando = true;
     const usuario = this.generarUsuario();
     this.accionGuardar(usuario);
-    this.dialogRef.close(this.data);
   } else{
-    this.form.markAllAsTouched();
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
+}
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){
+    this.form.markAllAsTouched();
+    sonValidos = false;
+  }
+  // Verificar que no exista un usuario con este correo.
+  if (this.existeCorreo){
+    sonValidos = false;
+  }
+  // Verificar que el login_usuario de usuario no existe.
+  if (this.existeLoginUsuario){
+    sonValidos = false;
+  }
+  return sonValidos;
 }
 
 // Entrada: Objeto de tipo Usuario.
@@ -264,22 +463,35 @@ guardar(): void {
 // la petición para guardar o actualizar un registro de usuario.
 accionGuardar(usuario: Usuario): void{
   if (this.accion === 'nuevo'){
-      this.usuarioService.registrarUsuario(usuario).subscribe( res => {
-        alert(res);
+    this.usuarioService.registrarUsuario(usuario)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('El registro no pudo ser completado. Verifique que los datos sean correctos o solicite asistencia.');
+        this.procesando = false;
+        this.error = true;
+        this.finalProceso = true;
+        this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
         console.log('Error al registrar usuario. Mensaje de error: ', error.message);
       });
   }else if (this.accion === 'editar'){
-    // usuario.ID_usuario = this.datosUsuario.ID_usuario;
-    // usuario.ID_tipoUsuario = this.buscarTipo(this.campoTipoUsuario.value);
-    this.usuarioService.actualizarUsuario(usuario).subscribe( res => {
-        alert(res);
+    this.usuarioService.actualizarUsuario(usuario)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('Usuario no pudo ser actualizado. Verifique que los datos sean correctos o solicite asistencia.');
+        this.procesando = false;
+        this.finalProceso = true;
+        this.error = true;
+        this.mensajeResultado = 'Usuario no pudo ser actualizado. Vuelva a intentarlo ó solicite asistencia.';
         console.log('Error al actualizar usuario. Mensaje de error: ', error.message);
       });
     }
+  this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
 }
 
 // Entrada: Objeto de tipo Usuario.
@@ -289,5 +501,10 @@ accionGuardar(usuario: Usuario): void{
 // Si la interacción sucedió se despliega un mensaje de confirmación. Cierra el dialog.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
 }
 }

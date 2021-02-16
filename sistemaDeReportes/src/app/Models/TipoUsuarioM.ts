@@ -1,14 +1,18 @@
 import { TipoUsuario } from '../Interfaces/ITipoUsuario';
 
 export class TipoUsuarioM implements TipoUsuario{
-   
-    static tipoDesdeJson(obj: Object){
-        return new TipoUsuarioM(
-            obj['ID_tipoUsuario'],
-            obj['Descripcion_tipoUsuario'],
-            obj['Estatus_tipoUsuario'],
-            obj['Disponible']
-        );
+
+    static tipoDesdeJson(tipoU: Object): TipoUsuarioM{
+        let tipoUsuario: TipoUsuarioM = null;
+        if (tipoU !== null){
+            tipoUsuario = new TipoUsuarioM(
+                tipoU['ID_tipoUsuario'],
+                tipoU['Descripcion_tipoUsuario'],
+                tipoU['Estatus_tipoUsuario'],
+                tipoU['Disponible']
+            );
+        }
+        return tipoUsuario;
     }
 
     constructor(

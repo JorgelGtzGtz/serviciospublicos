@@ -9,6 +9,8 @@ import { SharedModule } from '../shared/shared.module';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import {MatTableModule} from '@angular/material/table';
+import { MatPaginatorModule } from '@angular/material/paginator';
 
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 
@@ -32,7 +34,9 @@ import { DialogUsuariosModule } from './dialog-usuarios/dialog-usuarios.module';
     DialogUsuariosModule,
     UsuariosRoutingModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    MatTableModule,
+    MatPaginatorModule
   ],
   entryComponents: [
     // DialogVerEditarNuevoUsuarioComponent

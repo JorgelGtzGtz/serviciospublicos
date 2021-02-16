@@ -2,7 +2,6 @@ import { NgModule, Component } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { UserAccessGuard } from '../app/guards/user-access.guard';
-import { NotFoundComponent } from './pages/not-found/not-found.component';
 
 export const ROUTES: Routes = [
     {
@@ -19,6 +18,11 @@ export const ROUTES: Routes = [
         path: 'notFound',
         loadChildren: () => import('./modules/not-found/not-found-routing.module')
         .then(mod => mod.NotFoundRoutingModule)
+    },
+    {
+        path: 'forgotPassword',
+        loadChildren: () => import('./modules/recuperar-password/recuperar-password.module')
+        .then(mod => mod.RecuperarPasswordModule)
     },
     {
         path: '',

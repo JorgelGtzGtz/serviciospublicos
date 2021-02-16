@@ -1,4 +1,6 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA  } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -12,12 +14,18 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './dialog-ver-editar-nuevo-sectores.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo-sectores.component.css']
 })
-export class DialogVerEditarNuevoSectoresComponent implements OnInit {
+export class DialogVerEditarNuevoSectoresComponent implements OnInit, OnDestroy  {
+private ngUnsubscribe = new Subject();
 accion: string;
+mensajeResultado: string;
 form: FormGroup;
 modificado: boolean;
 idListo: boolean;
+existeSector: boolean;
 datosSectorCargados: boolean;
+procesando: boolean;
+finalProceso: boolean;
+error: boolean;
 sector: Sector;
 
   constructor(public dialogRef: MatDialogRef<DialogVerEditarNuevoSectoresComponent>,
@@ -31,6 +39,9 @@ sector: Sector;
 
   ngOnInit(): void {
     this.accion = this.data.accion;
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.tipoFormularioAccion();
     this.iniciarFormulario();
   }
@@ -58,17 +69,80 @@ sector: Sector;
     this.form = this.formBuilder.group({
       id: [''],
       estado: [''],
-      nombreS: ['', [Validators.required]]
+      nombreS: ['', [Validators.required, Validators.pattern('[a-zA-ZÀ-ÿ\u00f1\u00d1 ]*')]]
     });
-    this.form.valueChanges.subscribe(value => {
-      if (this.form.touched){
-        console.log('se interactuo');
+    this.verificarCambiosFormulario();
+    this.verificarCambiosNombre();
+
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosFormulario(): void{
+    this.form.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(value => {
+      if (this.form.dirty){
         this.modificado = true;
       }else{
         this.modificado = false;
       }
     });
   }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosNombre(): void{
+    this.campoNombreSector.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(nombre => {
+      if (this.campoNombreSector.dirty){
+        this.verificarExistenciaSector(nombre);
+      }
+    });
+  }
+
+// Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la descripción de sector ya existe.
+verificarExistenciaSector(nombre: string): void{
+  if (nombre.length > 0){
+    this.sectorService.obtenerSectorPorNombre(nombre)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
+      if (res !== null){
+        this.existeSector = this.esSectorDiferente(res);
+      }else{
+        this.existeSector = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de sector con descripción.' + error.message);
+    });
+  }else {
+    this.existeSector = false;
+  }
+}
+
+// Entrada: sector con el valor del resultado de la consulta GET
+// Salida: valor booleano.
+// Descripción: método para verificar si los datos que se modificaron ya pertenecían al mismo sector
+// que se está editando.
+esSectorDiferente(sector: Sector): boolean{
+  let valor: boolean;
+  if (this.accion === 'editar'){
+    if (this.sector.ID_sector === sector.ID_sector){
+      valor = false;
+    }else{
+      valor = true;
+    }
+  }else{
+    valor = true;
+  }
+  return valor;
+}
 
   // Entrada: Ninguna
   // Salida: control de tipo AbstractControl.
@@ -123,7 +197,9 @@ tipoFormularioAccion(): void{
   // Salida: vacío.
   // Descripción: Función para obtener el ID del nuevo registro
    obtenerIDNuevo(): void{
-    this.sectorService.obtenerIDRegistro().subscribe( (id: number) => {
+    this.sectorService.obtenerIDRegistro()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
     });
@@ -142,35 +218,31 @@ tipoFormularioAccion(): void{
 // método "accionGuardar" para ejecutar las acciones para guardar o actualizar.
 guardar(): void {
   // event.preventDefault();
-  if (this.form.valid){
+  if (this.camposValidos()){
+    this.procesando = true;
     this.accionGuardar();
-    this.dialogRef.close(this.data);
   } else{
-    this.form.markAllAsTouched();
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
 }
 
-// Entrada: Ninguna
-// Salida: vacío.
-// Descripción: Acciones a ejecutar para guardar dependiendo
-// del tipo de proceso que se hizo en el dialog. Se usan las peticiones del servicio de sector.
-accionGuardar(): void{
-  const sector = this.generarSector();
-  if (this.accion !== 'nuevo'){
-   this.sectorService.actualizarSector(sector).subscribe( res => {
-    alert ('¡Sector ' + sector.Descripcion_sector + ' actualizado con éxito!');
-    }, (error: HttpErrorResponse) => {
-      alert('¡Sector ' + sector.Descripcion_sector + ' no pudo ser actualizado! Verifique los datos o solicite asistencia.');
-      console.log('Error al actualizar sector: ' + error.message);
-    });
-  } else{
-    this.sectorService.insertarSector(sector).subscribe( res => {
-      alert ('¡Sector ' + sector.Descripcion_sector + ' registrado con éxito!');
-    }, (error: HttpErrorResponse) => {
-      alert ('¡Sector ' + sector.Descripcion_sector + ' no pudo ser guardado! Verifique los datos o solicite asistencia.');
-      console.log('Error al registrar nuevo sector: ' + error.message);
-    });
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){
+    this.form.markAllAsTouched();
+    sonValidos = false;
   }
+
+  // Verificar nombre de sector
+  if (this.existeSector){
+    sonValidos = false;
+  }
+  return sonValidos;
 }
 
 // Entrada: Ninguna
@@ -187,12 +259,72 @@ generarSector(): SectorM{
 }
 
 // Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
+
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Acciones a ejecutar para guardar dependiendo
+// del tipo de proceso que se hizo en el dialog. Se usan las peticiones del servicio de sector.
+accionGuardar(): void{
+  const sector = this.generarSector();
+  if (this.accion !== 'nuevo'){
+   this.sectorService.actualizarSector(sector)
+   .pipe(takeUntil(this.ngUnsubscribe))
+   .subscribe( res => {
+    this.procesando = false;
+    this.finalProceso = true;
+    this.mensajeResultado = res;
+    }, (error: HttpErrorResponse) => {
+      this.procesando = false;
+      this.finalProceso = true;
+      this.error = true;
+      this.mensajeResultado = ' El sector no pudo ser actualizado.Vuelva a intentarlo ó solicite asistencia.';
+      console.log('Error al actualizar sector: ' + error.message);
+    });
+  } else{
+    this.sectorService.insertarSector(sector)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
+      this.procesando = false;
+      this.finalProceso = true;
+      this.mensajeResultado = res;
+    }, (error: HttpErrorResponse) => {
+      this.procesando = false;
+      this.finalProceso = true;
+      this.error = true;
+      this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
+      console.log('Error al registrar nuevo sector: ' + error.message);
+    });
+  }
+  this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
+}
+
+
+// Entrada: Ninguna
 // Salida: vacío.
 // Descripción:  Método que a través del método "verificarCambios" del servicio de DialogService
 // verifica si el usuario interactuó con el formulario.
 // Si la interacción sucedió se despliega un mensaje de confirmación.
 cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
+}
+
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
 }
 
 }

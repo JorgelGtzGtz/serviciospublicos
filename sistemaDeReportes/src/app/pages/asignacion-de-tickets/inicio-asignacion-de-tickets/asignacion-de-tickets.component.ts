@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogAsignacionTicketsComponent } from '../dialog-asignacion-tickets/dialog-asignacion-tickets.component';
 import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
@@ -6,22 +8,23 @@ import { ReporteService } from '../../../services/reporte.service';
 import { Sector } from '../../../Interfaces/ISector';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
+import { TipoReporte } from '../../../Interfaces/ITipoReporte';
 
 @Component({
   selector: 'app-asignacion-de-tickets',
   templateUrl: './asignacion-de-tickets.component.html',
   styleUrls: ['./asignacion-de-tickets.component.css']
 })
-export class AsignacionDeTicketsComponent implements OnInit {
+export class AsignacionDeTicketsComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   nombreSeccion = 'Asignación de tickets a cuadrilla';
-  datosAsignacionTickets: any;
   form: FormGroup;
   ReportesCargados: boolean;
   sectoresCargados: boolean;
   tiposCargados: boolean;
   headersTabla: string [];
   listaReportes: any[] = [];
-  listaTiposR: any = [];
+  listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
 
   constructor( public dialog: MatDialog,
@@ -47,11 +50,36 @@ export class AsignacionDeTicketsComponent implements OnInit {
       estado: ['Todos'],
       tipoReporte: ['Todos'],
       fechaInicio: [''],
-      fechaFinal: ['']
+      fechaFinal: [''],
+      tipoFecha: ['a']
     });
-    this.form.valueChanges.subscribe(value => {
-      console.log('se interactuo:', value);
-    });
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Métodos get para obtener acceso a los controladores de los campos del formulario
+  get campoSector(): AbstractControl{
+    return this.form.get('sector');
+  }
+
+  get campoEstado(): AbstractControl{
+    return this.form.get('estado');
+  }
+
+  get campoTipoReporte(): AbstractControl{
+    return this.form.get('tipoReporte');
+  }
+
+  get campoFechaInicio(): AbstractControl{
+    return this.form.get('fechaInicio');
+  }
+
+  get campoFechaFinal(): AbstractControl{
+    return this.form.get('fechaFinal');
+  }
+
+  get campoTipoFecha(): AbstractControl{
+    return this.form.get('tipoFecha');
   }
 
   // Entrada: Ninguna
@@ -83,8 +111,11 @@ export class AsignacionDeTicketsComponent implements OnInit {
     const origen =  '';
     const fecha: string =  this.campoFechaInicio.value;
     const fechaAl: string =  this.campoFechaFinal.value;
-    this.reporteService.buscarReportes(
-      tipoR, cuadrilla, estado, sector,  origen, fecha, fechaAl).subscribe(reportes => {
+    const tipoFecha: string = this.campoTipoFecha.value;
+    this.reporteService.filtroReportes(
+      tipoR, cuadrilla, estado, sector,  origen, fecha, fechaAl, tipoFecha)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(reportes => {
         this.listaReportes = reportes;
         this.ReportesCargados = true;
     });
@@ -95,13 +126,17 @@ export class AsignacionDeTicketsComponent implements OnInit {
   // Descripción:Método para obtener los registros de tipos de reporte, sectores y cuadrillas
   // para mostrarlos en sus respectivos select.
   inicializarListas(): void{
-    this.tipoRService.obtenerTiposReporte().subscribe( tipos => {
+    this.tipoRService.obtenerTiposReporte()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.listaTiposR = tipos;
       this.tiposCargados = true;
     }, error => {
         console.log('No fue posible obtener los tipos de reportes existentes. ' + error );
     });
-    this.sectorService.obtenerSectores().subscribe(sectores => {
+    this.sectorService.obtenerSectores()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(sectores => {
       this.listaSectores = sectores;
       this.sectoresCargados = true;
     }, error => {
@@ -121,29 +156,6 @@ export class AsignacionDeTicketsComponent implements OnInit {
         cargado = false;
     }
     return cargado;
-  }
-
-  // Entrada: Ninguna
-  // Salida: vacío.
-  // Descripción: Métodos get para obtener acceso a los controladores de los campos del formulario
-  get campoSector(): AbstractControl{
-    return this.form.get('sector');
-  }
-
-  get campoEstado(): AbstractControl{
-    return this.form.get('estado');
-  }
-
-  get campoTipoReporte(): AbstractControl{
-    return this.form.get('tipoReporte');
-  }
-
-  get campoFechaInicio(): AbstractControl{
-    return this.form.get('fechaInicio');
-  }
-
-  get campoFechaFinal(): AbstractControl{
-    return this.form.get('fechaFinal');
   }
 
   // Entrada: Titulo de encabezado de tipo string
@@ -171,7 +183,9 @@ export class AsignacionDeTicketsComponent implements OnInit {
       data: {reporte}
     });
 
-    DIALOG_REF.afterClosed().subscribe(() => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(() => {
       this.actualizarTabla();
     });
   }
@@ -190,8 +204,11 @@ export class AsignacionDeTicketsComponent implements OnInit {
   // Descripción: Ejecuta la función que obtiene los registros de reporte
   // que coinciden con los parámetros de búsqueda (filtros).
   buscar(): void{
-    this.actualizarTabla();
-    console.log('click buscar asignacion de tickets a cuadrillas', this.form.value);
+    if (this.reporteService.verificarFechas(this.campoFechaInicio.value, this.campoFechaFinal.value, this.campoTipoFecha.value)){
+      this.actualizarTabla();
+    }else{
+      alert('Verifique que los rangos de fecha y el tipo de fecha estén correctos.');
+    }
   }
 
   // Entrada: ninguna.
@@ -204,7 +221,13 @@ export class AsignacionDeTicketsComponent implements OnInit {
     this.campoTipoReporte.setValue('Todos');
     this.campoFechaInicio.setValue('');
     this.campoFechaFinal.setValue('');
+    this.campoTipoFecha.setValue('a');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }

@@ -1,5 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 
+
+/*GENERAL*/
+
 html,
 body {
     width: 100%;
@@ -12,6 +15,23 @@ body {
     background-color: #f4f6f9;
 }
 
+button {
+    outline: none;
+}
+
+
+/*ESTILO CONTENEDOR CARD*/
+
+.card {
+    padding: 15px 15px 20px;
+}
+
+
+/*CLASES ESTILO PARTE SUPERIOR CARD*/
+
+
+/*ESTILO BOTONES*/
+
 button.btn-header {
     padding: 0 20px;
     width: 110px;
@@ -20,15 +40,31 @@ button.btn-header {
     float: right;
 }
 
-
-/* TABLA */
-
-button {
-    outline: none;
+button.btn-proceso {
+    width: 100px;
+    margin: 5px 0;
+    background-color: #ececf0;
 }
 
 
-/* ESTILO PARA TABLA */
+/* ESTILO PARA ICONO DE LOS BOTONES */
+
+.mat-icon {
+    font-size: 18px;
+    padding-top: 2px;
+}
+
+
+/*ESTILO PARA ELEMENTOS DE FORMULARIOS*/
+
+.error {
+    margin: 0;
+    color: #ff0000;
+    font-size: 0.8rem;
+}
+
+
+/* ESTILO PARA TABLA  */
 
 table {
     width: 100%;
@@ -40,7 +76,6 @@ table {
 
 .table-wrapper {
     height: 100%;
-    /* max-height: calc(100vh - (100vh * 0.58)); */
     max-height: calc(100vh - (100vh / 3));
     width: 100%;
     overflow-y: auto;
@@ -70,41 +105,71 @@ th {
     width: 170px;
 }
 
-.btn-proceso {
-    width: 100px;
-    margin: 5px 0;
-    background-color: #ececf0;
-}
-
 div.botones-wrapper {
     text-align: center;
 }
 
 
-/* Para tablets */
+/*ESTILO MENSAJE EN TABLA*/
+
+.sin-resultados-texto {
+    text-align: center;
+    padding: 20px 5px;
+}
+
+
+/*ESTILO PARA DIALOG*/
+
+
+/*MENSAJE CONFIRMACION PROCESO*/
+
+.horizontal-align {
+    justify-content: center;
+    height: 100%;
+}
+
+span.horizontal-align-elements {
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+h2.mensaje-confirmacion {
+    margin-top: 4rem;
+}
+
+.icono-confirmacion {
+    color: #23a739;
+}
+
+.icono-error {
+    color: #c22424;
+}
+
+.centrar-margen-izquierdo {
+    margin-left: 45%;
+}
+
+
+/* ESTILO PARA TABLETS */
 
 @media only screen and (min-width:600px) {
+    /*ESTILO CONTENEDOR CARD*/
+    .card {
+        padding: 15px 15px 20px;
+    }
+    /*ESTILO PARA TABLA*/
     .table-wrapper {
         height: 100%;
         max-height: calc(100vh - (100vh * 0.40));
-        /* max-height: calc(100vh - (100vh / 3)); */
-    }
-    table {
-        max-height: 70vh;
     }
     table td {
         padding: 5px 5px;
         box-sizing: border-box;
         text-align: center;
-    }
-    /* BOTONES */
-    .btn-header {
-        margin-top: 20px;
-        width: 100%;
-    }
-    .btn-proceso {
-        width: 100px;
-        margin: 5px 0;
     }
     .id-col {
         text-align: center;
@@ -113,20 +178,33 @@ div.botones-wrapper {
     .boton-seleccionar-col {
         width: 170px;
     }
+    /* ESTILO PARA BOTONES */
+    button.btn-header {
+        margin-top: 20px;
+        width: 100%;
+    }
+    button.btn-proceso {
+        width: 100px;
+        margin: 5px 8px;
+    }
+    /*MENSAJE CONFIRMACION PROCESO*/
+    .centrar-margen-izquierdo {
+        margin-left: 45%;
+    }
 }
 
 
-/* Para computadoras */
+/* ESTILO PARA COMPUTADORAS */
 
 @media only screen and (min-width: 992px) {
+    /*ESTILO PARA CONTENEDOR CARD*/
+    .card {
+        padding: 15px 15px 25px;
+    }
+    /*ESTILO PARA TABLA*/
     .table-wrapper {
         height: 100%;
-        /* max-height: calc(100vh - (100vh * 0.2)); */
-        max-height: calc(100vh - (100vh * 0.65));
-    }
-    table {
-        /* max-height: 70vh; */
-        max-height: 80%;
+        max-height: calc(100vh - (100vh * 0.45));
     }
     .botones-procesos-col {
         width: 35%;
@@ -134,13 +212,18 @@ div.botones-wrapper {
     .boton-seleccionar-col {
         width: 15%;
     }
-    .btn-proceso {
-        width: 110px;
+    div.botones-wrapper {
+        text-align: center;
+    }
+    /*ESTILO PARA BOTONES*/
+    button.btn-proceso {
+        width: 100px;
         margin: 5px 10px;
         line-height: 30px;
         padding: 0 12px;
     }
-    div.botones-wrapper {
-        text-align: center;
+    /*MENSAJE CONFIRMACION PROCESO*/
+    .centrar-margen-izquierdo {
+        margin-left: 48%;
     }
 }

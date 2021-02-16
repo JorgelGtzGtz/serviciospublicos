@@ -15,15 +15,15 @@ export class CuadrillaService {
   // Entrada: valor tipo Cuadrilla
   // Salida: Observable con respuesta de petición.
   // Descripción: Método para hacer una petición Http de tipo POST para insertar nueva cuadrilla.
-  insertarCuadrilla(cuadrilla: Cuadrilla): Observable<object>{
-    return this.http.post(this.url + '/Insertar', cuadrilla);
+  insertarCuadrilla(cuadrilla: Cuadrilla): Observable<string>{
+    return this.http.post<string>(this.url + '/Insertar', cuadrilla);
   }
 
   // Entrada: valor tipo cuadrilla.
   // Salida: Observable con respuesta de petición.
   // Descripción: Método para hacer petición Http PUT para actualizar nueva cuadrilla.
-  actualizarCuadrilla(cuadrilla: Cuadrilla): Observable<object>{
-    return this.http.put(this.url + '/Actualizar', cuadrilla);
+  actualizarCuadrilla(cuadrilla: Cuadrilla): Observable<string>{
+    return this.http.put<string>(this.url + '/Actualizar', cuadrilla);
   }
 
   // Entrada: valor tipo number con ID de cuadrilla
@@ -34,6 +34,15 @@ export class CuadrillaService {
     return this.http.get<Cuadrilla>(this.url + '/GetCuadrilla/' + idCuadrilla);
   }
 
+  // Entrada: valor tipo string con nombre de cuadrilla
+  // Salida: Observable de tipo Cuadrilla con respuesta de petición.
+  // Descripción: Método para recuperar una cuadrilla por su nombre, a través de una
+  // petición de tipo Http GET.
+  obtenerCuadrillaPorNombre(nombreCuadrilla: string): Observable<Cuadrilla>{
+    let params = new HttpParams();
+    params = params.append('nombre',nombreCuadrilla);
+    return this.http.get<Cuadrilla>(this.url + '/GetCuadrillaPorNombre', {params});
+  }
   // Entrada: Ninguna
   // Salida: Observable con lista de cuadrillas con sus jefes de cuadrilla.
   // Descripción: Método para obtener una lista de las cuadrillas con sus
@@ -54,7 +63,7 @@ export class CuadrillaService {
   // Salida: Observable con respuesta de petición (lista).
   // Descripción: Método para obtener una lista de las cuadrillas
   // que coincidan con los filtros de búsqueda mediante una petición Http tipo GET.
-  obtenerCuadrillasFiltro(textoB?: string, estado?: string): Observable<object>{
+  obtenerCuadrillasFiltro(textoB?: string, estado?: string): Observable<Object[]>{
     console.log('Se recibió en servicio:', textoB, estado);
     if (textoB === undefined){
       textoB = '';
@@ -66,7 +75,7 @@ export class CuadrillaService {
     params = params.append('textoB', textoB);
     params = params.append('estado', estado);
 
-    return this.http.get(this.url + '/filtrarCuadrillas', {
+    return this.http.get<Object[]>(this.url + '/filtrarCuadrillas', {
       params
     });
   }
@@ -83,8 +92,8 @@ export class CuadrillaService {
   // Salida: Observablecon respuesta de petición.
   // Descripción: Petición Http de tipo PUT para realizar una eliminación
   // lógica de la cuadrilla mediante el ID.
-  eliminarCuadrilla(cuadrilla: Cuadrilla): Observable<object>{
-    return this.http.put(this.url + '/EliminarCuadrilla', cuadrilla);
+  eliminarCuadrilla(cuadrilla: Cuadrilla): Observable<string>{
+    return this.http.put<string>(this.url + '/EliminarCuadrilla', cuadrilla);
   }
 
   // Entrada: valor tipo JSON con datos de cuadrilla.

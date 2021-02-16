@@ -18,7 +18,7 @@ export class TipoUsuarioService {
   // Salida: Observable de tipo lista de tipos de usuario.
   // Descripción: Función para realizar petición Http de tipo GET para obtener
   // una lista de los tipos de usuario que cumplen con los parámetros de búsqueda.
-  obtenerListaTipoU(textoB?: string, estadoValor?: string): Observable<TipoUsuario[]>{
+  filtroTiposUsuario(textoB?: string, estadoValor?: string): Observable<TipoUsuario[]>{
     if (textoB === undefined){
       textoB = '';
    }
@@ -37,6 +37,18 @@ export class TipoUsuarioService {
     );
   }
 
+   // Entrada: Ninguna.
+  // Salida: Observable de tipo Tipo de Usuario con respuesta de petición.
+  // Descripción: Función para realizar petición Http de tipo GET para obtener
+  // tipos de usuario existentes.
+  obtenerTiposUGeneral(): Observable<TipoUsuario[]>{
+    return this.http.get<TipoUsuario[]>(this.url + '/GetTiposUsuarioGeneral').pipe(
+      map(tipoU => {
+        return tipoU.map(user => TipoUsuarioM.tipoDesdeJson(user));
+      })
+    );
+  }
+
   // Entrada: valor tipo number con ID del Tipo de usuario a buscar.
   // Salida: Observable de tipo Tipo de Usuario con respuesta de petición.
   // Descripción: Función para realizar petición Http de tipo GET para obtener
@@ -46,6 +58,18 @@ export class TipoUsuarioService {
       map( tipoU =>
         TipoUsuarioM.tipoDesdeJson(tipoU)
         ));
+  }
+
+  // Entrada: valor tipo string con descripción del Tipo de usuario a buscar.
+  // Salida: Observable de tipo Tipo de Usuario con respuesta de petición.
+  // Descripción: Función para realizar petición Http de tipo GET para obtener
+  // un Tipo de usuario.
+  obtenerTipoUPorDesc(descripcion: string): Observable<TipoUsuario>{
+    let params = new HttpParams();
+    params = params.append('descripcion', descripcion);
+    return this.http.get<TipoUsuario>(this.url + '/GetTipoUsuarioByDescripcion', {params})
+    .pipe(
+      map( tipoU => TipoUsuarioM.tipoDesdeJson(tipoU)));
   }
 
   // Entrada: ninguna.
@@ -60,8 +84,8 @@ export class TipoUsuarioService {
   // Salida: Observable con respuesta de la petición.
   // Descripción: Función para realizar petición Http de tipo POST para insertar nuevo
   // tipo de usuario y sus permisos.
-  insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<object>{
-    return this.http.post(this.url + '/Insertar', {
+  insertarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<string>{
+    return this.http.post<string>(this.url + '/Insertar', {
       'tipo': tipoUsuario,
       'permisos': permisosT
     });
@@ -71,8 +95,8 @@ export class TipoUsuarioService {
   // Salida: Observable con respuesta de la petición.
   // Descripción: Función para realizar petición Http de tipo PUT para actualizar
   // tipo de usuario y sus permisos.
-  actualizarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<object>{
-    return this.http.put(this.url + '/Actualizar', {
+  actualizarTipoUsuario(tipoUsuario: TipoUsuario, permisosT: ProcesoPermiso[]): Observable<string>{
+    return this.http.put<string>(this.url + '/Actualizar', {
       'tipo': tipoUsuario,
       'permisos': permisosT
     });
@@ -82,8 +106,8 @@ export class TipoUsuarioService {
   // Salida: Observable con respuesta de la petición.
   // Descripción: Función para realizar petición Http de tipo DELETE para efectuar
   // eliminación lógica de tipo de usuario.
-  eliminarTipoUsuario(tipoUsuario: TipoUsuario): Observable<object>{
-    return this.http.put(this.url + '/EliminarTipoUsuario', tipoUsuario);
+  eliminarTipoUsuario(tipoUsuario: TipoUsuario): Observable<string>{
+    return this.http.put<string>(this.url + '/EliminarTipoUsuario', tipoUsuario);
   }
 
 }

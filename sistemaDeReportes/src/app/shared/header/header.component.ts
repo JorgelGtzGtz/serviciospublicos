@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router, RouterEvent } from '@angular/router';
 import { UsuarioService } from '../../services/usuario.service';
+import { filter } from 'rxjs/operators';
 
 
 @Component({
@@ -9,15 +10,77 @@ import { UsuarioService } from '../../services/usuario.service';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-  @Input () seccion: string;
-  urlActual: any;
+  seccion: string;
   saludoUsuario: string;
 
-  constructor(private router: Router, private usuarioService: UsuarioService) { }
+  constructor(private router: Router, private usuarioService: UsuarioService,
+              private route: ActivatedRoute) {
+                this.obtenerNombreSeccion();
+               }
 
   ngOnInit(): void {
+  }
+
+
+  // Entrada: ninguna
+  // Salida" Ninguna
+  // Esto se usa para obtener el URL actual, ya sea que se navegue por el menu
+  //  o se haga un refresh de la página. Se manda al metodo para obtener el nombre de sección
+  //  para después, el header mostrarlo tanto como titulo como en el breadcrumb menu
+  obtenerNombreSeccion(): void{
+    this.router.events.pipe(filter((event: RouterEvent) => event instanceof NavigationEnd))
+    .subscribe(() => {
+      this.generarNombreSeccion(this.router.url);
+    }
+    );
+  }
+
+  // Entrada: string con el URL de actual
+  // Salida: Ninguna
+  // Descripción: asigna el nombre de la sección a mostrar según 
+  // lo que indica el URL.
+  generarNombreSeccion(urlActual: string): void {
+    const urlArray = urlActual.split('/');
+    const longitud = urlArray.length;
+    const lugar = urlArray[longitud - 1];
+    switch (lugar) {
+      case 'tiposDeUsuarios':
+        this.seccion = 'Tipos de usuarios';
+        break;
+      case 'usuarios':
+        this.seccion = 'Usuarios';
+        break;
+      case 'cuadrillas':
+        this.seccion = 'Cuadrillas';
+        break;
+      case 'sector':
+        this.seccion = 'Sectores';
+        break;
+      case 'altaDeReportes':
+        this.seccion = 'Alta de reportes';
+        break;
+      case 'asignacionDeTickets':
+        this.seccion = 'Asignación de tickets a cuadrillas';
+        break;
+      case 'cierreDeReportes':
+        this.seccion = 'Cierre de reportes';
+        break;
+      case 'tiposDeReportes':
+        this.seccion = 'Tipos de reportes';
+        break;
+      case 'reportadorDeInformes':
+        this.seccion = 'Reportador de informes';
+        break;
+      case 'home':
+        this.seccion = 'Inicio';
+        break;
+      default:
+        this.seccion = '';
+        break;
+    }
     this.verificarSeccion();
   }
+
 
   // Entrada: Ninguna
   // Salida: vacío.
@@ -55,6 +118,10 @@ export class HeaderComponent implements OnInit {
       saludo = 'Buenas noches';
     }
     return saludo;
+  }
+
+  irInicio(): void{
+    this.router.navigate(['../inicio/home'], { relativeTo: this.route });
   }
 
 }

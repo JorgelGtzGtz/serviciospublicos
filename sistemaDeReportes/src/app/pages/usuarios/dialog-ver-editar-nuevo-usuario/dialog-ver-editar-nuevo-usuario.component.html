@@ -3,16 +3,32 @@
 <hr>
 <div mat-dialog-content>
     <div class="container-fluid">
+
+        <!-- SPINNERS -->
+        <!-- INICIA SPINNER PARA CARGAR PAGINA -->
         <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
+        <!-- TERMINA SPINNER PARA CARGAR PAGINA -->
 
-        <form *ngIf="datosCargados()" [formGroup]="form">
+        <!-- INICIA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <div *ngIf="procesando" class="row horizontal-align">
+            <div class="col-12 align-self-center">
+                <div class="spinner-border centrar-margen-izquierdo" role="status"></div>
+                <h2 class="text-center mt-3">Guardando información</h2>
+            </div>
+        </div>
+        <!-- TERMINA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <!-- TERMINAN SPINNERS -->
+
+        <!-- INICIA FORMULARIO USUARIOS -->
+        <form *ngIf="datosCargados() && !procesando && !finalProceso" [formGroup]="form">
             <section id="datosUsuario">
                 <div class="row form-sections">
 
+                    <!-- ID DE USUARIO -->
                     <div class="col-6" id="id-col">
                         <div class="form-group header-form-group row justify-content-start">
                             <label class="col-md-auto col-2 col-form-label col-form-label-sm" for="id">ID</label>
@@ -22,6 +38,7 @@
                         </div>
                     </div>
 
+                    <!-- ESTADO -->
                     <div class="col-6" id="inactivo-col">
                         <div class="form-check header-form-group justify-content-end">
                             <input class="form-check-input" type="checkbox" id="inactivo-checkbox" formControlName="estado">
@@ -36,9 +53,14 @@
                 <div class="row form-group form-sections row-input-group">
                     <label id="lblNombre" class="col-form-label col-md-auto" for="nombre">Nombre: </label>
                     <div class="col p-0">
-                        <input type="text" class="form-control" id="nombre" formControlName="nombre">
+                        <input type="text" maxlength="40" class="form-control" id="nombre" formControlName="nombre">
                         <div *ngIf="campoNombre.errors && campoNombre.touched">
-                            <p class="error" *ngIf="campoNombre.hasError('required')">Campo requerido</p>
+                            <p class="error" *ngIf="campoNombre.hasError('required')">
+                                Campo requerido
+                            </p>
+                            <p class="error" *ngIf="campoNombre.hasError('pattern')">
+                                Incluya solo letras mayúsculas y minúsculas.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -53,24 +75,34 @@
                             <p class="error" *ngIf="campoCorreo.hasError('required')">Campo requerido</p>
                             <p class="error" *ngIf="campoCorreo.hasError('email')">Ingrese un correo válido</p>
                         </div>
+                        <div *ngIf="existeCorreo">
+                            <p class="error">Ya existen una cuenta asociada a este correo. Intente con otro.</p>
+                        </div>
                     </div>
                 </div>
                 <!-- TERMINA FILA CORREO -->
 
                 <!-- FILA DE TELEFONO Y GENERO -->
                 <div class="row form-sections">
+                    <!-- TELEFONO -->
                     <div class="col-md-6">
                         <div class="row form-group row-input-group">
                             <label id="lblTelefono" class="col-form-label col-md-auto" for="telefono">Teléfono: </label>
                             <div class="col p-0">
-                                <input type="text" class="form-control" id="telefono" formControlName="telefono">
+                                <input type="tel" maxlength="16" class="form-control" id="telefono" formControlName="telefono">
                                 <div *ngIf="campoTelefono.errors && campoTelefono.touched">
-                                    <p class="error" *ngIf="campoTelefono.hasError('required')">Campo requerido</p>
+                                    <p class="error" *ngIf="campoTelefono.hasError('required')">
+                                        Campo requerido
+                                    </p>
+                                    <p class="error" *ngIf="campoTelefono.hasError('pattern')">
+                                        El teléfono debe formarse entre 10 a 16 números entre 0-9
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- GENERO -->
                     <div class="col-md-6 align-self-center">
                         <div class="row justify-content-end row-input-group">
                             <label id="lblGenero" class="col-md-auto">Género: </label>
@@ -101,8 +133,9 @@
                                     >
                                 {{ tipo.Descripcion_tipoUsuario }}
                             </option>
+                            <option *ngIf="tiposUsuario.length === 0"> No hay opciones disponibles</option>
                         </select>
-                        <div *ngIf="campoTipoUsuario.errors && campoTipoUsuario.touched">
+                        <div *ngIf="errorTipoU(campoTipoUsuario.value) && campoTipoUsuario.touched">
                             <p class="error" *ngIf="campoTipoUsuario.hasError('required')">Campo requerido</p>
                         </div>
                     </div>
@@ -112,25 +145,39 @@
             <!-- FILA USUARIO Y CONTRASENA -->
             <section id="usuarioContrasena">
                 <div class="row form-sections justify-content-start ">
+                    <!-- USUARIO -->
                     <div class="col-md-5">
                         <div class="row form-group row-input-group">
                             <label id="lblUsuario" class="col-form-label col-md-auto" for="usuario">Usuario: </label>
                             <div class="col p-0">
-                                <input type="text" class="form-control" id="usuario" formControlName="usuario">
+                                <input type="text" maxlength="15" class="form-control" id="usuario" formControlName="usuario">
                                 <div *ngIf="campoUsuario.errors && campoUsuario.touched">
                                     <p class="error" *ngIf="campoUsuario.hasError('required')">Campo requerido</p>
+                                    <p class="error" *ngIf="campoUsuario.hasError('pattern')">No se permiten espacios en blanco ni caracteres especiales a excepción de "-" ó "_".</p>
+                                </div>
+                                <div *ngIf="existeLoginUsuario">
+                                    <p class="error">Ya existen una cuenta con este usuario. Intente otra.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- PASSWORD -->
                     <div class="col-md-5">
-                        <div class="row form-group row-input-group">
+                        <div class="row form-group row-input-group" *ngIf="accion === 'nuevo'">
                             <label id="lblContrasena" class="col-form-label col-md-auto" for="password">Contraseña: </label>
                             <div class="col p-0">
-                                <input type="password" class="form-control" id="password" formControlName="password">
+                                <input type="password" class="form-control" id="password" maxlength="8" formControlName="password">
                                 <div *ngIf="campoPassword.errors && campoPassword.touched">
                                     <p class="error" *ngIf="campoPassword.hasError('required')">Campo requerido</p>
+                                    <div *ngIf="campoPassword.hasError('pattern')">
+                                        <p class="error">La contraseña debe estar compuesta por:</p>
+                                        <p class="error">▪ Al menos una letra mayúscula.</p>
+                                        <p class="error">▪ Al menos un valor numérico entre 0-9</p>
+                                        <p class="error">▪ Longitud de 8 caracteres.</p>
+                                    </div>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -138,9 +185,29 @@
             </section>
             <!-- TERMINA FILA USUARIO Y CONTRASENA -->
         </form>
+
+        <!-- INICIA TEXTO DE CONFIRMACION DE PROCESO -->
+        <div *ngIf="!procesando && finalProceso" class="row horizontal-align">
+            <div class="col align-self-center">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <span class="icono-confirmacion horizontal-align-elements ">
+                            <i *ngIf="!error" class="fas fa-check fa-9x"></i>                   
+                        </span>
+                        <span class="icono-error horizontal-align-elements "> 
+                            <i *ngIf="error" class="fas fa-times fa-9x"></i>                  
+                        </span>
+                    </div>
+                    <div class="col-12">
+                        <h2 class="text-center mensaje-confirmacion">{{ mensajeResultado }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- TERMINA  TEXTO DE CONFIRMACION DE PROCESO  -->
     </div>
 </div>
 <div matDialogActions align="end">
-    <button type="button" [disabled]="accion === 'ver'" mat-raised-button color="primary" (click)=guardar()>Guardar</button>
+    <button type="button" [disabled]="deshabilitarGuardar()" mat-raised-button color="primary" (click)=guardar()>Guardar</button>
     <button type="button" mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

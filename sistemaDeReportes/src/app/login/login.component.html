@@ -4,6 +4,9 @@
         <div class="form-group">
             <label class="col-form-label">Usuario</label>
             <input type="text" class="form-control" id="usuario" name="usuario" [formControl]="usuarioForm">
+            <div *ngIf="campoUsuario.errors && campoUsuario.touched">
+                <p class="error" *ngIf="campoUsuario.hasError('required')">Campo requerido</p>
+            </div>
         </div>
         <div class="form-group">
             <label class="col-form-label">Contraseña</label>
@@ -20,8 +23,14 @@
                     </ng-template>
                 </div>
             </div>
+            <div *ngIf="campoPassword.errors && campoPassword.touched">
+                <p class="error" *ngIf="campoPassword.hasError('required')">Campo requerido</p>
+            </div>
+            <p id="texto-olvide-password">
+                <a id="linkPassword" href="javascript:void(0)" (click)="recuperarPassword()">Olvidé mi contraseña</a>
+            </p>
         </div>
-        <button type="button" (click)="ingresar()" class="btn btn-secondary btn-block btn-login">Entrar</button>
+        <button type="button" (click)="ingresar()" [disabled]="deshabilitar" class="btn btn-secondary btn-block btn-login">Entrar</button>
     </form>
 </div>
 

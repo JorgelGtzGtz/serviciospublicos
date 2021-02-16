@@ -18,18 +18,22 @@ button {
     padding: 10px;
 }
 
+div#content-dialog {
+    padding-bottom: 30px;
+}
+
+.container-fluid {
+    height: calc(100vh * 0.28);
+}
+
+
+/* CAMPOS DATOS */
+
 .form-sections {
     margin: 20px 0;
     /* height: 38px; */
     box-sizing: border-box;
 }
-
-div#content-dialog {
-    padding-bottom: 30px;
-}
-
-
-/* CAMPOS DATOS */
 
 div#inactivo-col {
     text-align: center;

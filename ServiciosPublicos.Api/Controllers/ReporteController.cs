@@ -215,7 +215,7 @@ namespace ServiciosPublicos.Api.Controllers
                     var result = _reporteServicio.ActualizarReporte(model, HttpContext.Current.Server.MapPath("~") , out message);
                     if (result)
                     {
-                        response = request.CreateResponse(HttpStatusCode.OK);
+                        response = request.CreateResponse(HttpStatusCode.OK, message);
                     }
                     else
                     {
@@ -246,7 +246,7 @@ namespace ServiciosPublicos.Api.Controllers
         [HttpGet]
         [Route("ListaBusqueda")]
         public async Task<HttpResponseMessage> GetReportesFiltro(HttpRequestMessage request, string tipoR=null, string cuadrilla=null, 
-            string estado=null, string sector=null, string origen=null, string fechaIni=null, string fechaF=null)
+            string estado=null, string sector=null, string origen=null, string fechaIni=null, string fechaF=null, string tipoFecha=null)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -254,7 +254,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var item = _reporteServicio.GetReportesFiltro(tipoR, cuadrilla, estado, sector, origen, fechaIni, fechaF);
+                    var item = _reporteServicio.GetReportesFiltro(tipoR, cuadrilla, estado, sector, origen, fechaIni, fechaF, tipoFecha);
                     response = request.CreateResponse(HttpStatusCode.OK, item);
                 }
                 catch (Exception ex)

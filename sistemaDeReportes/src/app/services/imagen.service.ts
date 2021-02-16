@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Usuario } from '../Interfaces/IUsuario';
 import { ImagenM } from '../Models/ImagenM';
 import { UsuarioService } from './usuario.service';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Imagen } from '../Interfaces/IImagen';
 import { Observable } from 'rxjs';
 
@@ -32,7 +32,7 @@ export class ImagenService {
   // Descripción: Recibe la lista de Files con las imágenes
   // que se seleccionaron en el input type = file
   setListaImagenesSel(listaFiles: File[]): void{
-    this.photosList = listaFiles;
+      this.photosList = listaFiles;
   }
 
   // Entrada: Ninguna
@@ -73,6 +73,8 @@ export class ImagenService {
   // poder ser enviados a la API
   generarFormData(photo: File, index: string): FormData{
     const usuario: Usuario = this.usuarioService.obtenerUsuarioLogueado();
+    console.log('Usuario logueado:', usuario);
+
     const formData = new FormData();
     const date = new Date();
     const day = date.getDate();
@@ -93,6 +95,7 @@ export class ImagenService {
     '.jpg';
     const blob = new Blob([photo], { type: 'image/jpg'});
     formData.append('photo', blob, photoName);
+    console.log('NOMBRE FOTO:', photoName);
     return formData;
   }
 
@@ -103,11 +106,13 @@ export class ImagenService {
   readThis(file: File[]): string[] {
     const urlImage: string[] = [];
     for (let i = 0; i < file.length ; i++){
-      const myReader: FileReader = new FileReader();
-      myReader.readAsDataURL(file[i]);
-      myReader.onload = (event: any) => {
-        urlImage.push( event.target.result);
-      };
+      if (file[i].type === 'image/jpeg' || file[i].type === 'image/png'){
+          const myReader: FileReader = new FileReader();
+          myReader.readAsDataURL(file[i]);
+          myReader.onload = (event: any) => {
+            urlImage.push( event.target.result);
+        };
+      }
     }
     return urlImage;
   }
@@ -120,7 +125,6 @@ export class ImagenService {
     return new Promise((resolved, reject) => {
       this.obtenerPathImagen(formData).toPromise()
       .then((path: string) => {
-        console.log('path exitoso:', path);
         resolved(path);
       })
       .catch(error => {
@@ -134,13 +138,20 @@ export class ImagenService {
   // Salida: promesa de tipo lista de tipo ImagenM, con los objetos ImagenM creados
   // Descripción: método para guardar las imágenes en la API y generar su path a 
   // partir de los archivos seleccionados en el input tipo file.
-  async llenarListaImagen(tipo: number): Promise<ImagenM[]>{
+  async llenarListaImagen(tipo: number): Promise<Imagen[]>{
     const photosList = this.photosList;
-    const listaImagenObjeto: ImagenM [] = [];
+    const listaImagenObjeto: Imagen [] = [];
 
     for (let i = 0; i < photosList.length; i++ ){
           const formData: FormData = this.generarFormData(photosList[i], i.toString());
-          const path = await this.generarPathImagen(formData);
+          const path = await this.obtenerPathImagen(formData).toPromise()
+          .then(resultado => {
+            return resultado;
+          })
+          .catch((error: HttpErrorResponse) => {
+            console.log(error);
+            return 'Photos/no-image.png';
+          });
           const pathPhoto: string = path.toString();
           const imagen = this.generarObjImagen(pathPhoto, tipo, 0, 0);
           listaImagenObjeto.push(imagen);
@@ -158,6 +169,7 @@ export class ImagenService {
     const defaultPhotoName = 'no-image.png';
 
     imagenes.forEach(imagen => {
+      if (listaPath.length < 4){ // Solo se mostrarán 4 imágenes
         let path: string;
         const analisis: string [] = expresionRegular.exec(imagen.Path_imagen);
         if (analisis !== null){
@@ -166,6 +178,7 @@ export class ImagenService {
           path = this.urlParaFotos + 'Photos/' + defaultPhotoName;
         }
         listaPath.push(path);
+      }
       });
     return listaPath;
   }

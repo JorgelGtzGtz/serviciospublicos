@@ -1,4 +1,6 @@
-import { Component, OnInit, Output } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog} from '@angular/material/dialog';
 import { FormGroup, FormBuilder, AbstractControl } from '@angular/forms';
 import { DialogVerEditarNuevoAltaReportesComponent } from '../dialog-ver-editar-nuevo-alta-reportes/dialog-ver-editar-nuevo-alta-reportes.component';
@@ -8,19 +10,22 @@ import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
 import { Reporte } from '../../../Interfaces/IReporte';
 import { Sector } from '../../../Interfaces/ISector';
+import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
+import { TipoReporte } from '../../../Interfaces/ITipoReporte';
 
 @Component({
   selector: 'app-inicio-alta-reportes',
   templateUrl: './alta-reportes.component.html',
   styleUrls: ['./alta-reportes.component.css']
 })
-export class AltaReportesComponent implements OnInit {
+export class AltaReportesComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   form: FormGroup;
   nombreSeccion = 'Alta de reportes';
   headersTabla: string [];
-  listaReportes: any = [];
-  listaCuadrillas: any = [];
-  listaTiposR: any = [];
+  listaReportes: any[] = [];
+  listaCuadrillas: Cuadrilla[] = [];
+  listaTiposR: TipoReporte[] = [];
   listaSectores: Sector[] = [];
   ReportesCargados: boolean;
   sectoresCargados: boolean;
@@ -52,11 +57,44 @@ export class AltaReportesComponent implements OnInit {
       sector: ['Todos'],
       origen: ['Todos'],
       fechaInicio: [''],
-      fechaFinal: ['']
+      fechaFinal: [''],
+      tipoFecha: ['a']
     });
-    this.form.valueChanges.subscribe(value => {
-      console.log('se interactuo:', value);
-    });
+  }
+
+    // Entrada: Ninguna
+  // Salida: control de tipo abstract control.
+  // Descripción: Métodos get para obtener acceso a los campos del formulario
+  get campoTipoReporte(): AbstractControl{
+    return this.form.get('tipoReporte');
+  }
+
+  get campoCuadrilla(): AbstractControl{
+    return this.form.get('cuadrilla');
+  }
+
+  get campoEstado(): AbstractControl{
+    return this.form.get('estado');
+  }
+
+  get campoSector(): AbstractControl{
+    return this.form.get('sector');
+  }
+
+  get campoOrigen(): AbstractControl{
+    return this.form.get('origen');
+  }
+
+  get campoFechaInicial(): AbstractControl{
+    return this.form.get('fechaInicio');
+  }
+
+  get campoFechaFinal(): AbstractControl{
+    return this.form.get('fechaFinal');
+  }
+
+  get campoTipoFecha(): AbstractControl{
+    return this.form.get('tipoFecha');
   }
 
   // Entrada: Ninguna
@@ -88,14 +126,16 @@ export class AltaReportesComponent implements OnInit {
     const origen: number =  this.campoOrigen.value;
     const fecha: string =  this.campoFechaInicial.value;
     const fechaAl: string =  this.campoFechaFinal.value;
-    this.reporteService.buscarReportes(
+    const tipoFecha: string = this.campoTipoFecha.value;
+    this.reporteService.filtroReportes(
       tipoR.toString(),
       cuadrilla.toString(),
       estado.toString(),
       sector.toString(),
       origen.toString(),
       fecha,
-      fechaAl).subscribe(reportes => {
+      fechaAl,
+      tipoFecha).subscribe(reportes => {
         this.listaReportes = reportes;
         this.ReportesCargados = true;
     });
@@ -121,55 +161,30 @@ export class AltaReportesComponent implements OnInit {
   // Descripción:Método para obtener los registros de tipos de reporte, sectores y cuadrillas
   // para mostrarlos en sus respectivos select.
   inicializarListas(): void{
-    this.tipoRService.obtenerTiposReporte().subscribe( tipos => {
+    this.tipoRService.obtenerTiposReporte()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.listaTiposR = tipos;
       this.tiposCargados = true;
     }, error => {
         console.log('No fue posible obtener los tipos de reportes existentes. ' + error );
     });
-    this.sectorService.obtenerSectores().subscribe(sectores => {
+    this.sectorService.obtenerSectores()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(sectores => {
       this.listaSectores = sectores;
       this.sectoresCargados = true;
     }, error => {
       console.log('No fue posible obtener los sectores existentes. ' + error );
     });
-    this.cuadrillaService.obtenerCuadrillasConJefe().subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasGeneral()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
       this.cuadrillasCargadas = true;
     }, error => {
       console.log('No fue posible obtener las cuadrillas existentes. ' + error );
     });
-  }
-
-  // Entrada: Ninguna
-  // Salida: control de tipo abstract control.
-  // Descripción: Métodos get para obtener acceso a los campos del formulario
-  get campoTipoReporte(): AbstractControl{
-    return this.form.get('tipoReporte');
-  }
-
-  get campoCuadrilla(): AbstractControl{
-    return this.form.get('cuadrilla');
-  }
-
-  get campoEstado(): AbstractControl{
-    return this.form.get('estado');
-  }
-
-  get campoSector(): AbstractControl{
-    return this.form.get('sector');
-  }
-
-  get campoOrigen(): AbstractControl{
-    return this.form.get('origen');
-  }
-
-  get campoFechaInicial(): AbstractControl{
-    return this.form.get('fechaInicio');
-  }
-
-  get campoFechaFinal(): AbstractControl{
-    return this.form.get('fechaFinal');
   }
 
   // Entrada: Ninguna
@@ -197,7 +212,9 @@ export class AltaReportesComponent implements OnInit {
       data: {accion, reporte}
     });
 
-    DIALOG_REF.afterClosed().subscribe(() => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(() => {
       this.actualizarTabla();
     });
   }
@@ -231,8 +248,14 @@ export class AltaReportesComponent implements OnInit {
 // Descripción: Método que se llama con el botón buscar para ejecutar una búsqueda
 // de registros mediante el método actualizarTabla()
   buscar(): void{
-    this.actualizarTabla();
+    if (this.reporteService.verificarFechas(this.campoFechaInicial.value, this.campoFechaFinal.value, this.campoTipoFecha.value)){
+      this.actualizarTabla();
+    }else{
+      alert('Verifique que los rangos de fecha y el tipo de fecha estén correctos.');
+    }
   }
+
+
 
     // Entrada: ninguna.
   // Salida: vacío.
@@ -246,7 +269,13 @@ export class AltaReportesComponent implements OnInit {
     this.campoTipoReporte.setValue('Todos');
     this.campoFechaInicial.setValue('');
     this.campoFechaFinal.setValue('');
+    this.campoTipoFecha.setValue('a');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }

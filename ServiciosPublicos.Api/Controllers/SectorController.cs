@@ -133,6 +133,37 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage y nombre de sector de tipo string
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de tipo Sector.
+        // Descripción: Obtiene el registro de sector que coincide con el nombre proporcionado.
+        [HttpGet]
+        [Route("GetSectorPorNombre")]
+        public async Task<HttpResponseMessage> GetSectorPorNombre(HttpRequestMessage request, string nombre)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var sector = _sectorService.GetSectorPorNombre(nombre);
+
+                    response = request.CreateResponse(HttpStatusCode.OK, sector);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        exception = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
         // Entrada: request de tipo HttpRequestMessage.
         // Salida: respuesta de tipo HttpResponseMessage y lista de tipo Sector
         // Descripción: Obtiene la lista de sectores existentes.

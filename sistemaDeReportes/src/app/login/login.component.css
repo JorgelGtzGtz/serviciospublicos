@@ -8,7 +8,7 @@ h2 {
 }
 
 input {
-    padding-bottom: 5px
+    padding-bottom: 5px;
 }
 
 .login-container {
@@ -32,6 +32,22 @@ input {
 
 .form-label {
     padding-left: 0;
+}
+
+
+/*ESTILO PARA RECUPERACION PASSWORD*/
+
+#texto-olvide-password {
+    font-size: 0.9rem;
+    text-align: right;
+}
+
+a#linkPassword {
+    color: #343a40;
+}
+
+a#linkPassword:hover {
+    color: #085097;
 }
 
 

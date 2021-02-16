@@ -4,7 +4,6 @@ import { Reporte } from '../Interfaces/IReporte';
 import { Ticket } from '../Interfaces/ITicket';
 import { Imagen } from '../Interfaces/IImagen';
 import { ReporteM } from '../Models/ReporteM';
-import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -18,8 +17,8 @@ export class ReporteService {
   // Entrada: objeto tipo Ticket y lista de tipo Imagen
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición tipo POST para registrar un nuevo reporte.
-  registrarReporte(ticket: Ticket, imagenes: Imagen[]): Observable<object>{
-    return this.http.post(this.url + '/Registrar', {
+  registrarReporte(ticket: Ticket, imagenes: Imagen[]): Observable<string>{
+    return this.http.post<string>(this.url + '/Registrar', {
     'ticket': ticket, 'imagenes': imagenes
     });
   }
@@ -27,8 +26,8 @@ export class ReporteService {
   // Entrada: objeto tipo Reporte.
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición tipo PUT para actualizar un registro de reporte.
-  actualizarReporte(reporte: Reporte): Observable<object>{
-    return this.http.put(this.url + '/Actualizar', reporte);
+  actualizarReporte(reporte: Reporte): Observable<string>{
+    return this.http.put<string>(this.url + '/Actualizar', reporte);
   }
 
   // Entrada: datos de tipo string que corresponden a: tipo de reporte, cuadrilla, estado, sector,
@@ -36,8 +35,8 @@ export class ReporteService {
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición tipo GET para obtener registros de reporte que coincidad
   // con los filtros que se envían como parámetros.
-  buscarReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
-                 origen: string, fecha: string, fechaAl: string): Observable<object[]>{
+  filtroReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
+                 origen: string, fecha: string, fechaAl: string, tipoFecha: string): Observable<JSON[]>{
     if (tipoR === undefined || tipoR === 'Todos'){
       tipoR = '';
    }
@@ -59,6 +58,9 @@ export class ReporteService {
     if (fechaAl === null){
     fechaAl = '';
    }
+    if (tipoFecha === null){
+      tipoFecha = '';
+   }
     let params = new HttpParams();
     params = params.append('tipoR', tipoR);
     params = params.append('cuadrilla', cuadrilla);
@@ -67,20 +69,21 @@ export class ReporteService {
     params = params.append('origen', origen);
     params = params.append('fechaIni', fecha);
     params = params.append('fechaF', fechaAl);
-    return this.http.get<object[]>(this.url + '/ListaBusqueda', {params});
+    params = params.append('tipoFecha', tipoFecha);
+    return this.http.get<JSON[]>(this.url + '/ListaBusqueda', {params});
   }
 
   // Entrada: ID de cuadrilla de tipo string.
   // Salida: Observable con la respuesta de la petición.
   // Descripción: petición de tipo GET para obtener los reportes que pertenecen a una determinada
   // cuadrilla.
-  obtenerReportesCuadrilla(idCuadrilla: string): Observable<object[]>{
+  obtenerReportesCuadrilla(idCuadrilla: string): Observable<Object[]>{
     if (idCuadrilla === 'Todos' || idCuadrilla === undefined){
         idCuadrilla = '';
     }
     let params = new HttpParams();
     params = params.append('idCuadrilla', idCuadrilla);
-    return this.http.get<object[]>(this.url + '/GetReportesCuadrillasFiltro', {params});
+    return this.http.get<Object[]>(this.url + '/GetReportesCuadrillasFiltro', {params});
   }
 
   // Entrada: ID del reporte de tipo number y el tipo de imagen (1: apertura, 2: cierre).
@@ -169,16 +172,36 @@ export class ReporteService {
   // incluya y de formato a las calles proporcionadas.
   formatoEntreCalles(calle1: string, calle2: string): string{
     let entreCalles: string;
-    if (calle1.length > 0 && calle2.length > 0){
-      entreCalles = calle1 + ' y ' + calle2;
-    } else if (calle1.length > 0 && calle2.length === 0){
-      entreCalles = calle1;
-    } else if (calle2.length > 0 && calle1.length === 0){
-      entreCalles = calle2;
-    }else{
+    if (!calle1 && !calle2){
       entreCalles = '';
+    } else if (calle1 && calle2){ // si se ingresaron las dos calles
+      entreCalles = calle1 + ' y ' + calle2;
+    } else if (calle1 && !calle2){ // si se ingresó solo la calle 1
+      entreCalles = calle1;
+    } else if (calle2 && !calle1){ // si se ingresó solo la calle 2
+      entreCalles = calle2;
     }
     return entreCalles;
   }
+
+// Entrada: valor string para fecha inicial, valor string para fecha final
+// valor string para tipo de fecha
+// Salida: valor boolean.
+// Descripción: Verifica si se ingresó una fecha, que se hayan ingresado
+// las dos fechas de rango y el tipo de fecha.
+verificarFechas(fechaInicial: string, fechaFinal: string, tipo: string ): boolean{
+  let fechasCorrectas: boolean;
+  if (fechaInicial && fechaFinal && tipo){
+    fechasCorrectas = true;
+  }else if (!fechaInicial && !fechaFinal && !tipo){
+    fechasCorrectas = true;
+  }else{
+    fechasCorrectas = false;
+  }
+  console.log('fecha incial:', fechaInicial, 'Fecha final:',
+  fechaFinal, ' Tipo:', tipo);
+  console.log('Fechas correctas:', fechasCorrectas);
+  return fechasCorrectas;
+}
 
 }

@@ -16,6 +16,7 @@ namespace ServiciosPublicos.Core.Services
         Usuario GetUsuario(string usr);
         Usuario GetUsuarioEmail(string email);
         Usuario GetUsuarioTel(string telefono);
+        Usuario GetUsuarioLogin(string usr, string password);
         Usuario GetUsuario(string usr, string password);
         List<Usuario> GetUsuarios();
         List<dynamic> GetUsuariosFiltro(string textoB, string estado, string tipoU, string repActivos);
@@ -25,6 +26,10 @@ namespace ServiciosPublicos.Core.Services
         bool EliminarUsuario(Usuario usuario, out string Message);
         int ObtenerIDRegistro(out string Message);
         string SendMail(Usuario user, out string Message, int code);
+        List<string> forgotPassword(string email, out string Message);
+        void modificarPassword(string idUsuario, string password, out string Message);
+        bool verificarToken(string token, string tokenA, string fecha, string email);
+        bool verificarCaducidadToken(DateTime fechaCreacion);
     }
 
     public class UsuarioService : IUsuarioService
@@ -50,6 +55,31 @@ namespace ServiciosPublicos.Core.Services
         public Usuario GetUsuario(string usr, string password)
         {
             return _usuarioRepository.GetUsuario(usr, password);
+        }
+
+        // Entrada: string con usuario y string con contraseña de usuario.
+        // Salida: Objeto de tipo Usuario.
+        // Descripción: Llama al método del reporsitorio que busca el Usuario por usuario y 
+        // descifra la contraseña para verificar que sea el usuario correcto.
+        public Usuario GetUsuarioLogin(string usr, string password)
+        {
+            string passwordUsuario;
+            Usuario usuario = null;
+
+            // Obtiene el usuario con su nombre login.
+            Usuario usuarioObtenido = _usuarioRepository.GetUsuario(usr);
+
+            // Desencriptar contraseña del usuario obtenido.
+            byte[] desencriptar = Convert.FromBase64String(usuarioObtenido.Password_usuario);
+            passwordUsuario = System.Text.Encoding.Unicode.GetString(desencriptar);
+
+            // verificar que las contraseñas y nombre de usuario sean iguales.
+            if (password.Equals(passwordUsuario) && usr.Equals(usuarioObtenido.Login_usuario))
+            {
+                usuario = usuarioObtenido;
+            }
+
+            return usuario;
         }
 
         // Entrada: valor string para usuario.
@@ -109,7 +139,13 @@ namespace ServiciosPublicos.Core.Services
             bool result = false;
             try
             {
+                // Encriptar password
+                // byte[] encriptar = System.Text.Encoding.Unicode.GetBytes(usuario.Password_usuario);
+                // string passwordEncriptado = Convert.ToBase64String(encriptar);
+                // Modificaciones a datos de usuario
+                // usuario.Password_usuario = passwordEncriptado;
                 usuario.Disponible = true;
+                // Guardar en BD
                 _usuarioRepository.Add<int>(usuario);
                 Message = "Usuario " + usuario.Login_usuario + " registrado con exito";
                 result = true;
@@ -132,7 +168,6 @@ namespace ServiciosPublicos.Core.Services
             bool result = false;
             try
             {
-                //_usuarioRepository.InsertOrUpdate<int>(usuario, "ID_usuario");
                 _usuarioRepository.Modify(usuario);
 
                 Message = "Modificación de usuario " + usuario.Login_usuario + " exitosa";
@@ -190,11 +225,150 @@ namespace ServiciosPublicos.Core.Services
             }
             return result;
         }
+
         //G: LLAMA DIRECTO AL METODO DE ENVIAR CORREO ENVIANDO CODIGO DE CONFIRMACION Y MENSAJE POR PARAMETROS
+        //Método de recuperación de contraseña para app móvil
         public string SendMail(Usuario user, out string Message, int code)
         {
             Message = _usuarioRepository.EnviarCorreo(user.Correo_usuario, "Confirma tu correo", "Tu código de verificación es: "+code);
             return Message;
         }
+
+        //Entrada: string correo de usuario, string con código de usuario.
+        //Salida: Mensaje tipo string.
+        //Descripción:Método para recuperación de contraseña web.
+        public string sendMailRecuperacion(string correo, string token)
+        {
+            string message = _usuarioRepository.EnviarCorreoRecuperacion(correo, "Recuperación de contraseña", token);
+            return message;
+        }
+
+        // Entrada: string con email.
+        // Salida: token tipo string para cambiar la contraseña.
+        // Descripción: Genera correo para recuperacion de contraseña por sistema web.
+        public List<string> forgotPassword(string email, out string Message)
+        {
+            Message = string.Empty;
+            Usuario usuario = null;
+            List<string> token = new List<string>();
+
+            //buscar usuario 
+            try
+            {
+                usuario = this.GetUsuarioEmail(email);
+                if (usuario != null)
+                {
+                    // Generar número random
+                    string numeroRandom = string.Empty;
+                    var random = new Random();
+                    for (int i = 0; i < 4; i++)
+                    {
+                        numeroRandom += random.Next(0, 9).ToString();
+                    }
+
+                    // encriptar fecha
+                    byte[] encriptarF = BitConverter.GetBytes(DateTime.UtcNow.ToBinary());
+                    string fechaEncriptada = Convert.ToBase64String(encriptarF);
+
+                    // encriptar correo
+                    // byte[] encriptar = System.Text.Encoding.Unicode.GetBytes(usuario.Correo_usuario);
+                    // string correoEncriptado = Convert.ToBase64String(encriptar);
+
+                    // Armar token
+                    token.Add(numeroRandom);
+                    token.Add(fechaEncriptada);
+                    token.Add(usuario.ID_usuario.ToString());
+                    Message = sendMailRecuperacion(usuario.Correo_usuario, token[0]);
+                }
+            }
+            catch(Exception ex)
+            {
+                Message = ex.Message;
+            }            
+            
+            return token;
+        }
+
+        // Entrada: string para idUsuario, string para password.
+        // Salida: valor bool
+        // Descripción: cambia la contraseña del usuario.
+        public void modificarPassword(string idUsuario, string password, out string Message)
+        {
+            int id_usuario = Int32.Parse(idUsuario);
+            // byte[] decodificarCorreo = Convert.FromBase64String(componentesToken[2]);
+            // string correoUsuario = System.Text.Encoding.Unicode.GetString(decodificarCorreo);
+
+            try
+                {
+                // Encriptar password
+               // byte[] encriptar = System.Text.Encoding.Unicode.GetBytes(password);
+                //string passwordEncriptado = Convert.ToBase64String(encriptar);
+                // Guardar en BD
+                _usuarioRepository.CambiarPassword(id_usuario, password);
+                    Message = "La contraseña se ha cambiado exitosamente.";
+                }
+                catch (Exception ex)
+                {
+                    Message = "No ha sido posible cambiar la contraseña. Error:" + ex.Message;
+                }
+                
+            
+        }
+
+        // Entrada: string para token, string para tokenAsignado, string para fecha encriptada, string con email.
+        // Salida: bool.
+        // Descripción: Verifica que el token ingresado por el usuario sea el que se le asignó, además verifica que el token 
+        // no tenga más de una hora de antiguedad.
+        public bool verificarToken( string token,string tokenA, string fecha, string email)
+        {
+            bool cambiarPassword;
+            // Descifrar fecha de creación token
+            byte[] data = Convert.FromBase64String(fecha);
+            DateTime fechaCreacion = DateTime.FromBinary(BitConverter.ToInt64(data, 0));
+
+            // Verificar que el token ingresado y el otorgado sea el mismo.
+            bool mismaClave = token.Equals(tokenA) ? true : false;
+
+
+            // Verificar que es el mismo usuario que lo solicitó
+            // int id_usuarioToken = Int32.Parse(componentesToken[2]);
+            // Usuario usuario = _usuarioRepository.Get<int>(id_usuarioToken);            
+            // bool mismoUsuario = usuario.Correo_usuario == email ? true : false;
+
+            // Verificar que aún está vigente.
+            bool fechaValida = verificarCaducidadToken(fechaCreacion);
+
+            // Verificar que cumpla con las dos condiciones
+            if (mismaClave && fechaValida)
+            {
+                cambiarPassword = true;
+            }
+            else
+            {
+                cambiarPassword = false;
+            }           
+
+            return cambiarPassword;
+        }
+
+        // Entrada: fecha de tipo DateTime
+        // Salida: Valor bool 
+        // Descripción: verifica que la fecha de creación del token no tenga más de una hora de creación.
+        public bool verificarCaducidadToken(DateTime fechaCreacion)
+        {
+            bool fechaValida;
+            if (fechaCreacion < DateTime.UtcNow.AddHours(-1))
+            {
+                // old token
+                fechaValida = false;
+            }
+            else
+            {
+                fechaValida = true;
+            }
+            return fechaValida;
+
+        }
+
     }
 }

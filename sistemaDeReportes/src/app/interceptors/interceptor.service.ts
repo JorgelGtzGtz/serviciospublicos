@@ -8,7 +8,7 @@ import { UsuarioService } from '../services/usuario.service';
   providedIn: 'root'
 })
 export class InterceptorService implements HttpInterceptor {
-  datosLogin: string [];
+  claveLogin: string;
   constructor(private usuarioService: UsuarioService) {
    }
 
@@ -17,7 +17,7 @@ export class InterceptorService implements HttpInterceptor {
   // Descripción: Método de interceptor que interviene en las peticiones Http
   // Agrega los headers si es necesario.
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    this.datosLogin = this.usuarioService.obtenerDatosLogin();
+    this.claveLogin = this.usuarioService.obtenerClaveLogin();
 
     if (req.url.indexOf('http://localhost:50255/api') === -1) {
       return next.handle(req).pipe(
@@ -25,7 +25,7 @@ export class InterceptorService implements HttpInterceptor {
       );
     }else{
       const headers = new HttpHeaders({
-        Authorization : 'Basic ' + btoa(this.datosLogin[0] + ':' + this.datosLogin[1])
+        Authorization : 'Basic ' + this.claveLogin
       });
       const reqClone = req.clone({
         headers
@@ -39,8 +39,22 @@ export class InterceptorService implements HttpInterceptor {
   // Entrada: valor de tipo HttpErrorResponse.
   // Salida: Observable.
   // Descripción: Método para manejar un error en caso de presentarse.
-  manejarError(error: HttpErrorResponse){
+  manejarError(error: HttpErrorResponse): Observable<never>{
+    let mensajeError: string;
+    switch (error.status) {
+      case 0:
+        mensajeError = 'Se ha perdido la conexión con el servidor. Intente de nuevo más tarde ó solicite asistencia.';
+        break;
+      case 401:
+        mensajeError = 'Verifique que el usuario y contraseña sean correctos.';
+        break;
+      default:
+        mensajeError = 'Se ha generado un problema al acceder a la información solicitada. Vuelva a intentarlo o solicite asistencia.';
+        break;
+    }
+    alert(mensajeError);
     console.warn(error);
-    return throwError('Error en dirección de acceso');
+    return throwError(mensajeError);
   }
+
 }

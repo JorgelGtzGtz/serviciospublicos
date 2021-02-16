@@ -1,18 +1,3 @@
-/* GENERAL */
-
-button {
-    outline: none;
-}
-
-
-/* ESTILO PARA ICONO DE LOS BOTONES */
-
-.mat-icon {
-    font-size: 18px;
-    padding-top: 2px;
-}
-
-
 /* ESTILO BOTONES DEL HEADER */
 
 .btn-header {
@@ -31,55 +16,18 @@ button {
     padding-top: 6px;
 }
 
-.content-wrapper {
-    padding: 0 0 10px 0;
-}
-
 .row {
     margin-top: 10px;
 }
 
-.sinMargen {
-    margin: 0;
-}
-
-.card {
-    padding: 0 15px;
-    height: calc(100vh + (100vh / 2));
-}
-
-.content-card {
-    box-sizing: border-box;
-    padding-bottom: 10px;
-    /* height: calc(100vh - (100vh / 3)); */
-    height: calc(100vh + (100vh * 0.15));
-}
-
 .btn-switch-container {
     margin-top: 10px;
-    /* float: right; */
 }
 
 
-/* TABLA */
-
-.btn-proceso {
-    width: 100px;
-    margin: 5px 0;
-    background-color: #ececf0;
-}
-
-
-/* Para tablets */
+/* ESTILO PARA TABLETS*/
 
 @media only screen and (min-width:600px) {
-    /* CONTENEDOR CARD */
-    div.content-card {
-        height: 65%;
-    }
-    .card {
-        height: calc(100vh + (100vh * 0.10));
-    }
     /* BOTONES */
     .btn-header {
         margin-top: 20px;
@@ -88,25 +36,12 @@ button {
     #btn-nuevo {
         float: none;
     }
-    /* TABLA */
-    .btn-proceso {
-        width: 100px;
-        margin: 5px 0;
-    }
 }
 
 
-/* Para computadoras */
+/* ESTILO PARA COMPUTADORAS*/
 
 @media only screen and (min-width: 992px) {
-    /* CONTENEDOR CARD */
-    div.content-card {
-        height: 75%;
-    }
-    .card {
-        padding: 0 15px;
-        height: calc(100vh - (100vh / 4));
-    }
     /* BOTONES */
     .btn-header {
         width: 110px;
@@ -117,12 +52,5 @@ button {
     }
     #btn-nuevo {
         float: right;
-    }
-    /* TABLA */
-    .btn-proceso {
-        width: 110px;
-        margin: 5px 10px;
-        line-height: 30px;
-        padding: 0 12px;
     }
 }

@@ -1,18 +1,3 @@
-/* GENERAL */
-
-button {
-    outline: none;
-}
-
-
-/* ESTILO PARA ICONO DE LOS BOTONES */
-
-.mat-icon {
-    font-size: 18px;
-    padding-top: 2px;
-}
-
-
 /* ESTILO BOTONES DEL HEADER */
 
 .btn-header {
@@ -39,39 +24,11 @@ button {
     margin-top: 10px;
 }
 
-.card {
-    padding: 0 15px;
-    height: calc(100vh + (100vh * 0.25));
-}
 
-.content-card {
-    box-sizing: border-box;
-    padding-bottom: 10px;
-    height: calc(100vh + (100vh * 0.15));
-}
-
-
-/* TABLA */
-
-.btn-proceso {
-    width: 100px;
-    margin: 5px 0;
-    background-color: #ececf0;
-}
-
-
-/* Para tablets */
+/* ESTILO PARA TABLETS */
 
 @media only screen and (min-width:600px) {
-    /* CONTENEDOR CARD */
-    div.content-card {
-        /* height: calc(100vh + (100vh * 0.15)); */
-        height: 65%;
-    }
-    .card {
-        height: calc(100vh + (100vh * 0.10));
-    }
-    /* BOTONES */
+    /* ESTILO PARA BOTONES */
     .btn-header {
         margin-top: 20px;
         width: 100%;
@@ -79,28 +36,13 @@ button {
     #btn-nuevo {
         float: none;
     }
-    /* TABLA */
-    .btn-proceso {
-        width: 100px;
-        margin: 5px 0;
-    }
 }
 
 
-/* Para computadoras */
+/* ESTILO PARA COMPUTADORAS */
 
 @media only screen and (min-width: 992px) {
-    /* CONTENEDOR CARD */
-    div.content-card {
-        /* height: calc(100vh - (100vh * 0.15)); */
-        height: 75%;
-    }
-    .card {
-        /* height: calc(100vh + (100vh * 0.10)); */
-        padding: 0 15px;
-        height: calc(100vh - (100vh / 4));
-    }
-    /* BOTONES */
+    /* ESTILO PARA BOTONES */
     .btn-header {
         width: 110px;
         margin-top: 10px;
@@ -110,12 +52,5 @@ button {
     }
     #btn-limpiar {
         width: 150px;
-    }
-    /* TABLA */
-    .btn-proceso {
-        width: 110px;
-        margin: 5px 10px;
-        line-height: 30px;
-        padding: 0 12px;
     }
 }

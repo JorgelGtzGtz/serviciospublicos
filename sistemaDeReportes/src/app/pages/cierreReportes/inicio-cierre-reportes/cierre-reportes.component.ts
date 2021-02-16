@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoCierreReportesComponent } from '../dialog-ver-editar-nuevo-cierre-reportes/dialog-ver-editar-nuevo-cierre-reportes.component';
 import { FormControl, AbstractControl } from '@angular/forms';
@@ -6,6 +6,8 @@ import { Reporte } from '../../../Interfaces/IReporte';
 import { ReporteService } from '../../../services/reporte.service';
 import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 
 @Component({
@@ -13,7 +15,8 @@ import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
   templateUrl: './cierre-reportes.component.html',
   styleUrls: ['./cierre-reportes.component.css']
 })
-export class CierreReportesComponent implements OnInit {
+export class CierreReportesComponent implements OnInit , OnDestroy {
+  private ngUnsubscribe = new Subject();
   nombreSeccion = 'Cierre de reportes';
   cuadrillaForm: FormControl;
   headersTabla: string [];
@@ -39,9 +42,6 @@ export class CierreReportesComponent implements OnInit {
   // Descripción: Inicializa los controladores del formulario
   formBuilder(): void{
     this.cuadrillaForm = new FormControl('Todos');
-    this.cuadrillaForm.valueChanges.subscribe(value => {
-      console.log('se interactuo:', value);
-    });
   }
 
   // Entrada: Ninguna
@@ -49,7 +49,9 @@ export class CierreReportesComponent implements OnInit {
   // Descripción:Método para obtener los registros de tipos de reporte, sectores y cuadrillas
   // para mostrarlos en sus respectivos select.
   inicializarListas(): void{
-    this.cuadrillaService.obtenerCuadrillasGeneral().subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasGeneral()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( cuadrillas => {
       this.listaCuadrillas = cuadrillas;
       this.cuadrillasCargadas = true;
     }, error => {
@@ -72,7 +74,9 @@ export class CierreReportesComponent implements OnInit {
   // con los registros de reportes existentes de acuerdo a una cuadrilla o general.
   actualizarTabla(): void{
     const cuadrilla: string = (this.campoCuadrilla.value).toString();
-    this.reporteService.obtenerReportesCuadrilla(cuadrilla).subscribe(reportes => {
+    this.reporteService.obtenerReportesCuadrilla(cuadrilla)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(reportes => {
       this.listaReportes = reportes;
       this.ReportesCargados = true;
     });
@@ -124,7 +128,9 @@ export class CierreReportesComponent implements OnInit {
       data: {reporte}
     });
 
-    DIALOG_REF.afterClosed().subscribe(() => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(() => {
       this.actualizarTabla();
     });
   }
@@ -153,5 +159,10 @@ export class CierreReportesComponent implements OnInit {
     this.cuadrillaForm.setValue('Todos');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
 
 }
