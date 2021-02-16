@@ -1,26 +1,16 @@
-/* GENERAL */
-
-button {
-    outline: none;
-}
-
-
 /* ESTILO BOTONES DEL HEADER */
 
 .btn-header {
-    /* padding: 0 32px;
-    width: 120px;
-    margin-top: 10px; */
     margin: 20px 0;
     width: 100%;
 }
 
-.btn-nuevo {
+#btn-nuevo {
     float: right;
     margin-top: 10px;
 }
 
-.btn-buscar {
+#btn-buscar {
     float: right;
     margin-top: 10px;
 }
@@ -32,82 +22,24 @@ button {
     padding-top: 6px;
 }
 
-.content-wrapper {
-    padding: 0 0 10px 0;
-}
-
 .row {
     margin-top: 10px;
-}
-
-.sinMargen {
-    margin: 0;
-}
-
-
-/* ESTILO PARA ICONO DE LOS BOTONES */
-
-.mat-icon {
-    font-size: 18px;
-    padding-top: 2px;
-}
-
-
-/* Para celular */
-
-.card {
-    padding: 0 15px;
-    /* height: calc(100vh - (100vh / 4)); anterior */
-    /* height: calc(100vh + (100vh * 0.80)); */
-    height: calc(100vh * 2);
-}
-
-.content-card {
-    box-sizing: border-box;
-    padding-bottom: 10px;
-    /* height: calc(100vh * 0.49);  anterior*/
-    height: calc(100vh + (100vh * 0.15));
 }
 
 
 /* ESTILO PARA TABLA */
 
-.btn-proceso {
-    width: 100px;
-    margin: 5px 0;
-    background-color: #ececf0;
-}
-
-
-/* Para tablets */
-
 @media only screen and (min-width:600px) {
     div.grupo-busqueda {
         text-align: center;
     }
-    /* CONTENEDOR CARD */
-    div.content-card {
-        height: 65%;
-        /* height: calc(100vh + (100vh * 0.15)); anterior */
-    }
-    .card {
-        height: calc(100vh + (100vh * 0.65));
-    }
     /* BOTONES */
     .btn-header {
-        /* margin: 20px 0;
-        width: 100%; */
-        /* padding: 0 32px; */
         width: 100%;
         margin-top: 10px;
     }
-    .btn-nuevo {
+    #btn-nuevo {
         float: none;
-    }
-    /* TABLA */
-    .btn-proceso {
-        width: 100px;
-        margin: 5px 0;
     }
 }
 
@@ -115,32 +47,20 @@ button {
 /* Para computadoras */
 
 @media only screen and (min-width: 992px) {
-    /* CONTENEDOR CARD */
-    div.content-card {
-        /* height: calc(100vh - (100vh * 0.15)); */
-        height: 55%;
-    }
-    .card {
-        /* height: 85%; */
-        /* height: calc(100vh + (100vh * 0.40)); */
-        height: calc(100vh - (100vh / 4));
-    }
     /* BOTONES */
     .btn-header {
-        /* width: 100%;
-        margin: 15px 0; */
-        /* padding: 0 32px; */
         width: 120px;
         margin-top: 10px;
     }
     #btn-limpiar {
         width: 150px;
     }
-    /* TABLA */
-    .btn-proceso {
-        width: 110px;
-        margin: 5px 10px;
-        line-height: 30px;
-        padding: 0 12px;
+    #btn-nuevo {
+        float: right;
+    }
+    /*Fechas*/
+    .radio-contenedor-fecha {
+        padding-top: 6px;
+        ;
     }
 }

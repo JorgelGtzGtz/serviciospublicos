@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogVerEditarNuevoComponent } from '../dialog-ver-editar-nuevo/dialog-ver-editar-nuevo.component';
 import { FormControl, AbstractControl } from '@angular/forms';
@@ -11,7 +13,8 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './tipos-de-usuario.component.html',
   styleUrls: ['./tipos-de-usuario.component.css']
 })
-export class TiposDeUsuarioComponent implements OnInit {
+export class TiposDeUsuarioComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   nombreSeccion = 'Tipos de Usuario';
   busquedaForm: FormControl;
   estadoForm: FormControl;
@@ -35,12 +38,16 @@ export class TiposDeUsuarioComponent implements OnInit {
   private buildForm(): void{
     this.busquedaForm = new FormControl('');
     this.estadoForm = new FormControl('Todos');
-    this.busquedaForm.valueChanges.subscribe(value => {
-      console.log('se interactuo busqueda:', value);
-    });
-    this.estadoForm.valueChanges.subscribe(value => {
-      console.log('se interactuo estado:', value);
-    });
+  }
+
+   // Entrada: Ninguna
+  // Salida: control de tipo AbstractControl.
+  // Descripción:Métodos get para obtener acceso a los campos del formulario
+  get campoBusqueda(): AbstractControl{
+    return this.busquedaForm;
+  }
+  get campoEstado(): AbstractControl{
+    return this.estadoForm;
   }
 
   // Entrada: Ninguna
@@ -56,24 +63,15 @@ export class TiposDeUsuarioComponent implements OnInit {
   // Descripción: Método para obtener los registros existentes de Tipos de Usuario
   // de acuerdo a determinados filtros.
   actualizarTabla(): void{
-    this.tipoService.obtenerListaTipoU(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.tiposUsuario = tipos;
-      console.log( this.tiposUsuario);
       this.datos = true;
     }, (error: HttpErrorResponse) => {
-      alert('Existió un problema al cargar datos de página. Recargue página o solicite asistencia.');
+      alert('Se generó un problema al cargar los datos de página. Recargue página o solicite asistencia.');
       console.log('Error al cargar datos de tabla Tipos de usuario: ' +  error.message);
     });
-  }
-
-  // Entrada: Ninguna
-  // Salida: control de tipo AbstractControl.
-  // Descripción:Métodos get para obtener acceso a los campos del formulario
-   get campoBusqueda(): AbstractControl{
-    return this.busquedaForm;
-  }
-  get campoEstado(): AbstractControl{
-    return this.estadoForm;
   }
 
   // Entrada: Valor tipo string con el nombre del header
@@ -102,7 +100,9 @@ export class TiposDeUsuarioComponent implements OnInit {
       data: {accion, tipoU}
     });
 
-    DIALOG_REF.afterClosed().subscribe(result => {
+    DIALOG_REF.afterClosed()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(result => {
       this.actualizarTabla();
   });
   }
@@ -134,17 +134,15 @@ export class TiposDeUsuarioComponent implements OnInit {
   eliminarTipoUsuario(tipoU: TipoUsuario): void{
     const result = confirm('¿Seguro que desea eliminar el tipo de usuario?');
     if (result) {
-      console.log('A eliminar', tipoU);
-      this.tipoService.eliminarTipoUsuario(tipoU).subscribe( res => {
-        console.log('El usuario se eliminó');
+      this.tipoService.eliminarTipoUsuario(tipoU)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( res => {
         this.actualizarTabla();
-        alert('El tipo de usuario se ha eliminado.');
+        alert(res);
       }, (error: HttpErrorResponse) => {
         alert('No ha sido posible eliminar el tipo de usuario. Verifique que no existan registros relacionados o solicite apoyo.');
         console.log('Se generó error al eliminar tipo de usuario: ' + error.message);
       });
-    }else{
-      console.log('no se elimina');
     }
   }
 
@@ -153,7 +151,9 @@ export class TiposDeUsuarioComponent implements OnInit {
   // Descripción: Método para buscar en la base de datos los registros que coincidan con los
   // valores que se establescan en los campos
   buscar(): void{
-    this.tipoService.obtenerListaTipoU(this.campoBusqueda.value, this.campoEstado.value).subscribe( tipos => {
+    this.tipoService.filtroTiposUsuario(this.campoBusqueda.value, this.campoEstado.value)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( tipos => {
       this.tiposUsuario = tipos;
     }, (error: HttpErrorResponse) => {
       alert('No ha sido posible completar la búsqueda. Verifique los datos o solicite apoyo.');
@@ -170,5 +170,11 @@ export class TiposDeUsuarioComponent implements OnInit {
     this.campoEstado.setValue('Todos');
     this.actualizarTabla();
    }
+
+   ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
+  }
+  
 
 }

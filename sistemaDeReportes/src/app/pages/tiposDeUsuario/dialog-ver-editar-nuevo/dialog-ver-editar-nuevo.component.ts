@@ -1,4 +1,6 @@
-import { Component, ElementRef, Inject, OnInit } from '@angular/core';
+import { Component, ElementRef, Inject, OnInit, OnDestroy } from '@angular/core';
+import { takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -9,6 +11,7 @@ import { ProcesoPermiso } from 'src/app/Interfaces/IProcesoPermiso';
 import { PermisoService } from '../../../services/permiso.service';
 import { TipoUsuarioM } from '../../../Models/TipoUsuarioM';
 import { HttpErrorResponse } from '@angular/common/http';
+import { debounceTime } from 'rxjs/operators';
 
 
 @Component({
@@ -16,16 +19,22 @@ import { HttpErrorResponse } from '@angular/common/http';
   templateUrl: './dialog-ver-editar-nuevo.component.html',
   styleUrls: ['./dialog-ver-editar-nuevo.component.css']
 })
-export class DialogVerEditarNuevoComponent implements OnInit {
+export class DialogVerEditarNuevoComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
   listaProcesos: ProcesoPermiso[] = [];
   listaProcTipo: ProcesoPermiso[] = [];
   procesosSistema: ProcesoPermiso[] = [];
   elementoLista: ProcesoPermiso;
   accion: string;
+  mensajeResultado: string;
   idListo: boolean;
   procesosYpermisos: boolean;
   modificado: boolean;
+  existeDescripcion: boolean;
   errorListas: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
   form: FormGroup;
   tipoUsuario: TipoUsuario;
 
@@ -42,6 +51,9 @@ export class DialogVerEditarNuevoComponent implements OnInit {
 
    ngOnInit(): void {
      this.accion = this.data.accion;
+     this.procesando = false;
+     this.finalProceso = false;
+     this.error = false;
      this.tipoFormularioAccion();
      this.inicializarCampos();
      this.obtenerProcesosSistema();
@@ -68,19 +80,81 @@ export class DialogVerEditarNuevoComponent implements OnInit {
   private buildForm(): void{
     this.form = this.formBuilder.group({
       id: [0],
-      descripcion: ['', [Validators.required]],
+      descripcion: ['', [Validators.required, Validators.pattern('[a-zA-ZÀ-ÿ\u00f1\u00d1 ]*')]],
       estado: ['']
     });
+    this.verificarCambiosFormulario();
+    this.verificarCambiosDescripcion();
+  }
 
-    this.form.valueChanges.subscribe(value => {
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con el formulario.
+  verificarCambiosFormulario(): void{
+    this.form.valueChanges
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
       }
     });
   }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Verifica si se ha interactuado con campo descripción.
+  verificarCambiosDescripcion(): void{
+    this.campoDescripcion.valueChanges
+    .pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe( descripcion => {
+      if (this.campoDescripcion.dirty){
+        this.verificarExistenciaTipo(descripcion);
+      }
+    });
+  }
+
+// Entrada: string con el valor del input
+// Salida: vacío.
+// Descripción: Método que verifica si el campo ya interactuó con el usuario
+//  y si la descripción de Tipo ya existe.
+verificarExistenciaTipo(descripcion: string): void{
+  if (descripcion.length > 0){
+    this.tipoService.obtenerTipoUPorDesc(descripcion)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( res => {
+      if (res !== null){
+        this.existeDescripcion = this.esTipoDiferente(res);
+      }else{
+        this.existeDescripcion = false;
+      }
+    }, (error: HttpErrorResponse) => {
+      console.log('Error al verificar la existencia de tipo con descripción.' + error.message);
+    });
+  }else {
+    this.existeDescripcion = false;
+  }
+}
+
+// Entrada: Tipo de Usuario con el valor del resultado de la consulta GET
+// Salida: vacío.
+// Descripción" método para verificar si el nombre que se asigna pertenece al tipo de usuario actual.
+// con el propósito de evitar que al modificar y volver a escribirlo igual salga
+// el error de que ya existe.
+esTipoDiferente(tipoU: TipoUsuario): boolean{
+  let valor: boolean;
+  if (this.accion === 'editar'){
+    if (this.tipoUsuario.ID_tipoUsuario === tipoU.ID_tipoUsuario){
+      valor = false;
+    }else{
+      valor = true;
+    }
+  }else{
+    valor = true;
+  }
+  return valor;
+}
 
   // Entrada: Ninguna
   // Salida: vacío.
@@ -136,7 +210,9 @@ tipoFormularioAccion(): void{
   // Salida: vacío.
   // Descripción: Método para obtener el ID del nuevo registro.
   obtenerIDNuevo(): void{
-    this.tipoService.obtenerIDRegistro().subscribe( (id: number) => {
+    this.tipoService.obtenerIDRegistro()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
       console.log('ID a asignar:', id);
@@ -147,7 +223,9 @@ tipoFormularioAccion(): void{
   // Salida: vacío.
   // Descripción:Método para obtener los procesos del sistema
   obtenerProcesosSistema(): void{
-    this.procesoServicio.obtenerProcesosLista().subscribe( procesos => {
+    this.procesoServicio.obtenerProcesosLista()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( procesos => {
       this.procesosSistema = procesos;
       if (this.accion !== 'nuevo'){
         this.obtenerPermisosActuales(procesos);
@@ -181,7 +259,9 @@ tipoFormularioAccion(): void{
   // Salida: vacío.
   // Descripción: Método para obtener los permisos actuales del tipo Usuario
    obtenerPermisosActuales(procesos: ProcesoPermiso[]): void{
-       this.permisoService.obtenerPermisosTipo(this.tipoUsuario.ID_tipoUsuario).subscribe( permisos => {
+       this.permisoService.obtenerPermisosTipo(this.tipoUsuario.ID_tipoUsuario)
+       .pipe(takeUntil(this.ngUnsubscribe))
+       .subscribe( permisos => {
          this.listaProcTipo = this.procesoServicio.descripcionPermiso(procesos, permisos);
          this.obtenerProcesosDisponibles(procesos);
        },
@@ -252,24 +332,32 @@ listaTienePermisos(): void{
   // Salida: vacío.
   // Descripción: Método para transferir un elemento de lista A a lista B.
   cambiarListAListB(): void{
-    const validacion = this.existenciaEnLista(this.listaProcesos);
-    if (validacion){
-        this.modificarListas(this.listaProcesos, this.listaProcTipo);
-        this.listaTienePermisos();
-        this.modificado = true;
-      }
+    if (this.elementoLista !== undefined){
+      const validacion = this.existenciaEnLista(this.listaProcesos);
+      if (validacion){
+          this.modificarListas(this.listaProcesos, this.listaProcTipo);
+          this.listaTienePermisos();
+          this.modificado = true;
+        }
+    }else{
+      alert('Debe seleccionar un proceso para poder asignarlo.');
+    }
   }
 
   // Entrada: Ninguna.
   // Salida: vacío.
   // Descripción: Método para transferir un elemento de lista B a lista A.
   cambiarListBListA(): void{
-    const validacion = this.existenciaEnLista(this.listaProcTipo);
-    if (validacion){
-      this.modificarListas(this.listaProcTipo, this.listaProcesos);
-      this.listaTienePermisos();
-      this.modificado = true;
-      }
+    if (this.elementoLista !== undefined){
+        const validacion = this.existenciaEnLista(this.listaProcTipo);
+        if (validacion){
+          this.modificarListas(this.listaProcTipo, this.listaProcesos);
+          this.listaTienePermisos();
+          this.modificado = true;
+          }
+    }else{
+      alert('Debe seleccionar un proceso para poder asignarlo.');
+    }
   }
 
   // Entrada: Ninguna.
@@ -280,7 +368,23 @@ listaTienePermisos(): void{
     listaDestino.push(this.elementoLista);
     const index: number = listaOrigen.indexOf(this.elementoLista);
     listaOrigen.splice(index, 1);
+    this.elementoLista = undefined;
   }
+
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.accion === 'ver' || this.procesando || this.finalProceso) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
 
   // Entrada: Ninguna.
   // Salida: vacío.
@@ -288,14 +392,37 @@ listaTienePermisos(): void{
 guardar(): void {
   // event.preventDefault();
   this.listaTienePermisos();
-  if (this.form.valid && !this.errorListas){
+  if (this.camposValidos()){
+    this.procesando = true;
     const tipo = this.generarTipo();
     this.accionGuardar(tipo);
-    this.dialogRef.close();
   }else{
-    this.form.markAllAsTouched();
-    this.errorListas = true;
+    alert('Verifique que los campos tengan la información correcta o estén llenos.');
   }
+}
+
+// Entrada: Ninguna.
+// Salida: valor boolean.
+// Descripción: verifica que los campos estén llenos correctamente o
+// que no existan errores en los campos.
+camposValidos(): boolean{
+  let sonValidos = true;
+  // Verificar que se llenaron los campos del formulario.
+  if (!this.form.valid){
+    this.form.markAllAsTouched();
+    sonValidos = false;
+  }
+
+  // Verificar que se asignaron procesos
+  if (this.errorListas){
+    sonValidos = false;
+  }
+
+  // Verificar que la descripción de Tipo de usuario no existe.
+  if (this.existeDescripcion){
+    sonValidos = false;
+  }
+  return sonValidos;
 }
 
 // Entrada: Ninguna.
@@ -318,18 +445,35 @@ generarTipo(): TipoUsuarioM{
 // o registro de un Tipo de Usuario.
 accionGuardar(tipo: TipoUsuario): void{
   if (this.accion === 'nuevo'){
-      this.tipoService.insertarTipoUsuario(tipo, this.listaProcTipo).subscribe( res => {
-        alert('Tipo de usuario registrado exitosamente');
+      this.tipoService.insertarTipoUsuario(tipo, this.listaProcTipo)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( res => {
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('El registro no pudo ser completado. Error:' + error.message);
+        this.procesando = false;
+        this.finalProceso = true;
+        this.error = true;
+        this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
+        console.log('Error al registrar tipo de usuario. Error:' + error.message);
       });
   }else if (this.accion === 'editar'){
-      this.tipoService.actualizarTipoUsuario(tipo, this.listaProcTipo).subscribe(res => {
-        alert('Tipo de usuario actualizado exitosamente');
+      this.tipoService.actualizarTipoUsuario(tipo, this.listaProcTipo)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(res => {
+        this.procesando = false;
+        this.finalProceso = true;
+        this.mensajeResultado = res;
       }, (error: HttpErrorResponse) => {
-        alert('Tipo de usuario no pudo ser actualizado. Error:' + error.message);
+        this.procesando = false;
+        this.finalProceso = true;
+        this.error = true;
+        this.mensajeResultado = 'El registro no pudo ser completado. Vuelva a intentarlo ó solicite asistencia.';
+        console.log('Tipo de usuario no pudo ser actualizado. Error:' + error.message);
       });
   }
+  this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
 }
 
 // Entrada: Ninguna.
@@ -341,5 +485,8 @@ cerrarDialog(): void{
   this.dialogService.verificarCambios(this.dialogRef);
 }
 
-
+ngOnDestroy(): void {
+  this.ngUnsubscribe.next();
+  this.ngUnsubscribe.complete();
+}
 }

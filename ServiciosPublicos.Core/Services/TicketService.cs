@@ -15,9 +15,11 @@ namespace ServiciosPublicos.Core.Services
         List<Ticket> GetTickets();
         int InsertarTicket(Ticket ticket, out string Message);
         bool ActualizarTicket(Ticket ticket, out string Message);
-        List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus);
+        List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus, int page, int results);
 
         List<Imagen> GetImagenesByTicket(string idTicket, out string Message);
+
+        bool cancelarTicket(Ticket ticket, out string Message);
     }
     public class TicketService : ITicketService
     {
@@ -52,9 +54,9 @@ namespace ServiciosPublicos.Core.Services
             return _ticketRepository.GetAll("hiram74_residencias.Ticket").ToList();
         }
 
-        public List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus)
+        public List<dynamic> GetTicketsByUserID(int id, int id_tipo, int id_estatus, int page, int results)
         {
-            return _ticketRepository.ticketsPorUsuario(id, id_tipo, id_estatus);
+            return _ticketRepository.ticketsPorUsuario(id, id_tipo, id_estatus, page, results);
         }
 
         public int InsertarTicket(Ticket ticket, out string Message)
@@ -109,6 +111,41 @@ namespace ServiciosPublicos.Core.Services
                 Message = "No fué posible obtener imágenes del reporte. " + ex;
             }
             return listaImagenes;
+        }
+
+        public bool cancelarTicket(Ticket ticket, out string Message)
+        {
+            Message = string.Empty;
+            bool result = false;
+            try
+            {
+                Reporte reporte = _reporteRepository.VerificarExistenciaReporte(ticket);
+                if (reporte != null)
+                {
+                    if (reporte.NoTickets_reporte == 1)
+                    {
+                        reporte.NoTickets_reporte = 0;
+                        reporte.Estatus_reporte = 4;
+                        _reporteRepository.Modify(reporte);
+                    }
+                    else {
+                        if (reporte.NoTickets_reporte > 0) {
+                            reporte.NoTickets_reporte = reporte.NoTickets_reporte - 1;
+                            _reporteRepository.Modify(reporte);
+                        }
+                    }
+                    
+                }
+                ticket.Estatus_ticket = 4;
+                _ticketRepository.Modify(ticket);
+                Message = "Ticket cancelado con exito";
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                Message = "Ticket no pudo ser cancelado Error: " + ex.Message;
+            }
+            return result;
         }
     }
 }

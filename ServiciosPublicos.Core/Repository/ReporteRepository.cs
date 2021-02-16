@@ -18,11 +18,12 @@ namespace ServiciosPublicos.Core.Repository
         int InsertarReporte(Ticket ticket);
         void ModificarNoTickets(Reporte reporte);
         List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla);
-        List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
+        List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha);
         List<Reporte> ReportesPorCuadrilla(int idCuadrilla);
         int ObtenerUltimoID();
-        List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus);
-        string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo, List<Imagen> listaImagenes, string path);
+        List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus, int page, int results);
+        string EnviarCorreo(string correoDestino, string asunto, string tipoR, string colonia, List<Imagen> listaImagenes, string path);
+        string llenarBodyHtml(string tipoReporte, string colonia);
         string EnviarSMS(string numeroDestino, string mensajeSMS);
 
     }
@@ -43,7 +44,7 @@ namespace ServiciosPublicos.Core.Repository
                + cos(Latitud_reporte * 0.0175) * cos(@0 * 0.0175) *    
                  cos((@1 * 0.0175) - (Longitud_reporte * 0.0175))
               ) * 3959 <= 0.16
-      ) AND ID_tipoReporte = @2 AND Estatus_reporte != 2", ticket.Latitud_ticket, ticket.Longitud_ticket, ticket.ID_tipoReporte);
+      ) AND ID_tipoReporte = @2 AND Estatus_reporte != 2 AND Estatus_reporte != 4", ticket.Latitud_ticket, ticket.Longitud_ticket, ticket.ID_tipoReporte);
             return this.Context.SingleOrDefault<Reporte>(query);
         }
 
@@ -108,7 +109,7 @@ namespace ServiciosPublicos.Core.Repository
         // Salida: lista de tipo dynamic, con los registros que coincidieron.
         // Descripción: Ejecuta un query cuya estructura se crea segun los valores que tienen datos
         // con el fin de buscar registros que cumplan determinados filtros.
-        public List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
+        public List<dynamic> GetReportesFiltroDinamico(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha)
          {
              string filter = " WHERE ";
             bool operacion = false;
@@ -143,25 +144,18 @@ namespace ServiciosPublicos.Core.Repository
                 operacion = true;
             }
 
-            if (!string.IsNullOrEmpty(fechaIni))
+            if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF) && tipoFecha.Equals("a"))
             {
-                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte >= '{0}' OR reporte.FechaCierre_reporte >= '{0}')", fechaIni);
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte BETWEEN '{0}' AND '{1}')", fechaIni, fechaF);
                 operacion = true;
             }
 
-            if (!string.IsNullOrEmpty(fechaF))
+            if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF) && tipoFecha.Equals("c"))
             {
-                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte <= '{0}' OR reporte.FechaCierre_reporte <= '{0}')", fechaF);
+                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaCierre_reporte BETWEEN '{0}' AND '{1}') AND reporte.Estatus_reporte = 2", fechaIni, fechaF);
                 operacion = true;
             }
 
-           /* if (!string.IsNullOrEmpty(fechaIni) && !string.IsNullOrEmpty(fechaF))
-            {
-                filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaRegistro_reporte BETWEEN '%{0}%' AND '%{1}%' OR " +
-                                                                       "reporte.FechaCierre_reporte BETWEEN '%{0}%' AND '%{1}%')", fechaIni,fechaF);
-                operacion = true;
-            }
-           */
             Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion
                                   FROM [hiram74_residencias].[Reporte] reporte
                                   INNER JOIN [hiram74_residencias].[Sector] sector
@@ -191,18 +185,21 @@ namespace ServiciosPublicos.Core.Repository
             return this.Context.SingleOrDefault<int>(query);
         }
 
-        public List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus)
+        public List<dynamic> reportePorJefe(int id_jefe, int idTipo, int idEstatus, int page, int results)
         {
-            Sql query = new Sql(@"SELECT reporte.*, cuadrilla.ID_JefeCuadrilla AS jefeAsignado
+            Sql query = new Sql(@"SELECT reporte.*, cuadrilla.ID_JefeCuadrilla AS jefeAsignado, tipoReporte.Descripcion_tipoReporte AS nombreTipo
                                 FROM [hiram74_residencias].[Reporte] reporte
                                 INNER JOIN [hiram74_residencias].[Cuadrilla] cuadrilla 
-                                ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla WHERE cuadrilla.ID_JefeCuadrilla = @0"+
+                                ON cuadrilla.ID_cuadrilla = reporte.ID_cuadrilla INNER JOIN [hiram74_residencias].[Tipo_Reporte] tipoReporte 
+								ON tipoReporte.ID_tipoReporte = reporte.ID_tipoReporte WHERE cuadrilla.ID_JefeCuadrilla = @0" +
                                 (idTipo != 0 ? " AND reporte.ID_tipoReporte = @1" : "") +
-                                (idEstatus != 0 ? " AND reporte.Estatus_reporte = @2" : ""),id_jefe, idTipo, idEstatus);
+                                (idEstatus != 0 ? " AND reporte.Estatus_reporte = @2" : "")
+                                + " order by reporte.ID_reporte desc OFFSET @3 ROWS FETCH NEXT @4 ROWS ONLY"
+                                , id_jefe, idTipo, idEstatus, page, results);
             return this.Context.Fetch<dynamic>(query);
         }
         //G:METODO PARA ENVIAR CORREO CON IMAGENES DE CIERRE, SE ENVIA AL USUARIO CON IMAGENES ADJUNTAS
-        public string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo, List<Imagen> listaImagenes, string path)
+        public string EnviarCorreo(string correoDestino, string asunto, string tipoR, string colonia, List<Imagen> listaImagenes, string path)
         {
             string mensaje = "Error al enviar correo.";
             string html = String.Empty;
@@ -214,13 +211,14 @@ namespace ServiciosPublicos.Core.Repository
                 objetoCorreo.From = "publicosservicios745@gmail.com";
                 objetoCorreo.To = correoDestino;
                 objetoCorreo.Subject = asunto;
-                html += "<h4>El problema fue solucionado correctamente</h4>";
+                /*html += "<h4>El problema fue solucionado correctamente</h4>";
                 html += "<h3>A continuacion te anexamos las pruebas solicitadas por ti...</h3>";
+                */
+                objetoCorreo.HtmlBody = llenarBodyHtml(tipoR, colonia);
 
                 foreach (var imagen in listaImagenes) {
                     objetoCorreo.AddAttachment(path + imagen.Path_imagen.Replace("/", @"\"));
                 }
-                objetoCorreo.HtmlBody = html;
                
                 SmtpServer objetoServidor = new SmtpServer("smtp.gmail.com");
 
@@ -242,6 +240,20 @@ namespace ServiciosPublicos.Core.Repository
             return mensaje;
         }
 
+        public string llenarBodyHtml(string tipoReporte, string colonia)
+        {
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(System.Web.Hosting.HostingEnvironment.MapPath("~/Templates/cierreReporte.html")))
+            {
+                body = reader.ReadToEnd();
+            }
+            body = body.Replace("{tipoReporte}", tipoReporte);
+            body = body.Replace("{colonia}", colonia);
+
+            return body;
+
+        }
+
         //G: METODO PARA ENVIAR SMS
         public string EnviarSMS(string numeroDestino, string mensajeSMS)
         {
@@ -250,7 +262,7 @@ namespace ServiciosPublicos.Core.Repository
             try
             {
                 WebClient client = new WebClient();
-                Stream s = client.OpenRead(string.Format("https://platform.clickatell.com/messages/http/send?apiKey=&to={0}&content={1}", numeroDestino, mensajeSMS));
+                Stream s = client.OpenRead(string.Format("https://platform.clickatell.com/messages/http/send?apiKey=r1ELr7LbS4Gj3v9UIRQlEw==&to={0}&content={1}", numeroDestino, mensajeSMS));
                 StreamReader reader = new StreamReader(s);
                 string result = reader.ReadToEnd();
                 mensaje = "SMS Enviado Correctamente.";

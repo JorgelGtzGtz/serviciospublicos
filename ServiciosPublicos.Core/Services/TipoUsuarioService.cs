@@ -13,7 +13,8 @@ namespace ServiciosPublicos.Core.Services
    public interface ITipoUsuarioService
     {
         Tipo_usuario GetTipoUsuario(int id);
-        List<Tipo_usuario> GetTipoUsuarios();
+        Tipo_usuario GetTipoUsuarioDescripcion(string descripcion);
+        List<Tipo_usuario> GetTipoUsuariosGeneral();
         List<dynamic> GetTipoUsuariosFiltro(out string Message, string textoBusqueda = null, string estado= null);
         bool UpdateTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> nuevosPermisos, out string Message);
         bool InsertTipoUsuario(Tipo_usuario tipoUsuario, List<Procesos_Permiso> permisosAsignados, out string Message);
@@ -49,11 +50,19 @@ namespace ServiciosPublicos.Core.Services
             return _tipoUsuarioRepository.Get(id);
         }
 
+        // Entrada: valor tipo string con la descripción del tipo de usuario.
+        // Salida: tipo de usuario
+        // Descripción: Método para obtener un tipo de usuario por su descripción.
+        public Tipo_usuario GetTipoUsuarioDescripcion(string descripcion)
+        {
+            return _tipoUsuarioRepository.GetTipo(descripcion);
+        }
+
         // Entrada: Ninguna
         // Salida: lista de tipos de usuario.
         // Descripción: REGRESA TODOS LOS TIPOS DE USUARIO SIN SUS PERMISOS
-        public List<Tipo_usuario> GetTipoUsuarios() {
-            return _tipoUsuarioRepository.GetAll("Tipo_usuario").ToList();
+        public List<Tipo_usuario> GetTipoUsuariosGeneral() {
+            return _tipoUsuarioRepository.GetTipoUsuarioGeneral();
         }
 
         // Entrada: valor string para ID o descripción de tipo de usuario y valor string de estado.
@@ -118,7 +127,7 @@ namespace ServiciosPublicos.Core.Services
                         _permisosRepository.Add<int>(permisoTipoUsuario);
                 }
 
-                Message = "Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " guardado con exito";
+                Message = "¡Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " guardado con éxito !";
                 result = true;
             }
             catch (Exception ex)
@@ -163,7 +172,7 @@ namespace ServiciosPublicos.Core.Services
                         _permisosRepository.Add<int>(permisoTipoUsuario);
                     }                    
                 }
-                Message = "Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " guardado con exito";
+                Message = "¡Tipo de Usuario " + tipoUsuario.Descripcion_tipoUsuario + " actualizado con éxito!";
                 result = true;
             }
             catch (Exception ex)
@@ -189,7 +198,7 @@ namespace ServiciosPublicos.Core.Services
                 {
                     tipoUsuario.Disponible = false;
                     _tipoUsuarioRepository.Modify(tipoUsuario);
-                    Message = "Tipo Usuario  " + tipoUsuario.Descripcion_tipoUsuario + " eliminado con exito";
+                    Message = "¡Tipo Usuario  " + tipoUsuario.Descripcion_tipoUsuario + " eliminado con éxito!";
                     result = true;
                 }
                 else

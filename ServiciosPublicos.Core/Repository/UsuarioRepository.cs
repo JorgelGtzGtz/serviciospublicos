@@ -4,10 +4,9 @@ using ServiciosPublicos.Core.Factories;
 using PetaPoco;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using EASendMail;
+using System.Configuration;
+using System.IO;
 
 namespace ServiciosPublicos.Core.Repository
 {
@@ -23,6 +22,9 @@ namespace ServiciosPublicos.Core.Repository
         List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos);
         int GetUltimoID();
         string EnviarCorreo(string correoDestino, string asunto, string mensajeCorreo);
+        string EnviarCorreoRecuperacion(string correoDestino, string asunto, string mensajeCorreo);
+        string llenarBodyHtml(string clave);
+        void CambiarPassword(int id_usuario, string password);
     }
 
     public class UsuarioRepository : RepositoryBase<Usuario>, IUsuarioRepository
@@ -37,10 +39,10 @@ namespace ServiciosPublicos.Core.Repository
         // Descripción: Query para buscar Usuario por su usuario y contraseña.
         public Usuario GetUsuario(string usr, string password)
         {
-            var query = new Sql()
-                .Select("*")
-                .From("hiram74_residencias.Usuario")
-                .Where("lower(Login_usuario) = @0 and Password_usuario = @1", usr.ToLower(), password);
+            var query = new Sql(@"SELECT * FROM hiram74_residencias.Usuario 
+                                  WHERE Login_usuario = @0 
+                                  AND Password_usuario = @1 
+                                  AND Disponible = 1", usr, password);
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -82,12 +84,60 @@ namespace ServiciosPublicos.Core.Repository
             return mensaje;
         }
 
+        // Entrada: String con correo de usuario, string con asunto, string con clave de recuperación
+        // Salida: String que indica si se envió el correo o no.
+        // Descripción: Envía un correo a el usuario para recuperar su contraseña.
+        public string EnviarCorreoRecuperacion(string correoDestino, string asunto, string codigo)
+        {
+            string mensaje = "Error al enviar correo.";
+            try
+            {
+                SmtpMail objetoCorreo = new SmtpMail("TryIt");
+
+                objetoCorreo.From = "publicosservicios745@gmail.com";
+                objetoCorreo.To = correoDestino;
+                objetoCorreo.Subject = asunto;
+                objetoCorreo.HtmlBody = llenarBodyHtml(codigo);
+
+                SmtpServer objetoServidor = new SmtpServer("smtp.gmail.com");
+
+                objetoServidor.User = "publicosservicios745@gmail.com";
+                objetoServidor.Password = "public329";
+                objetoServidor.Port = 587;
+                objetoServidor.ConnectType = SmtpConnectType.ConnectSSLAuto;
+
+                SmtpClient objetoCliente = new SmtpClient();
+                objetoCliente.SendMail(objetoServidor, objetoCorreo);
+                mensaje = "Correo Enviado Correctamente.";
+
+            }
+            catch (Exception ex)
+            {
+                mensaje = "Error al enviar correo." + ex.Message;
+            }
+            return mensaje;
+        }
+
+        // Entrada: String con clave de recuperación.
+        // Salida: String con el template del correo modificado.
+        // Descripción: Método que llena los elementos del html con los elementos personalizados
+        // para el usuario. Reemplaza {codigo} por el código para recuperación.
+        public string llenarBodyHtml(string codigo)
+        {
+            string body = string.Empty;
+            using (StreamReader reader = new StreamReader(System.Web.Hosting.HostingEnvironment.MapPath("~/Templates/passwordRecovery.html")))
+            {
+                body = reader.ReadToEnd();
+            }
+            body = body.Replace("{codigo}", codigo);
+
+            return body;
+        }
+
         public Usuario GetUsuario(string usr)
         {
-            var query = new Sql()
-                .Select("*")
-                .From("hiram74_residencias.Usuario")
-                .Where("lower(Login_usuario) = @0", usr.ToLower());
+            var query = new Sql(@"SELECT * FROM hiram74_residencias.Usuario 
+                                  WHERE Login_usuario = @0 AND Disponible = 1", usr.ToLower());
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -96,10 +146,8 @@ namespace ServiciosPublicos.Core.Repository
 
         public Usuario GetUsuarioByEmail(string email)
         {
-            var query = new Sql()
-                .Select("*")
-                .From("hiram74_residencias.Usuario")
-                .Where("lower(Correo_usuario) = @0", email.ToLower());
+            var query = new Sql(@"SELECT * FROM hiram74_residencias.Usuario 
+                                  WHERE Correo_usuario = @0 AND Disponible = 1", email.ToLower());
 
             var user = this.Context.SingleOrDefault<Usuario>(query);
 
@@ -143,7 +191,6 @@ namespace ServiciosPublicos.Core.Repository
         public List<dynamic> GetUsuariosFiltroDinamico(string textoBusqueda, string estado, string tipoU, string repActivos)
         {
             string filter = " WHERE ";
-            bool operacion = false;
 
 
             filter += "usuario.Disponible = 1 ";
@@ -153,27 +200,27 @@ namespace ServiciosPublicos.Core.Repository
                                         "usuario.Login_usuario like '%{0}%' or " +
                                         "usuario.ID_usuario like '%{0}%' or " +
                                         "tipoUsuario.Descripcion_tipoUsuario like '%{0}%')", textoBusqueda);
-                operacion = true;
+                
             }
 
             if (!string.IsNullOrEmpty(estado))
             {
                 filter += string.Format(" AND Estatus_usuario LIKE '%{0}%'", estado);
-                operacion = true;
+                
             }
 
             if (!string.IsNullOrEmpty(tipoU))
             {
                 filter += string.Format(" AND usuario.ID_tipoUsuario LIKE '%{0}%'", tipoU);
-                operacion = true;
+                
             }
 
             if (!string.IsNullOrEmpty(repActivos))
             {
                 filter += string.Format(" AND 0 < (SELECT COUNT(ticket.ID_ticket) FROM[Ticket] ticket " +
                                          "WHERE ticket.ID_usuarioReportante = usuario.ID_usuario " +
-                                          "AND ticket.Estatus_ticket LIKE '%{0}%')", repActivos);
-                operacion = true;
+                                          "AND (ticket.Estatus_ticket != 4 AND ticket.Estatus_ticket != 2))", repActivos);
+                
             }
 
             Sql query = new Sql(@"SELECT usuario.*, tipoUsuario.Descripcion_tipoUsuario AS NombreTipo
@@ -203,6 +250,16 @@ namespace ServiciosPublicos.Core.Repository
                 .Select("*").From("Usuario")
                 .Where("ID_tipoUsuario = @0", tipoUsuario);
             return this.Context.Fetch<Usuario>(query2);
+        }
+
+        // Entrada: int con ID usuario, string con nuevo password
+        // Salida: ninguna
+        // Descripción: query para modificar la contraseña del usuario.
+        public void CambiarPassword(int id_usuario, string password)
+        {
+            Sql query = new Sql("UPDATE Usuario SET Password_usuario = @0 " +
+                                    "WHERE ID_usuario = @1 AND Disponible = 1", password, id_usuario);
+            this.Context.Execute(query);
         }
     }
 }

@@ -1,23 +1,25 @@
-<!-- <div class="content-wrapper">
-    <app-header [seccion]="nombreSeccion"></app-header>
-
-    <div class="content"> -->
 <div class="container-fluid">
+    <!-- INICIA SPINNER -->
     <div *ngIf="!datosCargados()" class="card justify-content-center">
         <div class="spinner-border d-flex align-self-center m-5" role="status">
             <span class="sr-only">Loading...</span>
         </div>
     </div>
+    <!-- TERMINA SPINNER -->
+
     <div *ngIf="datosCargados()" class="card">
         <div class="content-header">
+            <!-- INICIA SECCION PARA FILTRO DE BUSQUEDA -->
             <form [formGroup]="form">
                 <div class="row">
-                    <div class="col-lg-4 col-md-4 col-sm-12 col-12">
+                    <!-- SECTOR -->
+                    <div class="col-lg-3 col-md-3 col-sm-12 col-12">
                         <div class="row">
                             <label id="lblSector" class="lblForm col-md-auto" for="sectorSelector">Sector</label>
-                            <div class="col-lg-8 col-md-12">
+                            <div class="col-lg-9 col-md-12">
                                 <select class="custom-select" id="sectorSelector" formControlName="sector">
                                             <option>Todos</option>
+                                            <option *ngIf="listaSectores.length === 0"> No hay opciones disponibles</option>
                                             <option *ngFor="let sector of listaSectores" [ngValue] = "sector.ID_sector">
                                                 {{ sector.Descripcion_sector }}
                                             </option>
@@ -25,28 +27,50 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-6 col-12 mt-md-0 mt-sm-3">
+
+                    <!-- FECHA INICIAL -->
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12 mt-md-0 mt-sm-3">
                         <div class="row">
                             <label class="col-md-auto col-form-label" for="fechaInicio">A partir del </label>
-                            <div class="col-lg-7 col-md-12">
+                            <div class="col-lg-auto col-md-12">
                                 <input type="date" class="form-control" id="fechaInicio" formControlName="fechaInicio">
                             </div>
                         </div>
                     </div>
-                    <div class="col-lg-4 col-md-4 col-sm-6 col-12 mt-md-0 mt-sm-3">
+
+                    <!-- FECHA FINAL -->
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12 mt-md-0 mt-sm-3">
                         <div class="row">
                             <label class="col-md-auto col-form-label" for="fechaFinal">al </label>
-                            <div class="col-lg-7 col-md-12">
+                            <div class="col-lg-auto col-md-12">
                                 <input type="date" class="form-control" id="fechaFinal" formControlName="fechaFinal">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TIPO DE FECHA -->
+                    <div class="col-lg-3 col-md-3 col-sm-12 col-12">
+                        <div class="row input-group">
+                            <label id="lblGenero" class=" lblForm col-lg-auto col-md-12">Tipo de fecha: </label>
+                            <div class="col-lg-7 col-md-12">
+                                <div class="form-check form-check-inline radio-contenedor-fecha">
+                                    <input class="form-check-input" type="radio" name="tipoFecha" id="fechaA" value="a" formControlName="tipoFecha">
+                                    <label class="form-check-label" for="fechaA">Apertura</label>
+                                </div>
+                                <div class="form-check form-check-inline radio-contenedor-fecha">
+                                    <input class="form-check-input" type="radio" name="tipoFecha" id="fechaC" value="c" formControlName="tipoFecha">
+                                    <label class="form-check-label" for="fechaC">Cierre</label>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="input-group mb-3 row">
-                    <div class="col-xl-4 col-lg-3 col-md-6 col-sm-6 col-12">
+                    <!-- ESTADO -->
+                    <div class="col-xl-3 col-lg-2 col-md-6 col-sm-6 col-12">
                         <div class="row">
                             <label id="lblEstado" class="lblForm col-md-auto" for="estadoSelector">Estado</label>
-                            <div class="col-lg-8 col-md-12">
+                            <div class="col-xl-8 col-lg-12 col-md-12">
                                 <select class="custom-select" id="estadoSelector" formControlName="estado">
                                     <option >Todos</option>
                                     <option value="1">Abierto</option>
@@ -57,12 +81,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class=" col-xl-4 col-lg-4 col-md-6 col-sm-6 col-12">
+
+                    <!-- TIPO DE REPORTE -->
+                    <div class=" col-xl-4 col-lg-3 col-md-6 col-sm-6 col-12">
                         <div class="row">
                             <label id="lblTReporte" class="lblForm col-md-auto" for="tipoReporteSelector">Tipo de reporte</label>
-                            <div class="col-lg-6 col-md-12">
+                            <div class="col-xl-6 col-lg-12 col-md-12">
                                 <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
                                             <option>Todos</option>
+                                            <option *ngIf="listaTiposR.length === 0"> No hay opciones disponibles</option>
                                             <option *ngFor="let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte"> 
                                                 {{tipo.Descripcion_tipoReporte}} 
                                             </option>
@@ -70,12 +97,14 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12">
+
+                    <!-- BOTONES -->
+                    <div class="col-xl-3 col-lg-3 col-md-6 col-sm-12 align-self-md-end">
                         <button id="btn-limpiar" type="button" class="btn-header" mat-raised-button color="primary" (click)="limpiarBusqueda()">
                                      Limpiar búsqueda
                         </button>
                     </div>
-                    <div class="col-xl-2 col-lg-2 col-md-6 col-sm-12 align-self-md-end">
+                    <div class="col-xl-2 col-lg-3 col-md-6 col-sm-12 align-self-md-end">
                         <button id="btn-buscar" type="button" class="btn-header" mat-raised-button color="primary" (click)="buscar()">
                             <i class="fas fa-search"></i>
                                      Buscar
@@ -83,11 +112,12 @@
                     </div>
                 </div>
             </form>
+            <!-- TERMINA SECCION PARA FILTRO DE BUSQUEDA -->
         </div>
         <div class="content-card">
-            <!-- <app-tabla [modeloTabla]="datosAsignacionTickets" (enviarAccion)="seleccionarReporte($event)"></app-tabla> -->
+            <!-- INICIA TABLA -->
             <div class="table-wrapper">
-                <table class="table table-bordered">
+                <table class="table table-bordered mb-0">
                     <thead>
                         <tr>
                             <th [ngClass]="tamanoColumna(encabezado)" *ngFor="let encabezado of headersTabla" scope="col">{{encabezado}}</th>
@@ -109,10 +139,12 @@
                         </tr>
                     </tbody>
                 </table>
+                <div class="sin-resultados-texto" *ngIf="listaReportes.length===0">
+                    No se encontraron coincidencias.
+                </div>
             </div>
+            <!-- TERMINA TABLA -->
         </div>
     </div>
 
 </div>
-<!-- </div>
-</div> -->

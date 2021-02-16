@@ -1,24 +1,40 @@
-<!-- <div class="container-fluid"> -->
 <h2 mat-dialog-title>{{ accion | capitalizado:true }} sector</h2>
 <hr>
 <div mat-dialog-content id="content-dialog">
     <div class="container-fluid">
+        <!-- SPINNERS -->
+        <!-- INICIA SPINNER PARA CARGAR PAGINA -->
         <div *ngIf="!datosCargados()" class="spinner-container">
             <div class="spinner-border align-self-center" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
         </div>
-        <form [formGroup]="form" *ngIf="datosCargados()">
+        <!-- TERMINA SPINNER PARA CARGAR PAGINA -->
+
+        <!-- INICIA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <div *ngIf="procesando" class="row horizontal-align">
+            <div class="col-12 align-self-center">
+                <div class="spinner-border centrar-margen-izquierdo" role="status"></div>
+                <h2 class="text-center mt-3">Guardando información</h2>
+            </div>
+        </div>
+        <!-- TERMINA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <!-- TERMINAN SPINNERS -->
+
+        <!-- INICIA FORMULARIO DE SECTOR -->
+        <form [formGroup]="form" *ngIf="datosCargados() && !procesando && !finalProceso">
             <div class="row form-sections">
+                <!-- ID DE SECTOR -->
                 <div class="col-md-6 col-6" id="id-col">
                     <div class="form-group header-form-group row justify-content-start">
                         <label class="col-md-auto col-2 col-form-label col-form-label-sm" for="id">ID</label>
-                        <div class="col-md-4 col-10 ">
+                        <div class="col-md-4 col-10">
                             <input type="text" class="form-control" id="id" formControlName="id">
                         </div>
                     </div>
                 </div>
 
+                <!-- ESTADO -->
                 <div class="col-md-6 col-6" id="inactivo-col">
                     <div class="form-check header-form-group justify-content-end">
                         <input class="form-check-input" type="checkbox" id="inactivo-checkbox" formControlName="estado">
@@ -33,17 +49,42 @@
             <div class="row form-group form-sections row-input-group">
                 <label id="lblNombreSector" class="col-form-label col-md-auto" for="nombreSector">Nombre de sector: </label>
                 <div class="col p-0">
-                    <input type="text" class="form-control" id="nombreSector" formControlName="nombreS">
-                    <div *ngIf="campoNombreSector.errors && campoNombreSector.touched">
-                        <p class="error" *ngIf="campoNombreSector.hasError('required')">Campo requerido</p>
+                    <input type="text" maxlength="40" class="form-control" id="nombreSector" formControlName="nombreS">
+                    <div *ngIf="campoNombreSector.errors && campoNombreSector.touched ">
+                        <p class="error" *ngIf="campoNombreSector.hasError( 'required')">Campo requerido</p>
+                        <p class="error" *ngIf="campoNombreSector.hasError( 'pattern')">No se permiten números ni caracteres especiales.</p>
+                    </div>
+                    <div *ngIf="existeSector">
+                        <p class="error ">Ya existe un Sector con este nombre. Intente otro.</p>
                     </div>
                 </div>
             </div>
             <!-- TERMINA FILA NOMBRE -->
         </form>
+
+        <!-- INICIA TEXTO DE CONFIRMACION DE PROCESO -->
+        <div *ngIf="!procesando && finalProceso" class="row horizontal-align">
+            <div class="col align-self-center">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <span class="icono-confirmacion horizontal-align-elements">
+                            <i *ngIf="!error" class="fas fa-check fa-9x"></i>                   
+                        </span>
+                        <span class="icono-error horizontal-align-elements"> 
+                            <i *ngIf="error" class="fas fa-times fa-9x"></i>                  
+                        </span>
+                    </div>
+                    <div class="col-12">
+                        <h2 class="text-center mensaje-confirmacion">{{ mensajeResultado }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- TERMINA  TEXTO DE CONFIRMACION DE PROCESO  -->
+
     </div>
 </div>
 <div matDialogActions align="end">
-    <button type="button" (click)="guardar()" [disabled]="accion === 'ver'" mat-raised-button color="primary">Guardar</button>
+    <button type="button" (click)="guardar()" [disabled]="deshabilitarGuardar()" mat-raised-button color="primary">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

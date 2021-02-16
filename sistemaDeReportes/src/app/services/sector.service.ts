@@ -17,23 +17,23 @@ export class SectorService {
   // Entrada: objeto de tipo Sector
   // Salida: Observable con respuesta de petición.
   // Descripción: Función para realizar petición Http de tipo POST para insertar nuevo sector.
-  insertarSector(sector: Sector): Observable<object>{
-    return this.http.post(this.url + '/Insertar', sector);
+  insertarSector(sector: Sector): Observable<string>{
+    return this.http.post<string>(this.url + '/Insertar', sector);
   }
 
   // Entrada: Objeto de tipo Sector.
   // Salida: Observable con respuesta de petición.
   // Descripción: Función para realizar petición Http de tipo PUT para actualizar sector existente.
-  actualizarSector(sector: Sector): Observable<object>{
-    return this.http.put(this.url + '/Actualizar', sector );
+  actualizarSector(sector: Sector): Observable<string>{
+    return this.http.put<string>(this.url + '/Actualizar', sector );
   }
 
   // Entrada: valor tipo number del ID del sector a eliminar.
   // Salida: Observable con datos de dirección obtenida.
   // Descripción: Función para realizar petición Http de tipo PUT para
   // efectuar eliminación lógica de sector.
-  eliminarSector(sector: Sector): Observable<object>{
-    return this.http.put(this.url + '/EliminarSector', sector);
+  eliminarSector(sector: Sector): Observable<string>{
+    return this.http.put<string>(this.url + '/EliminarSector', sector);
   }
 
   // Entrada: valor tipo number con ID del sector a buscar.
@@ -42,6 +42,16 @@ export class SectorService {
   // un sector por su ID.
   obtenerSector(idSector: number): Observable<Sector>{
     return this.http.get<Sector>(this.url + '/GetSector/' + idSector);
+  }
+
+  // Entrada: valor tipo string con nombre de sector
+  // Salida: Observable de tipo Sector con respuesta de petición.
+  // Descripción: Método para recuperar un sector por su nombre, a través de una
+  // petición de tipo Http GET.
+  obtenerSectorPorNombre(nombreSector: string): Observable<Sector>{
+    let params = new HttpParams();
+    params = params.append('nombre',nombreSector);
+    return this.http.get<Sector>(this.url + '/GetSectorPorNombre', {params});
   }
 
   // Entrada: Ninguna.

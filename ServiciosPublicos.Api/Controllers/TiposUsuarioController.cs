@@ -55,6 +55,37 @@ namespace ServiciosPublicos.Api.Controllers
             });
         }
 
+        // Entrada: request de tipo HttpRequestMessage, string de texto de búsqueda y string de estado de tipo de Usuario
+        // Salida: respuesta de tipo HttpResponseMessage y lista de tipos de Usuario.
+        // Descripción: Regresa lista de todos los tipos de usuario existentes  que cumplen con 
+        // los parámetros o filtros de búsqueda sin sus permisos.
+        [HttpGet]
+        [Route("GetTiposUsuarioGeneral")]
+        public async Task<HttpResponseMessage> GetTiposUsuarioGeneral(HttpRequestMessage request)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var listaTipos = _tipoUsuarioService.GetTipoUsuariosGeneral();
+                    response = request.CreateResponse(HttpStatusCode.OK, listaTipos);
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
         // Entrada: request de tipo HttpRequestMessage.
         // Salida: respuesta de tipo HttpResponseMessage y ID de nuevo registro de tipo INT.
         // Descripción: Obtener ID para registro nuevo
@@ -101,6 +132,36 @@ namespace ServiciosPublicos.Api.Controllers
                     response = request.CreateResponse(HttpStatusCode.OK, tipoUsuario);
                     //var permisos = _permisosService.GetPermisos(tipoUsuario.Descripcion_tipoUsuario);
                     //response = request.CreateResponse(HttpStatusCode.OK, new { tipoUsuario, permisos });
+                }
+                catch (Exception ex)
+                {
+                    response = request.CreateResponse(HttpStatusCode.BadRequest,
+                    new
+                    {
+                        error = "ERROR",
+                        message = ex.Message
+                    });
+                }
+
+                return await Task.FromResult(response);
+            });
+        }
+
+        // Entrada: request de tipo HttpRequestMessage y descripción de Tipo de Usuario de tipo string
+        // Salida: respuesta de tipo HttpResponseMessage y objeto de Tipo de Usuario.
+        // Descripción: Obtiene el Tipo de Usuario que coincida con descripcion.
+        [HttpGet]
+        [Route("GetTipoUsuarioByDescripcion")]
+        public async Task<HttpResponseMessage> GetTipoUsuarioByDescripcion(HttpRequestMessage request, string descripcion)
+        {
+            return await CreateHttpResponseAsync(request, async () =>
+            {
+                HttpResponseMessage response = null;
+                string message = String.Empty;
+                try
+                {
+                    var tipoUsuario = _tipoUsuarioService.GetTipoUsuarioDescripcion(descripcion);
+                    response = request.CreateResponse(HttpStatusCode.OK, tipoUsuario);
                 }
                 catch (Exception ex)
                 {

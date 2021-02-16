@@ -2,103 +2,152 @@
 <hr>
 <mat-dialog-content>
     <div class="container-fluid">
-        <!-- Se llama al componente que contiene el mapa e información básica del reporte -->
-        <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
+        <!-- SPINNERS -->
+        <!-- INICIA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <div *ngIf="procesando" class="row horizontal-align">
+            <div class="col-12 align-self-center">
+                <div class="spinner-border centrar-margen-izquierdo" role="status"></div>
+                <h2 class="text-center mt-3">Guardando información</h2>
+            </div>
+        </div>
+        <!-- TERMINA SPINNER PROCESANDO REGISTRO/ACTUALIZACION -->
+        <!-- TERMINAN SPINNERS -->
 
-        <section id="imagenesReporte">
-            <h3>Imágenes del reporte</h3>
+        <!-- MENSAJE PARA REPORTES CERRADOS O CANCELADOS -->
+        <div *ngIf="!procesando && !finalProceso">
+            <div *ngIf="reporteDisponible()">
+                <div *ngIf="reporte.Estatus_reporte===2" class="alert alert-danger" role="alert">
+                    Este reporte ya ha sido cerrado.
+                </div>
+                <div *ngIf="reporte.Estatus_reporte===4" class="alert alert-danger" role="alert">
+                    No es posible cerrar este reporte debido a que fue cancelado.
+                </div>
+            </div>
+            <!-- TERMINA MENSAJE PARA REPORTES CERRADOS O CANCELADOS -->
+
+            <!-- MAPA-->
+            <app-mapa-reportes [reporteDatos]="reporte"></app-mapa-reportes>
+            <!-- TERMINA MAPA -->
+
+            <!-- INICIA VISUALIZAR IMAGENES -->
+            <section id="imagenesReporte">
+                <h3>Imágenes del reporte</h3>
+                <hr>
+                <!-- IMAGENES DE APERTURA -->
+                <div class="row img-group">
+                    <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#apertura" aria-expanded="false" aria-controls="apertura">
+                        Imágenes de apertura
+                      </button>
+                    <div class="collapse col-12" id="apertura">
+                        <div class="card card-body">
+                            <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
+                            <ng-template #bloqueImgApertura>
+                                <div *ngIf="pathImgApertura.length===0" class="img-container">
+                                    <div class="spinner-border align-self-center m-5" role="status">
+                                        <span class="sr-only ">Loading...</span>
+                                    </div>
+                                </div>
+                                <div *ngIf="pathImgApertura.length !==0" class="img-container">
+                                    <img *ngFor="let path of pathImgApertura" class="img-reporte" [src]="path" onerror="src='http://localhost:50255/Photos/no-image.png'">
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IMAGENES DE CIERRE -->
+                <div class="row img-group">
+                    <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#cierre" aria-expanded="false" aria-controls="cierre">
+                        Imágenes de cierre
+                      </button>
+                    <div class="collapse col-12" id="cierre">
+                        <div class="card card-body">
+                            <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
+                            <ng-template #bloqueImgCierre>
+                                <div *ngIf="pathImgCierre.length===0" class="img-container">
+                                    <div class="spinner-border align-self-center m-5" role="status">
+                                        <span class="sr-only">Loading...</span>
+                                    </div>
+                                </div>
+                                <div *ngIf="pathImgCierre.length !==0" class="img-container">
+                                    <img *ngFor="let path of pathImgCierre" class="img-reporte" [src]="path" onerror="src='http://localhost:50255/Photos/no-image.png'">
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- TERMINA VISUALIZAR IMAGENES -->
+
             <hr>
-            <div class="row img-group">
-                <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#apertura" aria-expanded="false" aria-controls="apertura">
-                    Imágenes de apertura
-                  </button>
-                <div class="collapse col-12" id="apertura">
-                    <div class="card card-body">
-                        <p *ngIf="!mostrarImgApertura; else bloqueImgApertura">No hay imágenes de apertura para mostrar.</p>
-                        <ng-template #bloqueImgApertura>
-                            <div *ngIf="pathImgApertura.length === 0" class="img-container">
-                                <div class="spinner-border align-self-center m-5" role="status">
-                                    <span class="sr-only">Loading...</span>
+            <form [formGroup]="form">
+                <div class="row mb-3">
+                    <!-- FECHA CIERRE -->
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="row form-group row-input-group">
+                            <label class="lblForm col-md-auto col-form-label" for="fechaCierre">Fecha de cierre </label>
+                            <div class="col-7 ">
+                                <input id="fechaCierre" type="date" class="form-control" formControlName="fechaCierre">
+                                <div *ngIf="campoFechaCierre.errors && campoFechaCierre.touched">
+                                    <p class="error" *ngIf="campoFechaCierre.hasError('required')">Campo requerido</p>
                                 </div>
                             </div>
-                            <div *ngIf="pathImgApertura.length !== 0" class="img-container">
-                                <img *ngFor="let path of pathImgApertura" class="img-reporte" [src]="path" onerror="src = 'http://localhost:50255/Photos/no-image.png'">
-                            </div>
-                        </ng-template>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="row img-group">
-                <button class="btn btn-sm btn-primary" type="button" data-toggle="collapse" data-target="#cierre" aria-expanded="false" aria-controls="cierre">
-                    Imágenes de cierre
-                  </button>
-                <div class="collapse col-12" id="cierre">
-                    <div class="card card-body">
-                        <p *ngIf="!mostrarImgCierre; else bloqueImgCierre">No hay imágenes de cierre para mostrar.</p>
-                        <ng-template #bloqueImgCierre>
-                            <div *ngIf="pathImgCierre.length === 0" class="img-container">
-                                <div class="spinner-border align-self-center m-5" role="status">
-                                    <span class="sr-only">Loading...</span>
+
+                    <!-- HORA DE CIERRE -->
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <div class="row form-group row-input-group">
+                            <label class="lblForm col-md-auto col-form-label" for="horaCierre">Hora</label>
+                            <div class="col-6">
+                                <input id="horaCierre" type="time" class="form-control" formControlName="hora">
+                                <div *ngIf="campoHora.errors && campoHora.touched">
+                                    <p class="error" *ngIf="campoHora.hasError('required')">Campo requerido</p>
                                 </div>
                             </div>
-                            <div *ngIf="pathImgCierre.length !== 0" class="img-container">
-                                <img *ngFor="let path of pathImgCierre" class="img-reporte" [src]="path" onerror="src = 'http://localhost:50255/Photos/no-image.png'">
-                            </div>
-                        </ng-template>
-                    </div>
-                </div>
-            </div>
-
-
-        </section>
-
-        <hr>
-        <form [formGroup]="form">
-            <div class="row mb-3">
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="row form-group row-input-group">
-                        <label class="lblForm col-md-auto col-form-label" for="fechaCierre">Fecha de cierre </label>
-                        <div class="col-7">
-                            <input id="fechaCierre" type="date" class="form-control" formControlName="fechaCierre">
-                            <div *ngIf="campoFechaCierre.errors && campoFechaCierre.touched">
-                                <p class="error" *ngIf="campoFechaCierre.hasError('required')">Campo requerido</p>
-                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-6 col-md-6 col-12">
-                    <div class="row form-group row-input-group">
-                        <label class="lblForm col-md-auto col-form-label" for="horaCierre">Hora</label>
-                        <div class="col-6">
-                            <input id="horaCierre" type="time" class="form-control" formControlName="hora">
-                            <div *ngIf="campoHora.errors && campoHora.touched">
-                                <p class="error" *ngIf="campoHora.hasError('required')">Campo requerido</p>
+                <div class="row mb-3">
+                    <!-- SUBIR IMAGENES DE CIERRE -->
+                    <div class="col-lg-6 col-md-6 col-12">
+                        <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
+                        <button id="btn-subirImg" mat-raised-button [disabled]="reporteDisponible()" (click)="abrirVentanaImagenes()">Subir imágenes</button>
+                        <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
+                        <div><small>Máximo 2 imágenes. Las imágenes deben ser de tipo .jpeg .jpg ó .png</small></div>
+                        <div>
+                            <div class="img-container" *ngIf="uploadedImg.length> 0">
+                                <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
                             </div>
                         </div>
                     </div>
+                    <!-- TERMINA SUBIR IMAGENES DE CIERRE -->
                 </div>
-
-
-            </div>
-            <div class="row mb-3">
-                <!-- <div class="col-lg-6 col-md-6 col-12"> -->
-                <div class="row form-group">
-                    <label for="inputFile" class="col-form-label mr-2">Seleccione imágenes</label>
-                    <button id="btn-subirImg" mat-raised-button (click)="abrirVentanaImagenes()">Subir imágenes</button>
-                    <input #inputFile type="file" multiple (change)="obtenerImagenesSubidas($event)" accept="image/png, image/jpeg" class="form-control-file ocultar" id="inputImgIniciales">
-                    <div>
-                        <div class="img-container" *ngIf="uploadedImg.length > 0">
-                            <img *ngFor="let img of uploadedImg" class="uploadedImages" [src]="img">
-                        </div>
+            </form>
+        </div>
+        <!-- INICIA TEXTO DE CONFIRMACION DE PROCESO -->
+        <div *ngIf="!procesando && finalProceso" class="row horizontal-align">
+            <div class="col align-self-center">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <span class="icono-confirmacion horizontal-align-elements ">
+                            <i *ngIf="!error" class="fas fa-check fa-9x"></i>                   
+                        </span>
+                        <span class="icono-error horizontal-align-elements "> 
+                            <i *ngIf="error" class="fas fa-times fa-9x"></i>                  
+                        </span>
+                    </div>
+                    <div class="col-12">
+                        <h2 class="text-center mensaje-confirmacion">{{ mensajeResultado }}</h2>
                     </div>
                 </div>
-                <!-- </div> -->
             </div>
-        </form>
+        </div>
+        <!-- TERMINA  TEXTO DE CONFIRMACION DE PROCESO  -->
     </div>
 </mat-dialog-content>
 <div matDialogActions align="end" class="mb-2">
-    <button type="button" mat-raised-button color="primary" (click)="guardar()">Guardar</button>
+    <button type="button" mat-raised-button color="primary" [disabled]="deshabilitarGuardar()" (click)="guardar()">Guardar</button>
     <button mat-raised-button (click)="cerrarDialog()">Cerrar</button>
 </div>

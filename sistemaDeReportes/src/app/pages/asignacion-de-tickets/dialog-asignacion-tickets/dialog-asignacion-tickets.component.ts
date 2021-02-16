@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy , Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormBuilder, Validators, AbstractControl } from '@angular/forms';
 import { DialogService } from '../../../services/dialog-service.service';
@@ -10,19 +10,26 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { Reporte } from '../../../Interfaces/IReporte';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-dialog-asignacion-tickets',
   templateUrl: './dialog-asignacion-tickets.component.html',
   styleUrls: ['./dialog-asignacion-tickets.component.css']
 })
-export class DialogAsignacionTicketsComponent implements OnInit {
+export class DialogAsignacionTicketsComponent implements OnInit, OnDestroy {
+  private ngUnsubscribe = new Subject();
+  mensajeResultado: string;
   imagenesApertura: string [];
   listaCuadrillas: Cuadrilla [] = [];
   mostrarImgApertura: boolean;
   cuadrillasCargadas: boolean;
   imagenesCargadas: boolean;
   modificado: boolean;
+  procesando: boolean;
+  finalProceso: boolean;
+  error: boolean;
   form: FormGroup;
   reporte: Reporte;
 
@@ -40,9 +47,13 @@ export class DialogAsignacionTicketsComponent implements OnInit {
 
   //  Al iniciar se mandarán los datos al componente de mapa
   ngOnInit(): void {
+    this.procesando = false;
+    this.finalProceso = false;
+    this.error = false;
     this.obtenerCuadrillasList();
     this.obtenerObjetoReporte();
     this.inicializarFormulario();
+    this.tipoFormularioAccion();
     this.cargarImagenesReporte();
   }
 
@@ -53,12 +64,11 @@ export class DialogAsignacionTicketsComponent implements OnInit {
   private buildForm(): void{
     this.form = this.formBuilder.group({
       cuadrilla: [0, [Validators.required]],
-      fechaCierre: [''],
-      tiempo: ['']
+      fechaCierre: ['', [Validators.required]],
+      tiempo: ['', [Validators.required]]
     });
     this.form.valueChanges.subscribe(value => {
       if (this.form.touched){
-        console.log('se interactuo');
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -109,12 +119,37 @@ get campoTiempo(): AbstractControl{
     }
   }
 
+// Entrada: Ninguna
+// Salida: vacío.
+// Descripción: Este método habilita o deshabilita el formulario según el estado del reporte.
+tipoFormularioAccion(): void{
+  const estadoReporte = this.reporte.Estatus_reporte;
+  if (estadoReporte === 2 || estadoReporte === 4){
+    this.form.disable();
+  }
+}
+
+// Entrada: Ninguna.
+// Salida: boolean
+// Descripción: Genera mensaje para informar al usuario que el reporte tiene estado cancelado o cerrado.
+reporteDisponible(): boolean{
+  let mostrarMensaje: boolean;
+  const estadoReporte = this.reporte.Estatus_reporte;
+  if (estadoReporte === 2 || estadoReporte === 4){
+    mostrarMensaje = true;
+  }else{
+    mostrarMensaje = false;
+  }
+  return mostrarMensaje;
+}
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para obtener las imágenes de apertura y cierre que
   // contiene el reporte.
 cargarImagenesReporte(): void{
   this.reporteSevice.obtenerImagenesReporte(this.reporte.ID_reporte, 1)
+  .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe( (imgApertura: Imagen[]) => {
     this.imagenesApertura = this.imagenSevice.llenarListaPathImagenes(imgApertura);
     this.inicializarVariablesImagenes();
@@ -128,7 +163,9 @@ cargarImagenesReporte(): void{
   // Salida: vacío.
   // Descripción: Método para obtener el listado de cuadrillas
   obtenerCuadrillasList(): void{
-    this.cuadrillaService.obtenerCuadrillasGeneral().subscribe( cuadrillas => {
+    this.cuadrillaService.obtenerCuadrillasGeneral()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( cuadrillas => {
       cuadrillas.forEach(cuadrilla => {
         this.listaCuadrillas.push(cuadrilla);
         this.cuadrillasCargadas = true;
@@ -170,6 +207,38 @@ cargarImagenesReporte(): void{
     }
   }
 
+// Entrada: valor de tipo number con el valor actual del input cuadrilla.
+// Salida: valor boolean
+// Descripción: Verifica el valor actual del input para cuadrilla y activa el error si
+// no se ha seleccionado una cuadrilla o lo retira.
+errorCuadrilla(valor: number): boolean{
+  let error: boolean;
+  if (valor === 0){
+    this.campoCuadrilla.setErrors({required: true});
+    error = true;
+  }else{
+    this.campoCuadrilla.setErrors(null);
+    error = false;
+  }
+  return error;
+}
+
+// Entrada: Ninguna
+// Salida: Booleano
+// Descripción: Deshabilita el botón guardar si
+// el formulario fue accedido para ver información, si se está procesando
+// una actualización o alta, o si ya se ha concluido un proceso.
+deshabilitarGuardar(): boolean{
+  let deshabilitar: boolean;
+  if (this.procesando || this.finalProceso || this.reporteDisponible()) {
+    deshabilitar = true;
+  }else{
+    deshabilitar = false;
+  }
+  return deshabilitar;
+}
+
+
 // Entrada: Ninguna
 // Salida: vacío.
 // Descripción: Método en donde se llama al servicio de reporte para ejecutar la actualización,
@@ -178,13 +247,20 @@ cargarImagenesReporte(): void{
     this.reporte.FechaCierre_reporte = this.campoFechaCierre.value;
     this.reporte.TiempoEstimado_reporte = this.campoTiempo.value;
     this.reporte.ID_cuadrilla = this.campoCuadrilla.value;
-    this.reporteSevice.actualizarReporte(this.reporte).subscribe( respuesta => {
-      alert('¡ Reporte asignado con éxito ! ');
-      this.dialogRef.close();
+    this.reporteSevice.actualizarReporte(this.reporte)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( respuesta => {
+      this.procesando = false;
+      this.finalProceso = true;
+      this.mensajeResultado = '¡El reporte se ha asignado con éxito!';
     }, (error: HttpErrorResponse) => {
-      alert('¡Lo sentimos! No ha sido posible asignar la cudrilla. Verifique que los datos sean correctos o consulte ayuda.');
+      this.procesando = false;
+      this.error = true;
+      this.finalProceso = true;
+      this.mensajeResultado = 'No ha sido posible asignar el reporte. Vuelva a intentarlo ó solicite asistencia.';
       console.log('Error al asignar cuadrilla a reporte:', error.message);
     });
+    this.modificado = false; // los datos se han guardado, no hay necesidad de prevenir pérdida de datos.
   }
 
 // Entrada: Ninguna
@@ -194,9 +270,11 @@ cargarImagenesReporte(): void{
   guardar(): void {
     // event.preventDefault();
     if (this.form.valid){
+      this.procesando = true;
       this.accionGuardar();
     } else{
       this.form.markAllAsTouched();
+      alert('Verifique que los campos tengan la información correcta o estén llenos.');
     }
   }
 
@@ -206,6 +284,11 @@ cargarImagenesReporte(): void{
 // en caso de que se interactuara con el dialog.
   cerrarDialog(): void{
     this.dialogService.verificarCambios(this.dialogRef);
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsubscribe.next();
+    this.ngUnsubscribe.complete();
   }
 
   }

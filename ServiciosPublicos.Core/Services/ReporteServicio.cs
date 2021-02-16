@@ -12,12 +12,12 @@ namespace ServiciosPublicos.Core.Services
     {
         bool AltaReporte(Ticket ticket, List<Imagen> imagenes, out string Message);
         bool ActualizarReporte(Reporte reporte, string path ,out string Message);
-        List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF);
+        List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha);
         List<dynamic> GetReporteFiltroCuadrilla(string idCuadrilla);
         List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
         int ObtenerIDRegistro();
-        List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus);
+        List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus, int page, int results);
         string SendSMS(out string Message);
     }
     public class ReporteServicio : IReporteServicio
@@ -27,24 +27,26 @@ namespace ServiciosPublicos.Core.Services
         private readonly IImagenRepository _imagenRepository;
         private readonly ITicketRepository _ticketRepository;
         private readonly IUsuarioRepository _usuarioRepository;
+        private readonly ITipoReporteRepository _tipoReporteRepository;
         public ReporteServicio(IReporteRepository reporteRepository, 
             IImagenRepository imagenRepository, IReporteTicketRepository reporteTicketRepository,
-            ITicketRepository ticketRepository, IUsuarioRepository usuarioRepository)
+            ITicketRepository ticketRepository, IUsuarioRepository usuarioRepository, ITipoReporteRepository tipoReporteRepository)
         {
             _reporteRepository = reporteRepository;
             _imagenRepository = imagenRepository;
             _reporteTicketRepository = reporteTicketRepository;
             _ticketRepository = ticketRepository;
             _usuarioRepository = usuarioRepository;
+            _tipoReporteRepository = tipoReporteRepository;
         }
 
         // Entrada: valores de tipo string que funcionan como filtros para la búsqueda de registros.
         // Salida: lista de tipo dynamic con los registros de reportes.
         // Descripción: Método para ejecutar el query que realiza una búsqueda dinámica de reportes
         // de acuerdo a los diversos filtros que se indican.
-        public List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF)
+        public List<dynamic> GetReportesFiltro(string tipoR, string cuadrilla, string estado, string sector, string origen, string fechaIni, string fechaF, string tipoFecha)
         {           
-            return this._reporteRepository.GetReportesFiltroDinamico(tipoR,cuadrilla,estado,sector,origen,fechaIni,fechaF);
+            return this._reporteRepository.GetReportesFiltroDinamico(tipoR,cuadrilla,estado,sector,origen,fechaIni,fechaF, tipoFecha);
         }
 
         // Entrada: id de cuadrilla de tipo string
@@ -82,11 +84,14 @@ namespace ServiciosPublicos.Core.Services
                 if (reporte == null)
                 {
                     idReporte = _reporteRepository.InsertarReporte(ticket);
+                    Message = "¡Registro de reporte exitoso! Refierase a este caso con la clave de reporte no. " + idReporte;
                 }
                 else
                 {
                     _reporteRepository.ModificarNoTickets(reporte);
                     idReporte = reporte.ID_reporte;
+                    Message = "¡Registro de reporte exitoso! El reporte se relacionó a un reporte ya existente. " +
+                              "Refierase a este caso con la clave de reporte no. " + idReporte;
                 }
                 //Insertar registro de relacion reporte - ticket
                 _reporteTicketRepository.Insert(ticket.ID_ticket, idReporte);
@@ -100,7 +105,7 @@ namespace ServiciosPublicos.Core.Services
                     }
                 }
                 result = true;
-                Message = "Registro de reporte exitoso";
+                
             }
             catch (Exception ex)
             {
@@ -109,11 +114,11 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        public bool ActualizarReporte(Reporte reporte, string path ,out string Message)
         // Entrada: Objeto de tipo Reporte y mensaje de tipo string
         // Salida: valor booleano.
         // Descripción: Actualiza el reporte pasado como argumento y los tickets relacionados
         // con este reporte.
+        public bool ActualizarReporte(Reporte reporte, string path ,out string Message)
         {
 
             Message = string.Empty;
@@ -136,18 +141,26 @@ namespace ServiciosPublicos.Core.Services
                     ticket = this.ModificacionesTicket(ticket, reporte);
                     _ticketRepository.Modify(ticket);
 
-                    //VERIFICANDO SI EL USUARIO SOLICITO RECIBIR CORREO
+                    //VERIFICANDO SI EL USUARIO SOLICITO RECIBIR CORREO Y SMS
                     Usuario usuarioReportante = _usuarioRepository.Get(ticket.ID_usuarioReportante);
                     if (reporte.Estatus_reporte == 2) {
                         if ((bool)ticket.EnviarCorreo_ticket)
                         {
-                            _reporteRepository.EnviarCorreo(usuarioReportante.Correo_usuario, "Reporte finalizado", "Texto sin formato", listaImagenes, path);
+                            Tipo_Reporte tipoR = _tipoReporteRepository.Get<int>(reporte.ID_tipoReporte);
+                            string descripcionTR = tipoR.Descripcion_tipoReporte;
+                            string coloniaR = reporte.Colonia_reporte;
+                            _reporteRepository.EnviarCorreo(usuarioReportante.Correo_usuario, "Reporte finalizado", descripcionTR, coloniaR, listaImagenes, path);
+                        }
+
+                        if ((bool)ticket.EnviarSMS_ticket)
+                        {
+                            _reporteRepository.EnviarSMS("52"+usuarioReportante.Telefono_usuario, ("El reporte #"+ticket.ID_ticket+" fue cerrado correctamente"));
                         }
                     }
                     
                     
                 } 
-                Message = "Reporte actualizado con exito";
+                Message = "¡El reporte se ha actualizado con éxito!";
                 result = true;
             }
             catch (Exception ex)
@@ -166,6 +179,7 @@ namespace ServiciosPublicos.Core.Services
             ticket.Estatus_ticket = reporte.Estatus_reporte;
             ticket.ID_cuadrilla = reporte.ID_cuadrilla;
             ticket.TiempoEstimado_ticket = reporte.TiempoEstimado_reporte;
+            ticket.ID_tipoReporte = reporte.ID_tipoReporte;
             return ticket;
         }
 
@@ -215,14 +229,14 @@ namespace ServiciosPublicos.Core.Services
         }
 
 
-        public List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus)
+        public List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus, int page, int results)
         {
-            return this._reporteRepository.reportePorJefe(id_jefe, idTipo, idEstatus);
+            return this._reporteRepository.reportePorJefe(id_jefe, idTipo, idEstatus, page, results);
         }
 
         public string SendSMS(out string Message)
         {
-            Message = _reporteRepository.EnviarSMS("526442513016", "voltea menso");
+            Message = _reporteRepository.EnviarSMS("526441574013", "test sms");
             return Message;
         }
 
