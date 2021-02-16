@@ -273,8 +273,8 @@ namespace ServiciosPublicos.Api.Controllers
 
         //G: PARA VISUALIZAR TODOS LOS REPORTES ASIGNADOS A JEFE DE CUADRILLA EN LA APP
         [HttpGet]
-        [Route("GetReporteByJefeAsignado/{id_jefe}/{id_tipo}/{id_estatus}")]
-        public async Task<HttpResponseMessage> GetReporteByJefe(HttpRequestMessage request, int id_jefe, int id_tipo, int id_estatus)
+        [Route("GetReporteByJefeAsignado/{id_jefe}/{id_tipo}/{id_estatus}/{page}/{results}")]
+        public async Task<HttpResponseMessage> GetReporteByJefe(HttpRequestMessage request, int id_jefe, int id_tipo, int id_estatus, int page, int results)
         {
             return await CreateHttpResponseAsync(request, async () =>
             {
@@ -282,7 +282,7 @@ namespace ServiciosPublicos.Api.Controllers
                 string message = String.Empty;
                 try
                 {
-                    var listaReportes = _reporteServicio.GetReporteJefeAsignado(id_jefe, id_tipo, id_estatus);
+                    var listaReportes = _reporteServicio.GetReporteJefeAsignado(id_jefe, id_tipo, id_estatus, page, results);
                     response = request.CreateResponse(HttpStatusCode.OK, listaReportes);
                 }
                 catch (Exception ex)

@@ -17,7 +17,7 @@ namespace ServiciosPublicos.Core.Services
         List<Imagen> GetImagenesReporte(string idReporte, string tipoImagen, out string Message);
         bool InsertarImagenesReporte(int idReporte, List<Imagen> imagenes, out string Message);
         int ObtenerIDRegistro();
-        List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus);
+        List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus, int page, int results);
         string SendSMS(out string Message);
     }
     public class ReporteServicio : IReporteServicio
@@ -141,7 +141,7 @@ namespace ServiciosPublicos.Core.Services
                     ticket = this.ModificacionesTicket(ticket, reporte);
                     _ticketRepository.Modify(ticket);
 
-                    //VERIFICANDO SI EL USUARIO SOLICITO RECIBIR CORREO
+                    //VERIFICANDO SI EL USUARIO SOLICITO RECIBIR CORREO Y SMS
                     Usuario usuarioReportante = _usuarioRepository.Get(ticket.ID_usuarioReportante);
                     if (reporte.Estatus_reporte == 2) {
                         if ((bool)ticket.EnviarCorreo_ticket)
@@ -150,6 +150,11 @@ namespace ServiciosPublicos.Core.Services
                             string descripcionTR = tipoR.Descripcion_tipoReporte;
                             string coloniaR = reporte.Colonia_reporte;
                             _reporteRepository.EnviarCorreo(usuarioReportante.Correo_usuario, "Reporte finalizado", descripcionTR, coloniaR, listaImagenes, path);
+                        }
+
+                        if ((bool)ticket.EnviarSMS_ticket)
+                        {
+                            _reporteRepository.EnviarSMS("52"+usuarioReportante.Telefono_usuario, ("El reporte #"+ticket.ID_ticket+" fue cerrado correctamente"));
                         }
                     }
                     
@@ -224,14 +229,14 @@ namespace ServiciosPublicos.Core.Services
         }
 
 
-        public List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus)
+        public List<dynamic> GetReporteJefeAsignado(int id_jefe, int idTipo, int idEstatus, int page, int results)
         {
-            return this._reporteRepository.reportePorJefe(id_jefe, idTipo, idEstatus);
+            return this._reporteRepository.reportePorJefe(id_jefe, idTipo, idEstatus, page, results);
         }
 
         public string SendSMS(out string Message)
         {
-            Message = _reporteRepository.EnviarSMS("526442513016", "Mensaje ejemplo");
+            Message = _reporteRepository.EnviarSMS("526441574013", "test sms");
             return Message;
         }
 
