@@ -13,6 +13,7 @@ import { TablaComponent } from '../../shared/tabla/tabla.component';
 import { CapitalizadoPipe } from '../../pipes/capitalizado.pipe';
 import { CustomDate } from '../../pipes/customDate.pipe';
 import { EstadoReporte } from '../../pipes/estadoReporte.pipe';
+import { ObtenerNombrePipe } from '../../pipes/obtener-nombre.pipe';
 
 
 // MODULES
@@ -37,6 +38,7 @@ import { environment } from '../../../environments/environment';
     TablaComponent,
     CapitalizadoPipe,
     CustomDate,
+    ObtenerNombrePipe,
     EstadoReporte
   ],
   imports: [
@@ -56,6 +58,7 @@ import { environment } from '../../../environments/environment';
     TablaComponent,
     CapitalizadoPipe,
     CustomDate,
+    ObtenerNombrePipe,
     EstadoReporte,
     FooterComponent
   ],

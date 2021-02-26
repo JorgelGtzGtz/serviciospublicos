@@ -204,12 +204,12 @@ namespace ServiciosPublicos.Core.Services
                 else
                 {
                     Message = "Tipo Usuario  " + tipoUsuario.Descripcion_tipoUsuario + " no puede ser eliminado porque " +
-                                "tiene registros relacionados";
+                                "tiene registros relacionados.";
                 }  
             }
             catch (Exception ex)
             {
-                Message = "Tipo de Usuario No pudo ser eliminado Error: " + ex.Message;
+                Message = "Tipo de Usuario no pudo ser eliminado." + ex.Message;
             }
             return result;
         }

@@ -12,6 +12,7 @@ import { Reporte } from '../../../Interfaces/IReporte';
 import { Sector } from '../../../Interfaces/ISector';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { TipoReporte } from '../../../Interfaces/ITipoReporte';
+import { PermisoService } from '../../../services/permiso.service';
 
 @Component({
   selector: 'app-inicio-alta-reportes',
@@ -36,7 +37,8 @@ export class AltaReportesComponent implements OnInit, OnDestroy {
               private reporteService: ReporteService,
               private cuadrillaService: CuadrillaService,
               private tipoRService: TipoReporteService,
-              private sectorService: SectorService) {
+              private sectorService: SectorService,
+              private permisoService: PermisoService) {
     this.buildForm();
    }
 
@@ -51,14 +53,14 @@ export class AltaReportesComponent implements OnInit, OnDestroy {
   // representa cada entrada del formulario.
   private buildForm(): void{
     this.form = this.formBuilder.group({
-      tipoReporte: ['Todos'],
-      cuadrilla: ['Todos'],
-      estado: ['Todos'],
-      sector: ['Todos'],
-      origen: ['Todos'],
+      tipoReporte: [0],
+      cuadrilla: [0],
+      estado: [1],
+      sector: [0],
+      origen: [0],
       fechaInicio: [''],
       fechaFinal: [''],
-      tipoFecha: ['a']
+      tipoFecha: ['']
     });
   }
 
@@ -119,23 +121,17 @@ export class AltaReportesComponent implements OnInit, OnDestroy {
   // con los registros de reportes existentes. Puede ser según
   // filtros que se especifican con el valor de cada control del formulario.
   actualizarTabla(): void{
-    const tipoR: number =  this.campoTipoReporte.value;
-    const cuadrilla: number =  this.campoCuadrilla.value;
-    const estado: number =  this.campoEstado.value;
-    const sector: number =  this.campoSector.value;
-    const origen: number =  this.campoOrigen.value;
+    const tipoR: string =  (this.campoTipoReporte.value).toString();
+    const cuadrilla: string =  (this.campoCuadrilla.value).toString();
+    const estado: string =  (this.campoEstado.value).toString();
+    const sector: string =  (this.campoSector.value).toString();
+    const origen: string =  (this.campoOrigen.value).toString();
     const fecha: string =  this.campoFechaInicial.value;
     const fechaAl: string =  this.campoFechaFinal.value;
     const tipoFecha: string = this.campoTipoFecha.value;
-    this.reporteService.filtroReportes(
-      tipoR.toString(),
-      cuadrilla.toString(),
-      estado.toString(),
-      sector.toString(),
-      origen.toString(),
-      fecha,
-      fechaAl,
-      tipoFecha).subscribe(reportes => {
+    this.reporteService.filtroReportes(tipoR, cuadrilla, estado, sector, origen, fecha, fechaAl, tipoFecha)
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(reportes => {
         this.listaReportes = reportes;
         this.ReportesCargados = true;
     });
@@ -218,13 +214,26 @@ export class AltaReportesComponent implements OnInit, OnDestroy {
       this.actualizarTabla();
     });
   }
+
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
+  }
+
 // Entrada: Ninguna
 // Salida: vacío.
 // Descripción: Método que se llama cuando se da click al botón nuevo.
 // Llama al método que abre el dialog para crear un nuevo registro.
   nuevoReporte(): void{
-    this.abrirDialogSeleccionar('nuevo');
-
+    if (this.tienePermiso(20)){
+      this.abrirDialogSeleccionar('nuevo');
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
 // Entrada: Ninguna
@@ -232,7 +241,11 @@ export class AltaReportesComponent implements OnInit, OnDestroy {
 // Descripción: Método que se llama cuando se da click al botón editar.
 // Llama al método que abre el dialog para editar un reporte de la tabla
    editarReporte(reporte: object): void{
-    this.abrirDialogSeleccionar('editar', reporte);
+     if (this.tienePermiso(22)){
+      this.abrirDialogSeleccionar('editar', reporte);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
 // Entrada: Ninguna
@@ -240,7 +253,11 @@ export class AltaReportesComponent implements OnInit, OnDestroy {
 // Descripción: Método que se llama cuando se da click al botón nuevo.
 // Llama al método que abre el dialog para ver un reporte de la tabla
   verReporte(reporte: object): void{
-    this.abrirDialogSeleccionar('ver', reporte);
+    if (this.tienePermiso(21)){
+      this.abrirDialogSeleccionar('ver', reporte);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
 // Entrada: Ninguna
@@ -257,19 +274,19 @@ export class AltaReportesComponent implements OnInit, OnDestroy {
 
 
 
-    // Entrada: ninguna.
+  // Entrada: ninguna.
   // Salida: vacío.
   // Descripción: Método que se llama con el botón limpiar búsqueda.
   // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
   limpiarBusqueda(): void{
-    this.campoSector.setValue('Todos');
-    this.campoCuadrilla.setValue('Todos');
-    this.campoOrigen.setValue('Todos');
-    this.campoEstado.setValue('Todos');
-    this.campoTipoReporte.setValue('Todos');
+    this.campoSector.setValue(0);
+    this.campoCuadrilla.setValue(0);
+    this.campoOrigen.setValue(0);
+    this.campoEstado.setValue(1);
+    this.campoTipoReporte.setValue(0);
     this.campoFechaInicial.setValue('');
     this.campoFechaFinal.setValue('');
-    this.campoTipoFecha.setValue('a');
+    this.campoTipoFecha.setValue('');
     this.actualizarTabla();
    }
 

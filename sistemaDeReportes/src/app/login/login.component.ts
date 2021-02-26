@@ -16,7 +16,7 @@ export class LoginComponent implements OnInit {
   @ViewChild('password') passwordInput: ElementRef;
   usuarioForm: FormControl;
   passwordForm: FormControl;
-  deshabilitar: boolean;
+  desactivar: boolean;
   visible = false;
 
 
@@ -28,7 +28,7 @@ export class LoginComponent implements OnInit {
    }
 
   ngOnInit(): void {
-    this.deshabilitar = false;
+    this.desactivar = false;
   }
 
   // Entrada: Ninguna.
@@ -56,11 +56,12 @@ export class LoginComponent implements OnInit {
   // y se redirecciona a inicio.
   async ingresar(): Promise<void>{
     if (this.campoUsuario.valid && this.campoPassword.valid){
-      this.deshabilitar = true;
+      this.desactivar = true;
       this.usuarioServicio.almacenarClaveLogin(this.campoUsuario.value, this.passwordForm.value);
       const usuario: Usuario = await this.buscarUsuario();
       this.usuarioServicio.almacenarUsuarioLog(usuario);
       this.router.navigate(['../inicio']);
+      this.desactivar = false;
     }else{
       this.campoPassword.markAsTouched();
       this.campoUsuario.markAsTouched();
@@ -75,35 +76,23 @@ export class LoginComponent implements OnInit {
   async buscarUsuario(): Promise<Usuario>{
     const usuario: Usuario = await this.usuarioServicio.login().toPromise()
       .then( (usuarioRes: Usuario) => {
-        const usuarioExaminado = this.verificarTipoUsuario(usuarioRes);
-        return usuarioExaminado;
+        return usuarioRes;
       })
       .catch((error: HttpErrorResponse) => {
+        this.desactivar = false;
         this.usuarioServicio.logOut();
-        this.deshabilitar = false;
-        this.campoUsuario.setValue('');
-        this.campoPassword.setValue('');
-        console.log('Ha ocurrido un error al entrar al sistema. Error: ', error);
+        this.inicializarFormulario();
         return null;
       });
     return usuario;
   }
 
-  // Entrada: usuario de tipo Usuario
-  // Salida: valor boolean
-  // Descripción: verifica si el usuario encontrado es administrador
-  // para permitirle acceder al sistema.
-  verificarTipoUsuario(usuario: Usuario): Usuario{
-    let usuarioExaminado: Usuario;
-    if (usuario.ID_tipoUsuario === 3){
-      usuarioExaminado = usuario;
-    }else{
-      this.usuarioServicio.eliminarDatosLogin();
-      alert('No tiene permisos para ingresar a este sistema.');
-      usuarioExaminado = null;
-      this.deshabilitar = false;
-    }
-    return usuarioExaminado;
+  // Entrada: Ninguna.
+  // Salida: Ninguna.
+  // Descripción: Inicializa los valores de input del formulario.
+  inicializarFormulario(): void{
+    this.campoUsuario.setValue('');
+    this.campoPassword.setValue('');
   }
 
   // Entrada: Ninguna.

@@ -7,6 +7,7 @@ import { AbstractControl, FormControl } from '@angular/forms';
 import { SectorService } from '../../../services/sector.service';
 import { Sector } from '../../../Interfaces/ISector';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PermisoService } from '../../../services/permiso.service';
 
 @Component({
   selector: 'app-sectores',
@@ -22,7 +23,9 @@ export class SectoresComponent implements OnInit, OnDestroy {
   sectores: Sector[] = [];
   sectoresListos: boolean;
 
-  constructor(public dialog: MatDialog, private sectorService: SectorService) {
+  constructor(public dialog: MatDialog,
+              private sectorService: SectorService,
+              private permisoService: PermisoService) {
     this.formBuilder();
    }
 
@@ -35,7 +38,7 @@ export class SectoresComponent implements OnInit, OnDestroy {
   // Descripción: Inicializa los controladores del formulario
   formBuilder(): void{
       this.busquedaForm = new FormControl('');
-      this.estadoForm = new FormControl('Todos');
+      this.estadoForm = new FormControl('1');
     }
 
   // Entrada: Ninguna
@@ -107,25 +110,46 @@ export class SectoresComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
+  }
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método que se llama al hacer click en botón nuevo.
   nuevoSector(): void{
-    this.abrirDialogVerEditarNuevo('nuevo');
+    if (this.tienePermiso(16)){
+      this.abrirDialogVerEditarNuevo('nuevo');
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: objeto de tipo Sector
   // Salida: vacío.
   // Descripción: Método para editar un sector de la tabla
   editarSector(sector: Sector): void{
-    this.abrirDialogVerEditarNuevo('editar', sector);
+    if (this.tienePermiso(18)){
+      this.abrirDialogVerEditarNuevo('editar', sector);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: objeto de tipo Sector
   // Salida: vacío.
   // Descripción: Método para ver un sector de la tabla
   verSector(sector: Sector): void{
-    this.abrirDialogVerEditarNuevo('ver', sector);
+    if (this.tienePermiso(17)){
+      this.abrirDialogVerEditarNuevo('ver', sector);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: objeto de tipo Sector
@@ -133,18 +157,23 @@ export class SectoresComponent implements OnInit, OnDestroy {
   // Descripción: Método para eliminar sector. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
   eliminarSector(sector: Sector): void{
-    const result = confirm('¿Seguro que desea eliminar el sector?');
-    if (result) {
-      this.sectorService.eliminarSector(sector)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe( res => {
-        this.actualizarTabla();
-        alert(res);
-      }, (error: HttpErrorResponse) => {
-        alert('El sector ' + sector.Descripcion_sector + ' no pudo ser eliminado. Intente de nuevo o solicite asistencia.');
-        console.log('Error al eliminar sector: ' + error.message);
-      });
+    if (this.tienePermiso(19)){
+      const result = confirm('¿Seguro que desea eliminar el sector?');
+      if (result) {
+        this.sectorService.eliminarSector(sector)
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe( res => {
+          this.actualizarTabla();
+          alert(res);
+        }, (error: HttpErrorResponse) => {
+          alert('El sector ' + sector.Descripcion_sector + ' no pudo ser eliminado. Intente de nuevo o solicite asistencia.');
+          console.log('Error al eliminar sector: ' + error.message);
+        });
+      }
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
     }
+
   }
 
   // Entrada: Ninguna.
@@ -161,7 +190,7 @@ export class SectoresComponent implements OnInit, OnDestroy {
   // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
   limpiarBusqueda(): void{
     this.campoBusqueda.setValue('');
-    this.campoEstado.setValue('Todos');
+    this.campoEstado.setValue('1');
     this.actualizarTabla();
    }
 

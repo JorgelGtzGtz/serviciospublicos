@@ -9,6 +9,7 @@ import { Sector } from '../../../Interfaces/ISector';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { SectorService } from '../../../services/sector.service';
 import { TipoReporte } from '../../../Interfaces/ITipoReporte';
+import { PermisoService } from '../../../services/permiso.service';
 
 @Component({
   selector: 'app-asignacion-de-tickets',
@@ -31,7 +32,8 @@ export class AsignacionDeTicketsComponent implements OnInit, OnDestroy {
                private formBuilder: FormBuilder,
                private reporteService: ReporteService,
                private tipoRService: TipoReporteService,
-               private sectorService: SectorService
+               private sectorService: SectorService,
+               private permisoService: PermisoService
                ) {
     this.buildForm();
   }
@@ -46,12 +48,12 @@ export class AsignacionDeTicketsComponent implements OnInit, OnDestroy {
   // Descripción: Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
    private buildForm(): void{
     this.form = this.formBuilder.group({
-      sector: ['Todos'],
-      estado: ['Todos'],
-      tipoReporte: ['Todos'],
+      sector: [0],
+      estado: [1],
+      tipoReporte: [0],
       fechaInicio: [''],
       fechaFinal: [''],
-      tipoFecha: ['a']
+      tipoFecha: ['']
     });
   }
 
@@ -190,13 +192,26 @@ export class AsignacionDeTicketsComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
+  }
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Función que se llama al dar click en botón seleccionar.
   // manda a llamar a la función que abre el dialog y envía los datos del reporte
   // contenidos en reporte: object
   seleccionarReporte(reporte: object): void{
-    this.abrirDialogSeleccionar(reporte);
+    if (this.tienePermiso(24)){
+      this.abrirDialogSeleccionar(reporte);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: Ninguna
@@ -216,12 +231,12 @@ export class AsignacionDeTicketsComponent implements OnInit, OnDestroy {
   // Descripción: Método que se llama con el botón limpiar búsqueda.
   // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
   limpiarBusqueda(): void{
-    this.campoSector.setValue('Todos');
-    this.campoEstado.setValue('Todos');
-    this.campoTipoReporte.setValue('Todos');
+    this.campoSector.setValue(0);
+    this.campoEstado.setValue(1);
+    this.campoTipoReporte.setValue(0);
     this.campoFechaInicio.setValue('');
     this.campoFechaFinal.setValue('');
-    this.campoTipoFecha.setValue('a');
+    this.campoTipoFecha.setValue('');
     this.actualizarTabla();
    }
 

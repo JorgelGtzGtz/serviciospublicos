@@ -8,6 +8,7 @@ import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { PermisoService } from '../../../services/permiso.service';
 
 
 @Component({
@@ -28,7 +29,8 @@ export class CierreReportesComponent implements OnInit , OnDestroy {
 
   constructor(public dialog: MatDialog,
               private reporteService: ReporteService,
-              private cuadrillaService: CuadrillaService) {
+              private cuadrillaService: CuadrillaService,
+              private permisoService: PermisoService) {
     this.formBuilder();
   }
 
@@ -41,7 +43,7 @@ export class CierreReportesComponent implements OnInit , OnDestroy {
   // Salida: vacío.
   // Descripción: Inicializa los controladores del formulario
   formBuilder(): void{
-    this.cuadrillaForm = new FormControl('Todos');
+    this.cuadrillaForm = new FormControl(0);
   }
 
   // Entrada: Ninguna
@@ -65,7 +67,7 @@ export class CierreReportesComponent implements OnInit , OnDestroy {
   // obtiene los registros de reportes a mostrar.
   inicializarTabla(): void{
     this.actualizarTabla();
-    this.headersTabla = ['No. Reporte', 'Sector', 'Dirección', 'Seleccionar'];
+    this.headersTabla = ['No. Reporte', 'Estado', 'Sector', 'Dirección', 'Seleccionar'];
   }
 
   // Entrada: Ninguna
@@ -135,12 +137,25 @@ export class CierreReportesComponent implements OnInit , OnDestroy {
     });
   }
 
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
+  }
+
   // Entrada: registro de la tabla con la información del reporte.
   // Salida: vacío.
   // Descripción:Método que se llama al hacer click en botón "seleccionar" de la tabla
   // para posteriormente llamar al método que abre el dialog.
   seleccionarReporte(reporte: object): void{
-    this.abrirDialogSeleccionar(reporte);
+    if (this.tienePermiso(25)){
+      this.abrirDialogSeleccionar(reporte);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: Ninguna
@@ -156,7 +171,7 @@ export class CierreReportesComponent implements OnInit , OnDestroy {
   // Descripción: Método que se llama con el botón limpiar búsqueda.
   // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
   limpiarBusqueda(): void{
-    this.cuadrillaForm.setValue('Todos');
+    this.cuadrillaForm.setValue(0);
     this.actualizarTabla();
    }
 

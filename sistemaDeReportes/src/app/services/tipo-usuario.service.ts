@@ -22,7 +22,7 @@ export class TipoUsuarioService {
     if (textoB === undefined){
       textoB = '';
    }
-    if (estadoValor === undefined || estadoValor === 'Todos'){
+    if (estadoValor === undefined || estadoValor === '01'){
       estadoValor = '';
    }
     let params = new HttpParams();
