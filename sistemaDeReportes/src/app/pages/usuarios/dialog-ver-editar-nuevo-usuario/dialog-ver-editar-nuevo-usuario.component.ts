@@ -94,6 +94,7 @@ datosCargados(): boolean{
     this.verificarCambiosFormulario();
     this.verificarCambiosCorreo();
     this.verificarCambiosLogin();
+    this.cambiarEstado();
   }
 
   // Entrada: Ninguna
@@ -138,7 +139,7 @@ get campoPassword(): AbstractControl{
     this.form.valueChanges
     .pipe(takeUntil(this.ngUnsubscribe))
     .subscribe(value => {
-      if (this.form.touched){
+      if (this.form.dirty){
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -264,6 +265,31 @@ esUsuarioDiferente(usuario: Usuario): boolean{
   return valor;
 }
 
+// Entrada: Ninguna;
+// Salida: Ninguna
+// Descripción: Verifica si este usuario está asignado a una cuadrilla.
+// si lo está, no se podrá desactivar.
+cambiarEstado(): void{
+  this.campoEstado.valueChanges.pipe(debounceTime(500), takeUntil(this.ngUnsubscribe))
+    .subscribe( desactivado => {
+      if (desactivado){
+        this.verificarAsignacionJefe();
+      }else{
+        this.campoEstado.setErrors(null);
+      }
+    });
+}
+
+// Entrada: valor boolean;
+// Salida: Ninguna
+// Descripción: Verifica si el usuario de tipo jefe se encuentra asignado a una cuadrilla
+verificarAsignacionJefe(): void{
+  if (this.usuarioActual.Jefe_asignado){
+       alert('El usuario se encuentra asignado a una cuadrilla. Si desea desactivarlo, en la cuadrilla asigne otro jefe o remueva el actual.');
+       this.campoEstado.setErrors({noValid: true});
+      }
+}
+
 // Entrada: objeto tipo TipoUsuario
 // Salida: valor boolean
 // Descripción: Este método habilita o deshabilita el formulario según lo que se quiera hacer en el
@@ -292,7 +318,14 @@ cargarTiposUsuario(): void{
   this.tipoService.obtenerTiposUGeneral()
   .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe(tipos => {
-    this.tiposUsuario = tipos;
+    tipos.forEach(tipo => {
+      // Verificar que solo se muestren tipos de usuario activos.
+      if (tipo.Estatus_tipoUsuario === true){
+        this.tiposUsuario.push(tipo);
+      }else if ((this.accion !== 'nuevo') && (tipo.ID_tipoUsuario === this.usuarioActual.ID_tipoUsuario)){
+        this.tiposUsuario.push(tipo);
+      }
+    });
     this.tiposUListos = true;
   }, (error: HttpErrorResponse) => {
     alert('Ha surgido un error al cargar ventana. Intente de nuevo o solicite asistencia.');
@@ -359,9 +392,24 @@ obtenerIDNuevo(): void{
 }
 
 // Entrada: Ninguna.
+// Salida: string
+// Descripción: método para determinar si la contraseña se debe encriptar o no
+// dependiendo de si es un nuevo usuario o solo se edita
+determinarPassword(): string{
+  let password: string;
+  if (this.accion === 'nuevo'){
+    password = this.usuarioService.encriptarPassword(this.campoPassword.value);
+  } else{
+    password = this.usuarioActual.Password_usuario;
+  }
+  return password;
+}
+
+// Entrada: Ninguna.
 // Salida: vacío.
 // Descripción: Método para generar usuario con datos de formulario
 generarUsuario(): UsuarioM{
+  const password = this.determinarPassword();
   return new UsuarioM(
     this.campoId.value,
     this.campoNombre.value,
@@ -370,10 +418,11 @@ generarUsuario(): UsuarioM{
     this.campoGenero.value,
     this.campoTipoUsuario.value,
     this.campoUsuario.value,
-    this.usuarioService.encriptarPassword(this.campoPassword.value),
+    password,
     !this.campoEstado.value,
     false, // jefe cuadrilla
-    true // disponible (para eliminación)
+    true, // disponible (para eliminación)
+    true // campo para confirmación (se usa en app móvil)
   );
 }
 

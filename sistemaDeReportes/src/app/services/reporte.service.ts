@@ -37,19 +37,19 @@ export class ReporteService {
   // con los filtros que se envían como parámetros.
   filtroReportes(tipoR: string, cuadrilla: string, estado: string, sector: string,
                  origen: string, fecha: string, fechaAl: string, tipoFecha: string): Observable<JSON[]>{
-    if (tipoR === undefined || tipoR === 'Todos'){
+    if (tipoR === undefined || tipoR === '0' || tipoR === '00'){
       tipoR = '';
    }
-    if (cuadrilla === undefined || cuadrilla === 'Todos'){
+    if (cuadrilla === undefined || cuadrilla === '0' || cuadrilla === '00'){
     cuadrilla = '';
    }
-    if (estado === undefined || estado === 'Todos'){
+    if (estado === undefined || estado === '00'){
     estado = '';
    }
-    if (sector === undefined || sector === 'Todos'){
+    if (sector === undefined || sector === '0' || sector === '00'){
     sector = '';
    }
-    if (origen === undefined || origen === 'Todos'){
+    if (origen === undefined || origen === '0' || origen === '00'){
     origen = '';
    }
     if (fecha === null){
@@ -78,7 +78,7 @@ export class ReporteService {
   // Descripción: petición de tipo GET para obtener los reportes que pertenecen a una determinada
   // cuadrilla.
   obtenerReportesCuadrilla(idCuadrilla: string): Observable<Object[]>{
-    if (idCuadrilla === 'Todos' || idCuadrilla === undefined){
+    if (idCuadrilla === '0' || idCuadrilla === '00' || idCuadrilla === undefined ){
         idCuadrilla = '';
     }
     let params = new HttpParams();
@@ -198,9 +198,6 @@ verificarFechas(fechaInicial: string, fechaFinal: string, tipo: string ): boolea
   }else{
     fechasCorrectas = false;
   }
-  console.log('fecha incial:', fechaInicial, 'Fecha final:',
-  fechaFinal, ' Tipo:', tipo);
-  console.log('Fechas correctas:', fechasCorrectas);
   return fechasCorrectas;
 }
 

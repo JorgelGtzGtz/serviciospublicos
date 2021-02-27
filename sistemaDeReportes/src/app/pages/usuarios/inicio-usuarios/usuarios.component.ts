@@ -8,6 +8,7 @@ import { UsuarioService } from '../../../services/usuario.service';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
+import { PermisoService } from '../../../services/permiso.service';
 
 @Component({
   selector: 'app-usuarios',
@@ -27,6 +28,7 @@ export class UsuariosComponent implements OnInit, OnDestroy {
 
   constructor( public dialog: MatDialog, private formBuilder: FormBuilder,
                private usuarioService: UsuarioService,
+               private permisoService: PermisoService,
                private tipoService: TipoUsuarioService) {
     this.buildForm();
    }
@@ -42,8 +44,8 @@ export class UsuariosComponent implements OnInit, OnDestroy {
    private buildForm(): void{
     this.form = this.formBuilder.group({
       busqueda: [''],
-      tipoUsuario: ['Todos'],
-      estado: ['Todos'],
+      tipoUsuario: [0],
+      estado: ['1'],
       reportesActivos: ['']
     });
   }
@@ -79,8 +81,11 @@ export class UsuariosComponent implements OnInit, OnDestroy {
   // Descripción: Método para obtener los registros de usuarios ya sea con
   // determinadas condiciones o en general, para ser mostrados en la tabla.
   actualizarTabla(): void{
-    this.usuarioService.obtenerListaUsuarios(this.campoBusqueda.value,
-      this.campoEstado.value, this.campoTipoUsuario.value, this.campoReportesActivos.value)
+    const textoB = this.campoBusqueda.value;
+    const estado = this.campoEstado.value;
+    const tipoU = (this.campoTipoUsuario.value).toString();
+    const conReportes = this.campoReportesActivos.value;
+    this.usuarioService.obtenerListaUsuarios(textoB, estado, tipoU, conReportes)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe( datos => {
         this.usuarios = datos;
@@ -140,19 +145,36 @@ export class UsuariosComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
+  }
+
   // Entrada: ninguna.
   // Salida: vacío.
   // Descripción: Método que se llama cuando se da click al botón nuevo
   // Abre el dialogo con las configuraciones para crear un nuevo registro
   nuevoUsuario(): void{
-    this.abrirDialogVerEditarNuevo('nuevo');
+    if (this.tienePermiso(7)){
+      this.abrirDialogVerEditarNuevo('nuevo');
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: ninguna.
   // Salida: vacío.
   // Descripción:  Método para editar un usuario de la tabla. Abre el dialog con la acción "editar"
   editarUsuario(usuario: object): void{
-    this.abrirDialogVerEditarNuevo('editar', usuario);
+    if (this.tienePermiso(9)){
+      this.abrirDialogVerEditarNuevo('editar', usuario);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: ninguna.
@@ -160,7 +182,11 @@ export class UsuariosComponent implements OnInit, OnDestroy {
   // Descripción:  Método para ver la información de un usuario de la tabla.
   // Abre el dialog con la acción "ver"
   verUsuario(usuario: object): void{
-    this.abrirDialogVerEditarNuevo('ver', usuario);
+    if (this.tienePermiso(8)){
+      this.abrirDialogVerEditarNuevo('ver', usuario);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: ninguna.
@@ -169,20 +195,23 @@ export class UsuariosComponent implements OnInit, OnDestroy {
   // Emite un mensaje de confirmación al usuario
   // Al ser respuesta "true" continúa la eliminación, y "false" no lo elimina
  eliminarUsuario(usuario: any): void{
-  const result = confirm('¿Seguro que desea eliminar el usuario?');
-  if (result) {
-    this.usuarioService.eliminarUsuario(usuario)
-    .pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe(res => {
-      alert(res);
-      this.actualizarTabla();
-    }, (error: HttpErrorResponse) => {
-      alert('No se ha podido eliminar el usuario. Error:' + error.message);
-      console.log('Error al eliminar usuario. Mensaje error: ', error.message);
-    });
+  if (this.tienePermiso(10)){
+    const result = confirm('¿Seguro que desea eliminar el usuario?');
+    if (result) {
+      this.usuarioService.eliminarUsuario(usuario)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe(res => {
+        alert(res);
+        this.actualizarTabla();
+      }, (error: HttpErrorResponse) => {
+        alert('No se ha podido eliminar el usuario. Vuelva a intentarlo ó solicite asistencia.');
+        console.log('Error al eliminar usuario. Mensaje error: ', error.message);
+      });
+    }
   }else{
-    console.log('no se elimina');
+    alert('No tiene permiso para ejecutar este proceso.');
   }
+
 }
 
   // Entrada: ninguna.
@@ -200,8 +229,8 @@ export class UsuariosComponent implements OnInit, OnDestroy {
   // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
   limpiarBusqueda(): void{
    this.campoBusqueda.setValue('');
-   this.campoTipoUsuario.setValue('Todos');
-   this.campoEstado.setValue('Todos');
+   this.campoTipoUsuario.setValue(0);
+   this.campoEstado.setValue('1');
    this.campoReportesActivos.setValue(false);
    this.actualizarTabla();
   }

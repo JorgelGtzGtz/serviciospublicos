@@ -115,7 +115,7 @@ namespace dbServiciosPublicos
 		[Column] public string Nombre_cuadrilla { get; set; }
 		[Column] public bool Estatus_cuadrilla { get; set; }
 		[Column] public int Tipo_cuadrilla { get; set; }
-		[Column] public int ID_JefeCuadrilla { get; set; }
+		[Column] public int? ID_JefeCuadrilla { get; set; }
 		[Column] public bool Disponible { get; set; }
 	}
     
@@ -163,7 +163,7 @@ namespace dbServiciosPublicos
 		[Column] public DateTime? FechaCierre_reporte { get; set; }
 		[Column] public int NoTickets_reporte { get; set; }
 		[Column] public int Estatus_reporte { get; set; }
-		[Column] public int ID_sector { get; set; }
+		[Column] public int? ID_sector { get; set; }
 		[Column] public int? ID_cuadrilla { get; set; }
 		[Column] public int? TiempoEstimado_reporte { get; set; }
 		[Column] public int? TiempoRestante_reporte { get; set; }
@@ -210,7 +210,7 @@ namespace dbServiciosPublicos
 		[Column] public DateTime? FechaCierre_ticket { get; set; }
 		[Column] public double? Latitud_ticket { get; set; }
 		[Column] public double? Longitud_ticket { get; set; }
-		[Column] public int ID_sector { get; set; }
+		[Column] public int? ID_sector { get; set; }
 		[Column] public int? ID_cuadrilla { get; set; }
 		[Column] public double? TiempoEstimado_ticket { get; set; }
 		[Column] public string Direccion_ticket { get; set; }
@@ -260,5 +260,6 @@ namespace dbServiciosPublicos
 		[Column] public bool Estatus_usuario { get; set; }
 		[Column] public bool Jefe_asignado { get; set; }
 		[Column] public bool Disponible { get; set; }
+		[Column] public bool? Confirmado { get; set; }
 	}
 }

@@ -133,11 +133,11 @@ export class UsuarioService {
     if (textoB === undefined){
       textoB = '';
    }
-    if (estadoUsuario === undefined || estadoUsuario === 'Todos'){
+    if (estadoUsuario === undefined || estadoUsuario === '01'){
       estadoUsuario = '';
    }
 
-    if (tipoU === undefined || tipoU === 'Todos'){
+    if (tipoU === undefined || tipoU === '0' || tipoU === '00'){
      tipoU = '';
    }
 
@@ -146,7 +146,6 @@ export class UsuarioService {
    }else{
      reportesActivos = '';
    }
-
     let params = new HttpParams();
     params = params.append('textoB', textoB);
     params = params.append('estado', estadoUsuario);
@@ -237,9 +236,10 @@ export class UsuarioService {
       usuario.Password_usuario = '';
       usuario.Telefono_usuario = '';
       usuario.Correo_usuario = '';
-      sessionStorage.setItem('usuario', JSON.stringify(usuario));
+      const encriptar = btoa(JSON.stringify(usuario));
+      sessionStorage.setItem('usr', encriptar);
     }else{
-      sessionStorage.setItem('usuario', 'null');
+      sessionStorage.setItem('usr', 'null');
     }
   }
 
@@ -250,14 +250,14 @@ export class UsuarioService {
   almacenarClaveLogin(usuarioLogin: string, password: string): void{
     const passwordEncriptada = btoa(password);
     const datosLogin = btoa(usuarioLogin + ':' + passwordEncriptada);
-    sessionStorage.setItem('claveLogin', JSON.stringify(datosLogin));
+    sessionStorage.setItem('Login', JSON.stringify(datosLogin));
   }
 
   // Entrada: Ninguna
   // Salida: lista de tipo string.
   // Descripción: Obtener los datos usuario y contraseña ingresados en el login.
   obtenerClaveLogin(): string{
-    const claveLogin: string  = JSON.parse(sessionStorage.getItem('claveLogin'));
+    const claveLogin: string  = JSON.parse(sessionStorage.getItem('Login'));
     return claveLogin;
   }
 
@@ -265,18 +265,10 @@ export class UsuarioService {
   // Salida: objeto tipo Usuario.
   // Descripción: Método para obtener el usuario que inicio de sesión del local storage.
   obtenerUsuarioLogueado(): Usuario{
-    const usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario'));
+    const desencriptar = atob(sessionStorage.getItem('usr'));
+    const usuarioGuardado = JSON.parse(desencriptar);
     const usuario = usuarioGuardado !== 'null' ? usuarioGuardado : null;
     return usuario;
-  }
-
-  // Entrada: Ninguna
-  // Salida: vacío.
-  // Descripción: Eliminar el item en el local storage que tenía los datos usuario
-  //  y contraseña ingresados en el login
-  eliminarDatosLogin(): void{
-    sessionStorage.removeItem('datosLogin');
-    // localStorage.removeItem('datosLogin');
   }
 
   // Entrada: objeto JSON con datos de usuario.
@@ -291,7 +283,7 @@ export class UsuarioService {
   // Descripción: verifica que la contraseña cumpla con un determinado formato.
   verificarFormatoPassword(password: string): string[]{
     const reg = new RegExp( /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)([A-Za-z\d]|[^ ]){8}$/);
-    return reg.exec(password);    
+    return reg.exec(password);
   }
 
 

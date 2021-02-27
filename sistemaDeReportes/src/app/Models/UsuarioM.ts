@@ -14,7 +14,8 @@ export class UsuarioM implements Usuario{
             obj['Password_usuario'],
             obj['Estatus_usuario'],
             obj['Jefe_asignado'],
-            obj['Disponible']
+            obj['Disponible'],
+            obj['Confirmado']
         );
     }
 
@@ -29,7 +30,8 @@ export class UsuarioM implements Usuario{
         public Password_usuario: string,
         public Estatus_usuario: boolean,
         public Jefe_asignado: boolean,
-        public Disponible: boolean
+        public Disponible: boolean,
+        public Confirmado: boolean
                                         ) {
        }
 

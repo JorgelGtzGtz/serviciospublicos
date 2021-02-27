@@ -7,6 +7,9 @@ import { FormControl, AbstractControl } from '@angular/forms';
 import { TipoUsuarioService } from '../../../services/tipo-usuario.service';
 import { TipoUsuario } from '../../../Interfaces/ITipoUsuario';
 import { HttpErrorResponse } from '@angular/common/http';
+import { PermisoService } from '../../../services/permiso.service';
+import { UsuarioService } from '../../../services/usuario.service';
+import { Usuario } from '../../../Interfaces/IUsuario';
 
 @Component({
   selector: 'app-tipos-de-usuario',
@@ -24,7 +27,8 @@ export class TiposDeUsuarioComponent implements OnInit, OnDestroy {
 
 
   constructor(public dialog: MatDialog,
-              private tipoService: TipoUsuarioService) {
+              private tipoService: TipoUsuarioService,
+              private permisoService: PermisoService) {
     this.buildForm();
    }
 
@@ -37,7 +41,7 @@ export class TiposDeUsuarioComponent implements OnInit, OnDestroy {
   // Descripción:Inicializa el formulario reactivo, aquí es donde se crean los controladores de los inputs
   private buildForm(): void{
     this.busquedaForm = new FormControl('');
-    this.estadoForm = new FormControl('Todos');
+    this.estadoForm = new FormControl('1');
   }
 
    // Entrada: Ninguna
@@ -107,42 +111,66 @@ export class TiposDeUsuarioComponent implements OnInit, OnDestroy {
   });
   }
 
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
+  }
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método que se llama al hacer click en botón nuevo.
   nuevoTipoUsuario(): void{
-    this.openDialogVerEditarNuevo('nuevo');
+    if (this.tienePermiso(3)){
+      this.openDialogVerEditarNuevo('nuevo');
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para editar un tipo de usuario de la tabla
   editarTipoUsuario(tipoU: TipoUsuario): void{
-    this.openDialogVerEditarNuevo('editar', tipoU);
+    if (this.tienePermiso(5)){
+      this.openDialogVerEditarNuevo('editar', tipoU);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para ver un tipo de usuario de la tabla
   verTipoUsuario(tipoU: TipoUsuario): void{
-    this.openDialogVerEditarNuevo('ver', tipoU);
+    if (this.tienePermiso(4)){
+      this.openDialogVerEditarNuevo('ver', tipoU);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: valor de tipo TipoUsuario
   // Salida: vacío.
   // Descripción: Método para eliminar un tipo de usuario. Lanza un mensaje de confirmación.
   eliminarTipoUsuario(tipoU: TipoUsuario): void{
-    const result = confirm('¿Seguro que desea eliminar el tipo de usuario?');
-    if (result) {
-      this.tipoService.eliminarTipoUsuario(tipoU)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe( res => {
+    if (this.tienePermiso(6)){
+      const result = confirm('¿Seguro que desea eliminar el tipo de usuario?');
+      if (result) {
+        this.tipoService.eliminarTipoUsuario(tipoU)
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe( res => {
         this.actualizarTabla();
         alert(res);
       }, (error: HttpErrorResponse) => {
-        alert('No ha sido posible eliminar el tipo de usuario. Verifique que no existan registros relacionados o solicite apoyo.');
-        console.log('Se generó error al eliminar tipo de usuario: ' + error.message);
+        alert('No ha sido posible eliminar el tipo de usuario. Verifique que no existan registros relacionados o solicite asistencia.');
       });
+    }
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
     }
   }
 
@@ -167,7 +195,7 @@ export class TiposDeUsuarioComponent implements OnInit, OnDestroy {
   // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
   limpiarBusqueda(): void{
     this.campoBusqueda.setValue('');
-    this.campoEstado.setValue('Todos');
+    this.campoEstado.setValue('1');
     this.actualizarTabla();
    }
 
@@ -175,6 +203,4 @@ export class TiposDeUsuarioComponent implements OnInit, OnDestroy {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
-  
-
 }

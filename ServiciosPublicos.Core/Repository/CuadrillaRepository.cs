@@ -90,10 +90,12 @@ namespace ServiciosPublicos.Core.Repository
                 
             }
 
-            Sql query = new Sql(@"SELECT cuadrilla.*, usuario.Nombre_usuario AS jefe
+            /*Sql query = new Sql(@"SELECT cuadrilla.*, usuario.Nombre_usuario AS jefe
                                 FROM [hiram74_residencias].[Cuadrilla] cuadrilla
                                 INNER JOIN [hiram74_residencias].[Usuario] usuario 
                                 ON usuario.ID_usuario = cuadrilla.ID_JefeCuadrilla " + filter);
+            */
+            Sql query = new Sql(@"SELECT * FROM [hiram74_residencias].[Cuadrilla] " + filter);
             return this.Context.Fetch<dynamic>(query);
         }
 

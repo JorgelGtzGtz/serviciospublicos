@@ -176,7 +176,7 @@ namespace ServiciosPublicos.Core.Services
             catch (Exception ex)
             {
 
-                Message = "Modificación de usuario" + usuario.Login_usuario + " fallida, Error: " + ex.Message;
+                Message = "Modificación de usuario " + usuario.Login_usuario + " fallida, Error: " + ex.Message;
             }
 
             return result;
