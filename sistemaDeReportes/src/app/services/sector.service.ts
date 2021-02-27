@@ -75,7 +75,7 @@ export class SectorService {
       textoB = '';
     }
 
-    if (estado === undefined || estado === 'Todos'){
+    if (estado === undefined || estado === '01'){
       estado = '';
     }
     let params = new HttpParams();

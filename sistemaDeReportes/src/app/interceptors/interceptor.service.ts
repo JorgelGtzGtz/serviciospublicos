@@ -54,7 +54,7 @@ export class InterceptorService implements HttpInterceptor {
     }
     alert(mensajeError);
     console.warn(error);
-    return throwError(mensajeError);
+    return throwError(error.error);
   }
 
 }

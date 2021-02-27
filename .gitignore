@@ -348,3 +348,7 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+#API KEY MAPS
+src/environments/environment.prod.ts
+src/environments/environment.ts

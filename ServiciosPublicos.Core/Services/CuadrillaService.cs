@@ -20,7 +20,8 @@ namespace ServiciosPublicos.Core.Services
         List<Cuadrilla> GetCuadrillaList();
         List<dynamic> GetCuadrillasConJefe();
         List<dynamic> FiltroCuadrillas(string textoB, string estado);
-        void ModificarUsuarioJefe(int idUsuario, bool asignacion);
+        int? cambioJefes(Cuadrilla cuadrillaBD, Cuadrilla cuadrilla);
+        void ModificarUsuarioJefe(int? idUsuario, bool asignacion);
     }
     public class CuadrillaService: ICuadrillaService
     {
@@ -98,7 +99,7 @@ namespace ServiciosPublicos.Core.Services
         {
             Message = string.Empty;
             bool result = false;
-            int idUsuario = cuadrilla.ID_JefeCuadrilla;
+            int? idUsuario = cuadrilla.ID_JefeCuadrilla;
                     
             
             try
@@ -115,49 +116,69 @@ namespace ServiciosPublicos.Core.Services
             return result;
         }
 
-        // Entrada: ID de usuario de tipo INT y valor bool que indica asignación o no.
-        // Salida: Vacío.
-        // Descripción: Modificar el campo "Jefe asignado" en Usuario
-        public void ModificarUsuarioJefe(int idUsuario, bool asignacion)
-        {
-            Usuario usuarioJefe = _usuarioRepository.Get(idUsuario);
-            usuarioJefe.Jefe_asignado = asignacion;
-            _usuarioRepository.Modify(usuarioJefe);
-        }
-
         // Entrada: objeto Cuadrilla y mensaje de tipo string.
         // Salida: valor booleano.
         // Descripción: Actualiza cuadrilla con los datos del objeto Cuadrilla proporcionado.
         // Verifica que el usuario asignado como jefe de cuadrilla haya cambiado y de ser así realiza las 
         // modificaciones necesarias.
-        public bool ActualizarCuadrilla(Cuadrilla cuadrilla, out string Message)
+        public bool ActualizarCuadrilla(Cuadrilla cuadrillaModificada, out string Message)
         {
             Message = string.Empty;
             bool result = false;
 
-            // Obtener datos de la base de datos, de la cuadrilla a modificar
-            var cuadrillaActual = _cuadrillaRepository.GetCuadrilla(cuadrilla.ID_cuadrilla);
-            // Obtener el jefe registrado en BD y el jefe que viene con la cuadrilla a modificar
-            int jefeActual = cuadrillaActual.ID_JefeCuadrilla;
-            int jefeNuevo = cuadrilla.ID_JefeCuadrilla;            
+            // Obtener datos de la base de datos de la cuadrilla a modificar
+            var cuadrillaBD = _cuadrillaRepository.GetCuadrilla(cuadrillaModificada.ID_cuadrilla);
+
+            // Verificar si se cambió de jefe
+            int? jefeAsignado = cambioJefes(cuadrillaBD, cuadrillaModificada);
+            cuadrillaModificada.ID_JefeCuadrilla = jefeAsignado;
 
             try
             {
-                _cuadrillaRepository.Modify(cuadrilla);
-                // Verificar si se el jefe asignado es el mismo o si cambio, y modificar campo jefeAsignado de usuario
-                if (jefeActual != jefeNuevo)
-                {
-                    ModificarUsuarioJefe(jefeActual, false);
-                    ModificarUsuarioJefe(jefeNuevo, true);
-                }
-                Message = "¡Cuadrilla " + cuadrilla.Nombre_cuadrilla + " actualizada con éxito!";
+                _cuadrillaRepository.Modify(cuadrillaModificada);
+                Message = "¡Cuadrilla " + cuadrillaModificada.Nombre_cuadrilla + " actualizada con éxito!";
                 result = true;
             }
             catch(Exception ex)
             {
-                Message = "No se pueden guardar los cambios en cuadrilla " + cuadrilla.Nombre_cuadrilla + ", "+ex.Message;
+                Message = "No se pueden guardar los cambios en cuadrilla " + cuadrillaModificada.Nombre_cuadrilla + ", "+ex.Message;
             }
             return result;
+        }
+
+        // Entrada: ID de usuario de tipo INT y valor bool que indica asignación o no.
+        // Salida: Vacío.
+        // Descripción: Modificar el campo "Jefe asignado" en Usuario
+        public void ModificarUsuarioJefe(int? idUsuario, bool asignacion)
+        {
+            if (idUsuario != null)
+            {
+                Usuario usuarioJefe = _usuarioRepository.Get(idUsuario);
+                usuarioJefe.Jefe_asignado = asignacion;
+                _usuarioRepository.Modify(usuarioJefe);
+            }
+        }
+
+        // Entrada: dos objetos de tipo cuadrilla
+        // Salida: Ninguna.
+        // Descripción: Ejecuta los procesos necesarios en caso de que se
+        // asignara como jefe de cuadrilla a otro usuario.
+        public int? cambioJefes(Cuadrilla cuadrillaBD, Cuadrilla cuadrillaModificada)
+        {
+            // Obtener el jefe registrado en BD y el jefe que viene con la cuadrilla a modificar
+            //int? jefeBD = cuadrillaBD.ID_JefeCuadrilla == null ? null : cuadrillaBD.ID_JefeCuadrilla;
+            int? jefeBD = cuadrillaBD.ID_JefeCuadrilla ?? null;
+            //int? jefeNuevo = cuadrillaModificada.ID_JefeCuadrilla == null ? null : cuadrillaModificada.ID_JefeCuadrilla;
+            int? jefeNuevo = cuadrillaModificada.ID_JefeCuadrilla ?? null;
+
+            // Verificar si se el jefe asignado es el mismo o si cambio, y modificar campo jefeAsignado de usuario
+            if (jefeBD != jefeNuevo)
+            {
+                ModificarUsuarioJefe(jefeBD, false);
+                ModificarUsuarioJefe(jefeNuevo, true);
+            }
+
+            return jefeNuevo;
         }
 
         // Entrada: Objeto cuadrilla y mensaje de tipo string.
@@ -168,9 +189,10 @@ namespace ServiciosPublicos.Core.Services
         {
             Message = string.Empty;
             bool result = false;
+            int idJefe = (int)cuadrilla.ID_JefeCuadrilla;
             try
             { 
-                ModificarUsuarioJefe(cuadrilla.ID_JefeCuadrilla, false);
+                ModificarUsuarioJefe(idJefe, false);
                 cuadrilla.Disponible = false;
                 _cuadrillaRepository.Modify(cuadrilla);
                 Message = "¡Cuadrilla  " + cuadrilla.Nombre_cuadrilla + " eliminado con éxito!";

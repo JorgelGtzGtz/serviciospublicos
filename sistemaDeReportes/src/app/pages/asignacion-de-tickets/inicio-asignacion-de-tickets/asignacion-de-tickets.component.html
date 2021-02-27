@@ -18,12 +18,13 @@
                             <label id="lblSector" class="lblForm col-md-auto" for="sectorSelector">Sector</label>
                             <div class="col-lg-9 col-md-12">
                                 <select class="custom-select" id="sectorSelector" formControlName="sector">
-                                            <option>Todos</option>
-                                            <option *ngIf="listaSectores.length === 0"> No hay opciones disponibles</option>
-                                            <option *ngFor="let sector of listaSectores" [ngValue] = "sector.ID_sector">
-                                                {{ sector.Descripcion_sector }}
-                                            </option>
-                                        </select>
+                                    <option disabled hidden [ngValue] = "0">Seleccionar</option>
+                                    <option *ngIf="listaSectores.length > 0"  [ngValue] = "00">Todos</option>
+                                    <option disabled *ngIf="listaSectores.length === 0"> No hay opciones disponibles</option>
+                                    <option *ngFor="let sector of listaSectores" [ngValue] = "sector.ID_sector">
+                                            {{ sector.Descripcion_sector }}
+                                    </option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -72,7 +73,7 @@
                             <label id="lblEstado" class="lblForm col-md-auto" for="estadoSelector">Estado</label>
                             <div class="col-xl-8 col-lg-12 col-md-12">
                                 <select class="custom-select" id="estadoSelector" formControlName="estado">
-                                    <option >Todos</option>
+                                    <option value="00" >Todos</option>
                                     <option value="1">Abierto</option>
                                     <option value="2">Cerrado</option>
                                     <option value="3">Inconcluso</option>
@@ -88,12 +89,13 @@
                             <label id="lblTReporte" class="lblForm col-md-auto" for="tipoReporteSelector">Tipo de reporte</label>
                             <div class="col-xl-6 col-lg-12 col-md-12">
                                 <select class="custom-select" id="tipoReporteSelector" formControlName="tipoReporte">
-                                            <option>Todos</option>
-                                            <option *ngIf="listaTiposR.length === 0"> No hay opciones disponibles</option>
-                                            <option *ngFor="let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte"> 
-                                                {{tipo.Descripcion_tipoReporte}} 
-                                            </option>
-                                        </select>
+                                    <option disabled hidden [ngValue] = "0">Seleccionar</option>       
+                                    <option *ngIf="listaTiposR.length > 0" [ngValue] = "00">Todos</option>
+                                    <option disabled *ngIf="listaTiposR.length === 0"> No hay opciones disponibles</option>
+                                    <option *ngFor="let tipo of listaTiposR" [ngValue] = "tipo.ID_tipoReporte"> 
+                                        {{tipo.Descripcion_tipoReporte}} 
+                                    </option>
+                                </select>
                             </div>
                         </div>
                     </div>

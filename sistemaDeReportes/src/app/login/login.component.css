@@ -11,6 +11,15 @@ input {
     padding-bottom: 5px;
 }
 
+.max-width-height {
+    height: 100vh;
+    width: 100%;
+}
+
+.spinner-container {
+    height: 100%;
+}
+
 .login-container {
     display: block;
     position: absolute;
