@@ -10,4 +10,5 @@ export interface Usuario {
     Estatus_usuario: boolean;
     Jefe_asignado: boolean;
     Disponible: boolean;
+    Confirmado: boolean;
 }

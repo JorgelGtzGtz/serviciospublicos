@@ -1,46 +1,41 @@
-<div class="shadow p-3 rounded login-container">
-    <h2>Acceso al sistema</h2>
-    <form class="form-login">
-        <div class="form-group">
-            <label class="col-form-label">Usuario</label>
-            <input type="text" class="form-control" id="usuario" name="usuario" [formControl]="usuarioForm">
-            <div *ngIf="campoUsuario.errors && campoUsuario.touched">
-                <p class="error" *ngIf="campoUsuario.hasError('required')">Campo requerido</p>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="col-form-label">Contraseña</label>
-            <div class="input-group mb-3">
-                <input #password type="password" class="form-control" [formControl]="passwordForm">
-                <div class="input-group-append">
-                    <span *ngIf="visible; else oculto" class="input-group-text" id="basic-addon2" (click)="visibilidadContra()">
-                        <i class="fas fa-eye icono-password"></i>                        
-                    </span>
-                    <ng-template #oculto>
-                        <span class="input-group-text" (click)="visibilidadContra()">
-                        <i class="fas fa-eye-slash icono-password"></i>
-                    </span>
-                    </ng-template>
+<div class="container-fluid max-width-height">
+    <div class="shadow p-3 rounded login-container">
+        <h2>Acceso al sistema</h2>
+        <form class="form-login">
+            <div class="form-group">
+                <label class="col-form-label">Usuario</label>
+                <input type="text" class="form-control" id="usuario" name="usuario" [formControl]="usuarioForm">
+                <div *ngIf="campoUsuario.errors && campoUsuario.touched">
+                    <p class="error" *ngIf="campoUsuario.hasError('required')">Campo requerido</p>
                 </div>
             </div>
-            <div *ngIf="campoPassword.errors && campoPassword.touched">
-                <p class="error" *ngIf="campoPassword.hasError('required')">Campo requerido</p>
+            <div class="form-group">
+                <label class="col-form-label">Contraseña</label>
+                <div class="input-group mb-3">
+                    <input #password type="password" class="form-control" [formControl]="passwordForm">
+                    <div class="input-group-append">
+                        <span *ngIf="visible; else oculto" class="input-group-text" id="basic-addon2" (click)="visibilidadContra()">
+                            <i class="fas fa-eye icono-password"></i>                        
+                        </span>
+                        <ng-template #oculto>
+                            <span class="input-group-text" (click)="visibilidadContra()">
+                            <i class="fas fa-eye-slash icono-password"></i>
+                        </span>
+                        </ng-template>
+                    </div>
+                </div>
+                <div *ngIf="campoPassword.errors && campoPassword.touched">
+                    <p class="error" *ngIf="campoPassword.hasError('required')">Campo requerido</p>
+                </div>
+                <p id="texto-olvide-password">
+                    <a id="linkPassword" href="javascript:void(0)" (click)="recuperarPassword()">Olvidé mi contraseña</a>
+                </p>
             </div>
-            <p id="texto-olvide-password">
-                <a id="linkPassword" href="javascript:void(0)" (click)="recuperarPassword()">Olvidé mi contraseña</a>
-            </p>
-        </div>
-        <button type="button" (click)="ingresar()" [disabled]="deshabilitar" class="btn btn-secondary btn-block btn-login">Entrar</button>
-    </form>
+            <button type="button" (click)="ingresar()" [disabled]="desactivar" class="btn btn-secondary btn-block btn-login">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" *ngIf="desactivar"></span>
+                <span class="ml-3" *ngIf="desactivar">Cargando...</span>
+                <span  *ngIf="!desactivar">Entrar</span>
+            </button>
+        </form>
+    </div>
 </div>
-
-
-
-
-<!-- <mat-form-field appearance="standard">
-                            <mat-label>Usuario</mat-label>
-                            <input matInput name="usuario" [formControl]="userFormControl" [errorStateMatcher]="matcher">
-                            <mat-error *ngIf="userFormControl.hasError('required')">
-                                Usuario es <strong>obligatorio</strong>
-                            </mat-error>
-                        </mat-form-field> -->

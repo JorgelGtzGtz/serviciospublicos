@@ -64,11 +64,10 @@ export class CuadrillaService {
   // Descripción: Método para obtener una lista de las cuadrillas
   // que coincidan con los filtros de búsqueda mediante una petición Http tipo GET.
   obtenerCuadrillasFiltro(textoB?: string, estado?: string): Observable<Object[]>{
-    console.log('Se recibió en servicio:', textoB, estado);
     if (textoB === undefined){
       textoB = '';
     }
-    if (estado === undefined || estado === 'Todos'){
+    if (estado === undefined || estado === '01'){
       estado = '';
     }
     let params = new HttpParams();
@@ -102,5 +101,18 @@ export class CuadrillaService {
   // en un objeto tipo Cuadrilla.
   convertirDesdeJSON(obj: JSON): Cuadrilla{
     return CuadrillaM.cuadrillaDesdeJson(obj);
+  }
+
+  // Entrada: number con ID de cuadrilla.
+  // Salida: cuadrilla tipo Cuadrilla.
+  // Descripción: Encuentra el objeto cuadrilla con el ID.
+  obtenerCuadrillaReporte(cuadrillas: Cuadrilla [], idCuadrilla: number): Cuadrilla{
+    let cuadrillaEncontrada: Cuadrilla = null;
+    cuadrillas.forEach(cuadrilla => {
+      if (cuadrilla.ID_cuadrilla === idCuadrilla){
+        cuadrillaEncontrada = cuadrilla;
+      }
+    });
+    return cuadrillaEncontrada;
   }
 }

@@ -115,7 +115,7 @@ namespace dbServiciosPublicos
 		[Column] public string Nombre_cuadrilla { get; set; }
 		[Column] public bool Estatus_cuadrilla { get; set; }
 		[Column] public int Tipo_cuadrilla { get; set; }
-		[Column] public int ID_JefeCuadrilla { get; set; }
+		[Column] public int? ID_JefeCuadrilla { get; set; }
 		[Column] public bool Disponible { get; set; }
 	}
     

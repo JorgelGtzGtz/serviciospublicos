@@ -17,8 +17,9 @@
                             <label class="lblCuadrilla col-md-auto col-form-label" for="cuadrillaSelector">Cuadrilla</label>
                             <div class="col-md-6 col-12">
                                 <select class="custom-select" id="cuadrillaSelector" [formControl]="cuadrillaForm">
-                                    <option>Todos</option>
-                                    <option *ngIf="listaCuadrillas.length === 0"> No hay opciones disponibles</option>
+                                    <option disabled hidden [ngValue] = "0">Seleccionar</option>   
+                                    <option *ngIf="listaCuadrillas.length > 0" [ngValue] = "00">Todos</option>
+                                    <option disabled *ngIf="listaCuadrillas.length === 0"> No hay opciones disponibles</option>
                                     <option  *ngFor="let cuadrilla of listaCuadrillas" [ngValue]="cuadrilla.ID_cuadrilla">
                                         {{ cuadrilla.Nombre_cuadrilla }}
                                     </option>
@@ -55,6 +56,7 @@
                     <tbody>
                         <tr *ngFor="let reporte of listaReportes">
                             <td>{{ reporte.ID_reporte }}</td>
+                            <td>{{ reporte.Estatus_reporte | estadoReporte }}</td>
                             <td>{{ reporte.sectorDescripcion }}</td>
                             <td>{{ reporte.Direccion_reporte }}</td>
                             <td>

@@ -52,7 +52,7 @@ export class DialogAsignacionTicketsComponent implements OnInit, OnDestroy {
     this.error = false;
     this.obtenerCuadrillasList();
     this.obtenerObjetoReporte();
-    this.inicializarFormulario();
+    this.inicializarFechaTiempo();
     this.tipoFormularioAccion();
     this.cargarImagenesReporte();
   }
@@ -103,11 +103,7 @@ get campoTiempo(): AbstractControl{
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para inicializar los valores de los campos del formulario.
-  inicializarFormulario(): void{
-    // cuadrilla asignada
-    if (this.reporte.ID_cuadrilla !== null){
-      this.campoCuadrilla.setValue(this.reporte.ID_cuadrilla);
-    }
+  inicializarFechaTiempo(): void{
     // fecha cierre
     if (this.reporte.FechaCierre_reporte !== null){
       const fechaCierre: string = this.reporteSevice.separarFechaHora(this.reporte.FechaCierre_reporte)[0];
@@ -161,16 +157,38 @@ cargarImagenesReporte(): void{
 
   // Entrada: Ninguna
   // Salida: vacío.
-  // Descripción: Método para obtener el listado de cuadrillas
+  // Descripción: Método para obtener el listado de cuadrillas disponibles activas.
   obtenerCuadrillasList(): void{
     this.cuadrillaService.obtenerCuadrillasGeneral()
     .pipe(takeUntil(this.ngUnsubscribe))
     .subscribe( cuadrillas => {
+      // Obtener cuadrillas disponibles por su estado.
       cuadrillas.forEach(cuadrilla => {
-        this.listaCuadrillas.push(cuadrilla);
-        this.cuadrillasCargadas = true;
+        // Verificar que se muestren solo cuadrillas activas
+        if (cuadrilla.Estatus_cuadrilla === true){
+          this.listaCuadrillas.push(cuadrilla);
+          // Verificar que se agregue la cuadrilla de un reporte cerrado o cancelado, para ser visualizado.
+        } else if (this.reporteDisponible() && (cuadrilla.ID_cuadrilla === this.reporte.ID_cuadrilla)){
+          this.listaCuadrillas.push(cuadrilla);
+        }
       });
+      this.cuadrillaAsignada();
+      this.cuadrillasCargadas = true;
     });
+  }
+
+  // Entrada: Ninguna.
+  // Salida: Niguna.
+  // Descripción: Método para mostrar "Seleccionar" en caso de que la cuadrilla que se había asignado,
+  // no esté activa
+  cuadrillaAsignada(): void{
+     // cuadrilla asignada
+     if (this.reporte.ID_cuadrilla !== null){
+      const cuadrilla: Cuadrilla = this.cuadrillaService.obtenerCuadrillaReporte(this.listaCuadrillas, this.reporte.ID_cuadrilla);
+      if (cuadrilla){
+        this.campoCuadrilla.setValue(this.reporte.ID_cuadrilla);
+      }
+    }
   }
 
   // Entrada: Ninguna

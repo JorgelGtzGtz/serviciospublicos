@@ -17,6 +17,7 @@ import { TicketM } from '../../../Models/TicketM';
 import { UsuarioM } from '../../../Models/UsuarioM';
 import { Imagen } from '../../../Interfaces/IImagen';
 import { ImagenService } from '../../../services/imagen.service';
+import { PermisoService } from '../../../services/permiso.service';
 
 
 @Component({
@@ -57,6 +58,7 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit, OnDest
               private usuarioService: UsuarioService,
               private mapService: MapService,
               private imagenService: ImagenService,
+              private permisoService: PermisoService,
               private formBuilder: FormBuilder,
               private renderer: Renderer2 ) {
       dialogRef.disableClose = true;
@@ -243,7 +245,13 @@ obtenerSectoresYTiposRep(): void{
   .pipe(takeUntil(this.ngUnsubscribe))
   .subscribe( sectores => {
     sectores.forEach(sector => {
-      this.listaSectores.push(sector);
+      // Solo sectores que estén activos
+      if (sector.Estatus_sector === true){
+        this.listaSectores.push(sector);
+        // Si se está editando, para mostrar el sector al que pertenece el reporte.
+      } else if ((this.accion !== 'nuevo') && (this.reporte.ID_sector === sector.ID_sector)){
+        this.listaSectores.push(sector);
+      }
     });
   });
 
@@ -307,6 +315,27 @@ obtenerEstadoFormulario(): boolean{
   return this.modificado;
 }
 
+// Entrada: Ninguna
+// Salida: Ninguna
+// Descripción: Verifica el estado del reporte y habilita o deshabilita los campos
+habilitarPorEstado(): void{
+  const estado = this.reporte.Estatus_reporte;
+  switch (estado){
+    case 2:
+      this.form.disable();
+      this.campoFechaCierre.enable();
+      break;
+    case 4:
+      this.form.disable();
+      break;
+    default:
+      this.form.enable();
+      this.campoFechaCierre.disable();
+      this.campoId.disable();
+      break;
+  }
+}
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para habilitar o deshabilitar el formulario según la acción (crear, ver, editar)
@@ -321,14 +350,24 @@ obtenerEstadoFormulario(): boolean{
         this.campoId.disable();
         break;
       default:
-        const estado = this.reporte.Estatus_reporte;
-        if ( estado === 2 || estado === 4){
-          this.form.disable();
-        }else{
-          this.form.enable();
-          this.campoId.disable();
-        }
+        this.habilitarPorEstado();
+        // const estado = this.reporte.Estatus_reporte;
+        // if ( estado === 2 || estado === 4){
+        //   this.form.disable();
+        // }else{
+        //   this.form.enable();
+        //   this.campoId.disable();
+        // }
     }
+  }
+
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
   }
 
   // Entrada: Ninguna
@@ -336,22 +375,26 @@ obtenerEstadoFormulario(): boolean{
   // Descripción: Método que se llama al presionar el botón cancelar.
   // Esta cambiará el estado del reporte a "Cancelado" y actualizará este cambio en la base de datos.
   cancelarReporte(): void{
-    const result = confirm('¿Seguro que desea cancelar el reporte? Esta operación es irreversible');
-    const auxEstado = this.reporte.Estatus_reporte;
-    this.reporte.Estatus_reporte = 4;
-    if (result) {
-      this.reporteSevice.actualizarReporte(this.reporte)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe( res => {
-        alert('¡El reporte fue cancelado!');
-        this.form.disable();
-        this.dialogRef.close(this.data);
-      }, (error: HttpErrorResponse) => {
-        alert('¡Lo sentimos! El reporte no pudo ser cancelado debido a problemas internos.' +
-        'Comunique el problema al personal pertinente.');
-        console.warn('Error:' + error.message);
-        this.reporte.Estatus_reporte = auxEstado;
-      });
+    if (this.tienePermiso(23)){
+      const result = confirm('¿Seguro que desea cancelar el reporte? Esta operación es irreversible');
+      const auxEstado = this.reporte.Estatus_reporte;
+      this.reporte.Estatus_reporte = 4;
+      if (result) {
+        this.reporteSevice.actualizarReporte(this.reporte)
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe( res => {
+          alert('¡El reporte fue cancelado!');
+          this.form.disable();
+          this.dialogRef.close(this.data);
+        }, (error: HttpErrorResponse) => {
+          alert('¡Lo sentimos! El reporte no pudo ser cancelado debido a problemas internos.' +
+          'Comunique el problema al personal pertinente.');
+          console.warn('Error:' + error.message);
+          this.reporte.Estatus_reporte = auxEstado;
+        });
+      }
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
     }
   }
 
@@ -423,9 +466,11 @@ mensajeEstado(): boolean{
   // Descripción: Método para modificar datos pertinentes de reporte
    modificarDatosReporte(coordenadas: number[]): void{
      const entreCalles = this.reporteSevice.formatoEntreCalles(this.campoCalleSecundaria1.value, this.campoCalleSecundaria2.value);
-     const hora: string = this.reporteSevice.formatoHora();
-     const fechaHoraApertura = this.reporteSevice.juntarFechaHora(this.campoFechaInicio.value, hora);
-     const fechaHoraCierre = this.reporteSevice.juntarFechaHora(this.campoFechaCierre.value, hora);
+     const horaApertura: string = this.reporteSevice.separarFechaHora(this.reporte.FechaRegistro_reporte)[1];
+     const horaCierre: string = this.reporteSevice.separarFechaHora(this.reporte.FechaCierre_reporte)[1];
+     const fechaHoraApertura = this.reporteSevice.juntarFechaHora(this.campoFechaInicio.value, horaApertura);
+     const fechaHoraCierre = this.reporteSevice.juntarFechaHora(this.campoFechaCierre.value, horaCierre);
+     // Asignar valores a Reporte
      this.reporte.ID_sector = this.campoSector.value;
      this.reporte.ID_tipoReporte = this.campoTipoReporte.value;
      this.reporte.Latitud_reporte = coordenadas[0]; // lat

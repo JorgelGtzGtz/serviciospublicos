@@ -7,6 +7,9 @@ import { FormControl, AbstractControl } from '@angular/forms';
 import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { CuadrillaService } from '../../../services/cuadrilla.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { Usuario } from '../../../Interfaces/IUsuario';
+import { UsuarioService } from '../../../services/usuario.service';
+import { PermisoService } from '../../../services/permiso.service';
 
 
 @Component({
@@ -21,14 +24,20 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
   estadoForm: FormControl;
   headersTabla: string [];
   listaCuadrillas: any[] = [];
+  listaJefes: Object[] = [];
   cuadrillasListas: boolean;
+  jefesLista: boolean;
 
-  constructor(public dialog: MatDialog, private cuadrillaService: CuadrillaService) {
+  constructor(public dialog: MatDialog,
+              private cuadrillaService: CuadrillaService,
+              private usuarioService: UsuarioService,
+              private permisoService: PermisoService) {
     this.formBuilder();
     // this.actualizarTabla();
   }
 
   ngOnInit(): void {
+    this.obtenerJefes();
     this.inicializarTabla();
   }
 
@@ -37,7 +46,7 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
   // Descripción: Inicializa los controladores del formulario
   formBuilder(): void{
     this.busquedaForm = new FormControl('');
-    this.estadoForm = new FormControl('Todos');
+    this.estadoForm = new FormControl('1');
   }
 
   // Entrada: Ninguna
@@ -47,6 +56,21 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
   inicializarTabla(): void{
     this.headersTabla = ['Clave', 'Cuadrilla', 'Responsable', 'Procesos'];
     this.actualizarTabla();
+  }
+
+  // Entrada: Ninguna
+  // Salida: vacío.
+  // Descripción: Método para obtener los jefes de cuadrillas.
+  obtenerJefes(): void{
+    this.usuarioService.obtenerListaUsuarios()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe( jefes => {
+      this.listaJefes = jefes;
+      this.jefesLista = true;
+    }, (error: HttpErrorResponse) => {
+      alert('Surgió un problema al cargar datos de página. Vuelva a cargar o solicite asistencia.');
+      console.log('Error al obtener lista de cuadrillas disponibles. Error:' + error.message);
+    });
   }
 
   actualizarTabla(): void{
@@ -102,12 +126,25 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
+  }
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método que se llama al hacer click en botón nuevo. Este llama al
   // método "abrirDialogVerEditarNuevo".
   nuevaCuadrilla(): void{
-    this.abrirDialogVerEditarNuevo('nuevo');
+    if (this.tienePermiso(11)){
+      this.abrirDialogVerEditarNuevo('nuevo');
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: Objeto con los datos de la cuadrilla.
@@ -115,7 +152,11 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
   // Descripción: Método para editar una cuadrilla de la tabla. Este llama al
   // método "abrirDialogVerEditarNuevo".
   editarCuadrilla(cuadrilla: any): void{
-    this.abrirDialogVerEditarNuevo('editar', cuadrilla);
+    if (this.tienePermiso(13)){
+      this.abrirDialogVerEditarNuevo('editar', cuadrilla);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: Objeto con los datos de la cuadrilla.
@@ -123,7 +164,11 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
   // Descripción: Método para ver una cuadrilla de la tabla. Este llama al
   // método "abrirDialogVerEditarNuevo".
   verCuadrilla(cuadrilla: any): void{
-    this.abrirDialogVerEditarNuevo('ver', cuadrilla);
+    if (this.tienePermiso(12)){
+      this.abrirDialogVerEditarNuevo('ver', cuadrilla);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
   }
 
   // Entrada: Objeto con los datos de la cuadrilla.
@@ -131,18 +176,23 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
   // Descripción: Método para eliminar cuadrilla. Lanza un mensaje de confirmación, que según
   // la respuesta, continúa o no con la eliminación
   eliminarCuadrilla( cuadrilla: Cuadrilla): void{
-    const result = confirm('¿Seguro que desea eliminar la cuadrilla?');
-    if (result) {
-      this.cuadrillaService.eliminarCuadrilla(cuadrilla)
-      .pipe(takeUntil(this.ngUnsubscribe))
-      .subscribe( res => {
-        alert(res);
-        this.actualizarTabla();
-      }, (error: HttpErrorResponse) => {
-        alert('Se generó un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' intente de nuevo o solicite asistencia.');
-        console.log('Error al eliminar cuadrilla:' + error.message);
-      });
+    if (this.tienePermiso(15)){
+      const result = confirm('¿Seguro que desea eliminar la cuadrilla?');
+      if (result) {
+        this.cuadrillaService.eliminarCuadrilla(cuadrilla)
+        .pipe(takeUntil(this.ngUnsubscribe))
+        .subscribe( res => {
+          alert(res);
+          this.actualizarTabla();
+        }, (error: HttpErrorResponse) => {
+          alert('Se generó un problema al eliminar cuadrilla ' + cuadrilla.Nombre_cuadrilla + ' intente de nuevo o solicite asistencia.');
+          console.log('Error al eliminar cuadrilla:' + error.message);
+        });
+      }
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
     }
+
   }
 
   // Entrada: ninguna.
@@ -159,7 +209,7 @@ export class CuadrillasComponent implements OnInit, OnDestroy {
   // limpia los parámetros de búsqueda para que se vuelva a mostrar la información general.
   limpiarBusqueda(): void{
     this.campoBusqueda.setValue('');
-    this.campoEstado.setValue('Todos');
+    this.campoEstado.setValue('1');
     this.actualizarTabla();
    }
 

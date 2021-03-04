@@ -73,15 +73,18 @@
                              {{ jefe.Nombre_usuario }}
                             </option>
                     </select>
-                    <div *ngIf="errorEncargado(campoEncargado.value) && campoEncargado.touched">
-                        <p class="error" *ngIf="campoEncargado.hasError('required')">Campo requerido</p>
-                    </div>
+                </div>
+                <div class="col-lg-4 col-md-4 col-12">
+                    <button class="mt-md-0 mt-3" type="button" id="btn-jefe" *ngIf="accion !== 'ver'" [disabled]="desactivarJefeBtn()" mat-raised-button (click)="removerJefe()">
+                        <i class="fas fa-window-close"></i> 
+                        Remover jefe
+                    </button>
                 </div>
             </div>
             <!-- TERMINA ENCARGADO -->
 
             <!-- TIPO DE CUADRILLA -->
-            <div class="row form-sections row-input-group">
+            <div class="row form-sections row-input-group mt-md-3 mt-5">
                 <label class="lblForm col-form-label col-md-auto" for="tipoCuadrillaSelector">Tipo de cuadrilla</label>
                 <div class="col-lg-6 col-md-6 col-12">
                     <select class="custom-select" id="tipoCuadrillaSelector" formControlName="tipoCuadrilla">

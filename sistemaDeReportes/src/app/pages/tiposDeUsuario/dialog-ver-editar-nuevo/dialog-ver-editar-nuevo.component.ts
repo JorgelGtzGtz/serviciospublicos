@@ -215,7 +215,6 @@ tipoFormularioAccion(): void{
     .subscribe( (id: number) => {
       this.campoId.setValue(id);
       this.idListo = true;
-      console.log('ID a asignar:', id);
     });
   }
 

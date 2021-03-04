@@ -12,6 +12,7 @@ import { CuadrillaM } from '../../../Models/CuadrillaM';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TipoReporteService } from '../../../services/tipo-reporte.service';
 import { TipoReporte } from 'src/app/Interfaces/ITipoReporte';
+import { PermisoService } from '../../../services/permiso.service';
 
 @Component({
   selector: 'app-dialog-ver-editar-nuevo-cuadrillas',
@@ -41,6 +42,7 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit, OnDestro
               private formBuilder: FormBuilder,
               private cuadrillaService: CuadrillaService,
               private usuarioService: UsuarioService,
+              private permisoService: PermisoService,
               private tipoReporteService: TipoReporteService) {
                 dialogRef.disableClose = true;
                 this.buildForm();
@@ -86,6 +88,30 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit, OnDestro
 
   }
 
+// Entrada: Ninguna
+// Salida: control de tipo AbstractControl.
+// Descripción: Métodos para obtener acceso a los controladores relacionados a los
+// inputs del formulario.
+get campoId(): AbstractControl{
+  return this.form.get('id');
+}
+
+get campoEstado(): AbstractControl{
+  return this.form.get('estado');
+}
+
+get campoNombreCuadrilla(): AbstractControl{
+  return this.form.get('nombreC');
+}
+
+get campoEncargado(): AbstractControl{
+  return this.form.get('encargado');
+}
+
+get campoTipoCuadrilla(): AbstractControl{
+  return this.form.get('tipoCuadrilla');
+}
+
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Verifica si se ha interactuado con el formulario.
@@ -93,9 +119,7 @@ export class DialogVerEditarNuevoCuadrillasComponent implements OnInit, OnDestro
     this.form.valueChanges
     .pipe(takeUntil(this.ngUnsubscribe))
     .subscribe(value => {
-      if (this.form.touched){
-        console.log('MONITOREAR FORMULARIO:', this.form.value);
-        
+      if (this.form.dirty){
         this.modificado = true;
       }else{
         this.modificado = false;
@@ -156,30 +180,6 @@ esCuadrillaDiferente(cuadrilla: Cuadrilla): boolean{
   return valor;
 }
 
-// Entrada: Ninguna
-// Salida: control de tipo AbstractControl.
-// Descripción: Métodos para obtener acceso a los controladores relacionados a los
-// inputs del formulario.
-get campoId(): AbstractControl{
-  return this.form.get('id');
-}
-
-get campoEstado(): AbstractControl{
-  return this.form.get('estado');
-}
-
-get campoNombreCuadrilla(): AbstractControl{
-  return this.form.get('nombreC');
-}
-
-get campoEncargado(): AbstractControl{
-  return this.form.get('encargado');
-}
-
-get campoTipoCuadrilla(): AbstractControl{
-  return this.form.get('tipoCuadrilla');
-}
-
   // Entrada: Ninguna
   // Salida: vacío.
   // Descripción: Método para inicializar los valores de los campos
@@ -190,7 +190,6 @@ get campoTipoCuadrilla(): AbstractControl{
       this.campoId.setValue(this.cuadrilla.ID_cuadrilla);
       this.campoEstado.setValue(!this.cuadrilla.Estatus_cuadrilla);
       this.campoTipoCuadrilla.setValue(this.cuadrilla.Tipo_cuadrilla);
-      this.campoEncargado.setValue(this.cuadrilla.ID_JefeCuadrilla);
       this.campoTipoCuadrilla.setValue(this.cuadrilla.Tipo_cuadrilla);
       this.obtenerObjetoJefeActual();
     }else{
@@ -271,7 +270,7 @@ ObtenerTiposCuadrilla(): void{
     .pipe(takeUntil(this.ngUnsubscribe))
     .subscribe( jefes => {
       jefes.forEach(jefe => {
-        if (!jefe.Jefe_asignado){
+        if (!jefe.Jefe_asignado && jefe.Estatus_usuario === true){
           this.jefesCuadrillaDisp.push(jefe);
         }
       });
@@ -287,14 +286,19 @@ ObtenerTiposCuadrilla(): void{
 // Descripción: Método que obtiene el objeto Usuario del ID_JefeCuadrilla que la cuadrilla tiene asociado
 // Y lo agrega a la lista de jefes de cuadrilla disponibles
   obtenerObjetoJefeActual(): void{
-    this.usuarioService.obtenerUsuario(this.cuadrilla.ID_JefeCuadrilla)
-    .pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe( usuario => {
-      this.jefesCuadrillaDisp.push(usuario);
-    }, (error: HttpErrorResponse) => {
-      alert('Se generó un problema al cargar ventana                                                                                                                                                                                                                                                                                                                . Vuelva a cargar la página o solicite asistencia.');
-      console.log('Error al obtener usuario de Jefe de cuadrilla. Error:' + error.message);
-    });
+    if (this.cuadrilla.ID_JefeCuadrilla){
+      this.usuarioService.obtenerUsuario(this.cuadrilla.ID_JefeCuadrilla)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe( usuario => {
+        this.jefesCuadrillaDisp.push(usuario);
+        this.campoEncargado.setValue(this.cuadrilla.ID_JefeCuadrilla);
+      }, (error: HttpErrorResponse) => {
+        alert('Se generó un problema al cargar ventana                                                                                                                                                                                                                                                                                                                . Vuelva a cargar la página o solicite asistencia.');
+        console.log('Error al obtener usuario de Jefe de cuadrilla. Error:' + error.message);
+      });
+    } else{
+      this.campoEncargado.setValue(0);
+    }
   }
 
 // Entrada: Ninguna
@@ -304,21 +308,35 @@ obtenerEstadoFormulario(): boolean{
   return this.modificado;
 }
 
-// Entrada: valor de tipo number con el valor actual del input encargado.
-// Salida: valor boolean
-// Descripción: Verifica el valor actual del input para encargado y activa el error si 
-// no se ha seleccionado un encargado o lo retira.
-errorEncargado(valor: number): boolean{
-  let error: boolean;
-  if (valor === 0){
-    this.campoEncargado.setErrors({required: true});
-    error = true;
-  }else{
-    this.campoEncargado.setErrors(null);
-    error = true;
+// Entrada: number para número de permiso
+  // Salida: boolean
+  // Descripción: Verifica si el usuario que entró al sistema tiene
+  // permiso para el proceso que se pide.
+  tienePermiso(proceso: number): boolean{
+    const permiso: boolean = this.permisoService.verificarPermiso(proceso);
+    return permiso;
   }
-  return error;
+
+// Entrada: Ninguna
+// Salida: boolean
+// Descripción: Verifica si se cumplen las condiciones para activar o desactivar el botón,
+// para remover el jefe de cuadrilla que está asignado.
+desactivarJefeBtn(): boolean{
+  // si ya tiene un jefe para quitar la asignación.
+  const desactivarBtn: boolean = this.campoEncargado.value === 0 ? true : false;
+  return desactivarBtn;
 }
+
+// Entrada: Ninguna.
+// Salida: ninguna.
+// Descripción: remueve el id del jefe de cuadrilla que se tenía asignado.
+  removerJefe(): void {
+    if (this.tienePermiso(14)){
+      this.campoEncargado.setValue(0);
+    }else{
+      alert('No tiene permiso para ejecutar este proceso.');
+    }
+  }
 
 // Entrada: valor de tipo number con el valor actual del input tipo cuadrilla.
 // Salida: valor boolean
@@ -340,12 +358,13 @@ errorTipoC(valor: number): boolean{
 // Salida: Objeto de tipo CuadrillaM.
 // Descripción: Método para crear un nuevo objeto cuadrilla para ser registrado
   generarNuevaCuadrilla(): CuadrillaM{
+    const jefe = this.campoEncargado.value === 0 ? null : this.campoEncargado.value;
     return new CuadrillaM(
       this.campoId.value,
       this.campoNombreCuadrilla.value,
       !this.campoEstado.value,
       this.campoTipoCuadrilla.value,
-      this.campoEncargado.value,
+      jefe,
       true
     );
   }

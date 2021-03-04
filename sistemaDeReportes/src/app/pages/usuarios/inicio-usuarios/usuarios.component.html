@@ -28,11 +28,12 @@
                             <label class="lblForm col-md-auto" for="tipoUsuarioSelector">Tipo de usuario</label>
                             <div class="col-lg-5 col-md-6">
                                 <select class="custom-select" id="tipoUsuarioSelector" formControlName="tipoUsuario">
-                                    <option>Todos</option>
+                                    <option disabled hidden [ngValue] = "0">Seleccionar</option> 
+                                    <option *ngIf="tiposUsuario.length > 0" [ngValue] = "00">Todos</option>
                                     <option *ngFor='let tipo of tiposUsuario' [ngValue] = "tipo.ID_tipoUsuario">
                                         {{ tipo.Descripcion_tipoUsuario }}
                                     </option>
-                                    <option *ngIf="tiposUsuario.length === 0"> No hay opciones disponibles</option>
+                                    <option disabled *ngIf="tiposUsuario.length === 0"> No hay opciones disponibles</option>
                                 </select>
                             </div>
                         </div>
@@ -48,7 +49,7 @@
                             <label class="lblForm col-md-auto" for="estadoTipoUsuario">Estado</label>
                             <div class="col-md-7">
                                 <select class="custom-select" id="estadoTipoUsuario" formControlName="estado">
-                                    <option selected>Todos</option>
+                                    <option value = "01">Todos</option>
                                     <option value="1">Activo</option>
                                     <option value="0">Inactivo</option>
                                 </select>
