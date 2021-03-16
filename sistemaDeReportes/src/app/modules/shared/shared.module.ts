@@ -14,6 +14,7 @@ import { CapitalizadoPipe } from '../../pipes/capitalizado.pipe';
 import { CustomDate } from '../../pipes/customDate.pipe';
 import { EstadoReporte } from '../../pipes/estadoReporte.pipe';
 import { ObtenerNombrePipe } from '../../pipes/obtener-nombre.pipe';
+import { SectorReportePipe } from '../../pipes/sector-reporte.pipe';
 
 
 // MODULES
@@ -39,7 +40,8 @@ import { environment } from '../../../environments/environment';
     CapitalizadoPipe,
     CustomDate,
     ObtenerNombrePipe,
-    EstadoReporte
+    EstadoReporte,
+    SectorReportePipe
   ],
   imports: [
     CommonModule,
@@ -59,6 +61,7 @@ import { environment } from '../../../environments/environment';
     CapitalizadoPipe,
     CustomDate,
     ObtenerNombrePipe,
+    SectorReportePipe,
     EstadoReporte,
     FooterComponent
   ],

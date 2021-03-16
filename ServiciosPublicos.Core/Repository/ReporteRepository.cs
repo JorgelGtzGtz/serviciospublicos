@@ -63,9 +63,7 @@ namespace ServiciosPublicos.Core.Repository
             }
 
             Sql query = new Sql(
-                @"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion 
-                  FROM hiram74_residencias.Reporte AS reporte
-                  INNER JOIN Sector AS sector ON sector.ID_sector = reporte.ID_sector" + (operacion ? filter : ""));
+                @"SELECT * FROM hiram74_residencias.Reporte" + (operacion ? filter : ""));
             return this.Context.Fetch<dynamic>(query);
         }
 
@@ -155,12 +153,14 @@ namespace ServiciosPublicos.Core.Repository
                 filter += (operacion ? " AND " : "") + string.Format("(reporte.FechaCierre_reporte BETWEEN '{0}' AND '{1}') AND reporte.Estatus_reporte = 2", fechaIni, fechaF);
                 operacion = true;
             }
+            Sql query = new Sql(@"SELECT * FROM [hiram74_residencias].[Reporte]" + (operacion ? filter : ""));
 
-            Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion
+            /*Sql query = new Sql(@"SELECT reporte.*, sector.Descripcion_sector AS sectorDescripcion
                                   FROM [hiram74_residencias].[Reporte] reporte
                                   INNER JOIN [hiram74_residencias].[Sector] sector
                                   ON sector.ID_sector = reporte.ID_sector" + (operacion ? filter : ""));
-             return this.Context.Fetch<dynamic>(query);
+            */
+            return this.Context.Fetch<dynamic>(query);
          }
 
         // Entrada: id de cuadrilla de tipo Int

@@ -131,7 +131,7 @@
                             <td>{{ reporte.FechaRegistro_reporte |customDate }}</td>
                             <td>{{ reporte.NoTickets_reporte }}</td>
                             <td>{{ reporte.Estatus_reporte | estadoReporte }}</td>
-                            <td>{{ reporte.sectorDescripcion }}</td>
+                            <td>{{ reporte.ID_sector | sectorReporte:listaSectores }}</td>
                             <td>{{ reporte.Direccion_reporte }}</td>
                             <td>
                                 <button type="button" id="btn-editar" class="btn-proceso" mat-raised-button (click)="seleccionarReporte(reporte)">

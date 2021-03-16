@@ -192,9 +192,10 @@ export class DialogVerEditarNuevoAltaReportesComponent implements OnInit, OnDest
         const calles: string [] = this.reporteSevice.separarEntreCalles(this.reporte.EntreCalles_reporte);
         const fechaApertura: string = this.reporteSevice.separarFechaHora(this.reporte.FechaRegistro_reporte)[0];
         const fechaCierre: string = this.reporteSevice.separarFechaHora(this.reporte.FechaCierre_reporte)[0];
+        const sector: number = this.reporte.ID_sector ?? 0; // acciones si el sector es null
         this.estadoReporte = this.reporte.Estatus_reporte;
         this.campoId.setValue(this.reporte.ID_reporte);
-        this.campoSector.setValue(this.reporte.ID_sector);
+        this.campoSector.setValue(sector);
         this.campoTipoReporte.setValue(this.reporte.ID_tipoReporte);
         this.campoFechaInicio.setValue(fechaApertura);
         this.campoFechaCierre.setValue(fechaCierre);

@@ -9,6 +9,8 @@ import { Cuadrilla } from '../../../Interfaces/ICuadrilla';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { PermisoService } from '../../../services/permiso.service';
+import { SectorService } from '../../../services/sector.service';
+import { Sector } from '../../../Interfaces/ISector';
 
 
 @Component({
@@ -23,19 +25,23 @@ export class CierreReportesComponent implements OnInit , OnDestroy {
   headersTabla: string [];
   cuadrillasCargadas: boolean;
   ReportesCargados: boolean;
+  sectoresCargados: boolean;
   listaCuadrillas: Cuadrilla[] = [];
+  listaSectores: Sector [] = [];
   listaReportes: any[] = [];
 
 
   constructor(public dialog: MatDialog,
               private reporteService: ReporteService,
               private cuadrillaService: CuadrillaService,
-              private permisoService: PermisoService) {
+              private permisoService: PermisoService,
+              private sectorService: SectorService) {
     this.formBuilder();
   }
 
   ngOnInit(): void {
     this.inicializarListas();
+    this.obtenerSectores();
     this.inicializarTabla();
   }
 
@@ -84,13 +90,27 @@ export class CierreReportesComponent implements OnInit , OnDestroy {
     });
   }
 
+  // Entrada: Ninguna.
+  // Salida: Ninguna.
+  // Descripción: Obtiene la lista de sectores existente.
+  obtenerSectores(): void{
+    this.sectorService.obtenerSectores()
+    .pipe(takeUntil(this.ngUnsubscribe))
+    .subscribe(sectores => {
+      this.listaSectores = sectores;
+      this.sectoresCargados = true;
+    }, error => {
+      console.log('No fue posible obtener los sectores existentes. ' + error );
+    });
+  }
+
   // Entrada: Ninguna
   // Salida: valor booleano.
   // Descripción: Método que verifica que los datos se encuentren cargados, con el fin de 
   // determinar en que momento mostrar el formulario o la animación de cargando.
   datosCargados(): boolean{
     let cargado: boolean;
-    if (this.ReportesCargados && this.cuadrillasCargadas){
+    if (this.ReportesCargados && this.cuadrillasCargadas && this.sectoresCargados){
         cargado = true;
     }else{
         cargado = false;

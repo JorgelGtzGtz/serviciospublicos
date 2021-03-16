@@ -174,7 +174,7 @@
                             <td>{{ reporte.FechaRegistro_reporte | customDate }}</td>
                             <td>{{ reporte.FechaCierre_reporte | customDate }}</td>
                             <td>{{ reporte.Estatus_reporte | estadoReporte }}</td>
-                            <td>{{ reporte.sectorDescripcion }}</td>
+                            <td>{{ reporte.ID_sector | sectorReporte:listaSectores }}</td>
                             <td>{{reporte.Direccion_reporte}}</td>
                             <td>
                                 <div class="botones-wrapper">
